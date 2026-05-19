@@ -676,6 +676,8 @@ def gemm_a8w8_blockscale(
     n = WQ.shape[0]
     k = XQ.shape[1]
     Y = torch.empty(m, n, dtype=dtype, device=XQ.device)
+    if not isBpreshuffled and get_gfx() == "gfx950" and m >= 16 and k >= 512 and dtype == dtypes.bf16:
+        isBpreshuffled = True
     if isBpreshuffled:
         if get_gfx() in ["gfx950"] and m >= 16 and k >= 512 and dtype == dtypes.bf16:
             return gfx950_a8w8_blockscale_ASM(XQ, WQ, x_scale, w_scale, Y)
@@ -766,7 +768,7 @@ def gemm_a8w8_blockscale_bpreshuffle(
                 XQ, WQ, Y, x_scale, w_scale, splitK=splitK, kernelName=kernelName
             )
     try:
-        return gemm_a8w8_blockscale_bpreshuffle_ck(XQ, WQ, x_scale, w_scale, Y)
+        return gemm_a8w8_blockscale_bpreshuffle_cktile(XQ, WQ, x_scale, w_scale, Y)
     except RuntimeError as e:
         raise RuntimeError(
             f"gemm_a8w8_blockscale_bpreshuffle failed for shape M={m}, N={n}, K={k}, "
@@ -785,7 +787,7 @@ def gfx950_a8w8_blockscale_ASM(
     assert dtype in [
         dtypes.bf16,
     ], f"Output {dtype=} is currently not supported in gemm_a8w8"
-    return gfx950_a8w8_blockscale_asm(XQ, WQ, x_scale, w_scale, Y)
+    return gemm_a8w8_blockscale_bpreshuffle_cktile(XQ, WQ, x_scale, w_scale, Y)
 
 
 def gen_gemm_a8w8_tune_fake_tensors(
