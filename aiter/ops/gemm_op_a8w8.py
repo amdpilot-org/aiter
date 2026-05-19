@@ -766,7 +766,9 @@ def gemm_a8w8_blockscale_bpreshuffle(
                 XQ, WQ, Y, x_scale, w_scale, splitK=splitK, kernelName=kernelName
             )
     try:
-        return gemm_a8w8_blockscale_bpreshuffle_ck(XQ, WQ, x_scale, w_scale, Y)
+        # Fallback to tuned path with deterministic v3 kernel (kernelId=0) to avoid
+        # nondeterministic v1 heuristic on gfx950 for shapes without tuned config.
+        return gemm_a8w8_blockscale_bpreshuffle_tune(XQ, WQ, x_scale, w_scale, Y, kernelId=0, splitK=0)
     except RuntimeError as e:
         raise RuntimeError(
             f"gemm_a8w8_blockscale_bpreshuffle failed for shape M={m}, N={n}, K={k}, "
