@@ -765,6 +765,12 @@ def gemm_a8w8_blockscale_bpreshuffle(
             return gemm_a8w8_blockscale_bpreshuffle_asm(
                 XQ, WQ, Y, x_scale, w_scale, splitK=splitK, kernelName=kernelName
             )
+    # CKTile path is deterministic; prefer it over the legacy CK path which
+    # can show nondeterminism on gfx950 for blockscale bpreshuffle.
+    try:
+        return gemm_a8w8_blockscale_bpreshuffle_cktile(XQ, WQ, x_scale, w_scale, Y)
+    except RuntimeError:
+        pass
     try:
         return gemm_a8w8_blockscale_bpreshuffle_ck(XQ, WQ, x_scale, w_scale, Y)
     except RuntimeError as e:
