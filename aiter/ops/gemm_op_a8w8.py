@@ -532,7 +532,7 @@ def gemm_a8w8_ASM(
         ), "Use asm gemm must give bias, please give a bias=torch.zeros(n,dtype=dtypes.fp32,device='cuda')"
         splitK = asm_config["splitK"]
         kernelName = asm_config["kernelName"]
-        Y = torch.empty(m, n, dtype=dtype, device=XQ.device)
+        Y = torch.zeros(m, n, dtype=dtype, device=XQ.device)
         return gemm_a8w8_asm(
             XQ, WQ, x_scale, w_scale, Y, kernelName, bias, splitK=splitK
         )
@@ -752,7 +752,7 @@ def gemm_a8w8_blockscale_bpreshuffle(
     config = get_CKGEMM_config(
         m, n, k, AITER_CONFIGS.AITER_CONFIG_GEMM_A8W8_BLOCKSCALE_BPRESHUFFLE_FILE
     )
-    Y = torch.empty(m, n, dtype=dtype, device=XQ.device)
+    Y = torch.zeros(m, n, dtype=dtype, device=XQ.device)
     if config is not None:
         libtype = config["libtype"]
         if libtype == "cktile":
