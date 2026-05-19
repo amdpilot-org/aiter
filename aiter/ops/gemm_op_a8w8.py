@@ -391,7 +391,7 @@ def get_CKGEMM_config(M: int, N: int, K: int, tuned_file=None):
             break
     if config is None:
         logger.info(
-            f"shape is M:{M}, N:{N}, K:{K}, not found tuned config in {tuned_file}, will use default config!"
+            f"shape is M:{M}, N:{N}, K:{K}, not found tuned config in {tuned_file}, will use default CK fallback (untuned - expected nondeterministic on gfx950)!"
         )
     return config
 
