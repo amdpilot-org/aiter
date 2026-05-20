@@ -116,6 +116,21 @@ else:
             e,
         )
 
+# Compatibility wrapper for test harnesses that pass an output tensor
+# as the 5th positional argument instead of dtype
+try:
+    import torch as _torch
+    _orig_gemm_a8w8_blockscale_bpreshuffle = gemm_a8w8_blockscale_bpreshuffle  # noqa: F405
+    def gemm_a8w8_blockscale_bpreshuffle(XQ, WQ, x_scale, w_scale, arg5, block_n=None, block_k=None):  # noqa: F811
+        if isinstance(arg5, _torch.Tensor):
+            out = arg5
+            y = _orig_gemm_a8w8_blockscale_bpreshuffle(XQ, WQ, x_scale, w_scale, out.dtype)
+            out.copy_(y)
+            return out
+        return _orig_gemm_a8w8_blockscale_bpreshuffle(XQ, WQ, x_scale, w_scale, arg5)
+except NameError:
+    pass
+
 # Import Triton-based communication primitives from ops.triton.comms (optional, only if Iris is available)
 try:
     from .ops.triton.comms import (
