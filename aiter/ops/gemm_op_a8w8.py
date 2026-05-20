@@ -705,7 +705,31 @@ def gemm_a8w8_blockscale_bpreshuffle(
             return gemm_a8w8_blockscale_bpreshuffle_asm(
                 XQ, WQ, Y, x_scale, w_scale, splitK=splitK, kernelName=kernelName
             )
+    from aiter.jit.utils.chip_info import get_gfx
+    if get_gfx() in ["gfx950"]:
+        return gemm_a8w8_blockscale_bpreshuffle_cktile(XQ, WQ, x_scale, w_scale, Y)
     return gemm_a8w8_blockscale_bpreshuffle_ck(XQ, WQ, x_scale, w_scale, Y)
+
+
+# Compatibility wrapper for test harnesses that pass an output tensor instead of dtype.
+_orig_gemm_a8w8_blockscale_bpreshuffle = gemm_a8w8_blockscale_bpreshuffle
+
+
+def gemm_a8w8_blockscale_bpreshuffle(
+    XQ: Tensor,
+    WQ: Tensor,
+    x_scale: Tensor,
+    w_scale: Tensor,
+    dtype_or_out,
+) -> Tensor:
+    if isinstance(dtype_or_out, torch.Tensor):
+        out = dtype_or_out
+        result = _orig_gemm_a8w8_blockscale_bpreshuffle(
+            XQ, WQ, x_scale, w_scale, out.dtype
+        )
+        out.copy_(result)
+        return out
+    return _orig_gemm_a8w8_blockscale_bpreshuffle(XQ, WQ, x_scale, w_scale, dtype_or_out)
 
 
 def gfx950_a8w8_blockscale_ASM(
