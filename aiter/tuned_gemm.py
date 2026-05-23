@@ -257,7 +257,17 @@ def gemm_a16w16(
     if config is not None and config["libtype"] == "asm":
         kernelName = config["kernelName"]
         splitK = config["splitK"]
-        out = asm_gemm(inp_view, B, bias, otype, splitK, kernelName, bpreshuffle)
+        try:
+            out = asm_gemm(inp_view, B, bias, otype, splitK, kernelName, bpreshuffle)
+        except RuntimeError as e:
+            # Graceful fallback: some gfx950 heuristic kernels do not support
+            # every (M,N,K) / bias / preshuffle combination.  Fall back to
+            # plain PyTorch GEMM so that compilation and inference both stay
+            # alive rather than hard-crashing on an unsupported shape.
+            if "cannot support the input shape" in str(e) or "get_heuristic_kernel" in str(e):
+                out = torch_gemm(inp_view, B, 0, bias, otype, scale_a, scale_b, scale_c, bpreshuffle)
+            else:
+                raise
     else:
         solution_idx = config["solidx"]
         solfunc = solMap[config["libtype"]]
