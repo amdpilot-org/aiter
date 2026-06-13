@@ -1,0 +1,4 @@
+# ninja log v7
+1	46127	1777058032592516600	rope_general_2c_cached_bwd_pybind.cuda.o	31b821742e3d96a1
+0	137710	1777058032592516600	general_2c_cached_bwd_kernels.cuda.o	a2dd572d3d5cc17b
+137710	138974	1777058170306791754	module_rope_2c_cached_bwd.so	6ef95e462bdb9843

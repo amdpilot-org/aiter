@@ -1,0 +1,6 @@
+# ninja log v7
+1	37849	1777058403866350429	asm_topk_per_row_prefill.cuda.o	b5e61b1290d3ed19
+1	38013	1777058403866350429	asm_topk_per_row_decode.cuda.o	f601b7fde3c213a5
+1	45635	1777058403866350429	topk_per_row_pybind.cuda.o	298d494ca575f218
+0	49738	1777058403862350372	topk_per_row_kernels.cuda.o	ff4cd55d9c9d51c1
+49738	50476	1777058453603050130	module_top_k_per_row.so	23ea5c4398664a3b

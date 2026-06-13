@@ -1,0 +1,5 @@
+# ninja log v7
+1	49773	1777058296708780850	fused_qk_norm_rope_cache_quant_pybind.cuda.o	edf9d969ad5534b9
+0	50779	1777058296704780793	fused_qk_norm.cuda.o	a166339c9ff4befa
+0	106668	1777058296704780793	fused_qk_norm_rope_cache_quant.cuda.o	95a9ce16bf901b3c
+106669	107830	1777058403378343569	module_fused_qk_norm_rope_cache_quant_shuffle.so	f0ade067c3a2031b

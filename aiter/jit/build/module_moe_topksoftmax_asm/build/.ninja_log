@@ -1,0 +1,3 @@
+# ninja log v7
+0	4838	1777054809434778835	asm_topksoftmax.cuda.o	8e1abba5e362ef3f
+4838	5062	1777054814270840720	module_moe_topksoftmax_asm.so	3fa3f9837ac28aa4

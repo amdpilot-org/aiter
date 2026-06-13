@@ -1,0 +1,4 @@
+# ninja log v7
+1	45629	1777058216219551539	rope_2c_cached_positions_offsets_fwd_pybind.cuda.o	dd3ceb37be08df14
+1	139180	1777058216219551539	general_2c_cached_positions_offsets_fwd_kernels.cuda.o	4e39d1ebe0221483
+139180	140381	1777058355401648011	module_rope_2c_cached_positions_offsets_fwd.so	d1bc4174831d4969

@@ -1,0 +1,4 @@
+# ninja log v7
+0	54286	1777054828619015087	moe_cktile2stages.cuda.o	6e88313b72e2009b
+1	64660	1777054828619015087	moe_cktile_2stages_pybind.cuda.o	ecfbf61e001fa8de
+64661	65851	1777054893275983310	module_moe_cktile2stages.so	63a4a10c4507d4dc

@@ -1,0 +1,4 @@
+# ninja log v7
+0	51264	1777054894752002234	moe_sorting_opus_pybind.cuda.o	5c13b6dbef4b7ba
+0	60752	1777054894752002234	moe_sorting_opus_kernels.cuda.o	96f06fb6516e5f
+60752	61980	1777054955505255646	module_moe_sorting_opus.so	f2027226be0ed13a

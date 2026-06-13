@@ -1,0 +1,4 @@
+# ninja log v7
+0	45882	1777058171646814465	rope_1c_cached_positions_offsets_fwd_pybind.cuda.o	8e22816be7198179
+0	60301	1777058171646814465	general_1c_cached_positions_offsets_fwd_kernels.cuda.o	dd5b6580ca6f89c0
+60301	61450	1777058231943803689	module_rope_1c_cached_positions_offsets_fwd.so	ccd0aff04abaf05

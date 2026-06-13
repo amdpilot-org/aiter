@@ -1,0 +1,4 @@
+# ninja log v7
+1	11711	1777053661659475974	activation_pybind.cuda.o	93e7c668a9834b9d
+1	12117	1777053661659475974	activation_kernels.cuda.o	b0ff4e9ffcddbd3e
+12117	12722	1777053673775637002	module_activation.so	9fd968d45a575be5

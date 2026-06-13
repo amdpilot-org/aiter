@@ -1,0 +1,4 @@
+# ninja log v7
+1	48266	1777057295105522114	sample_pybind.cuda.o	6ffba8f4cceb29ac
+0	55758	1777057295105522114	sample_kernels.cuda.o	5d3e28ebb84c3084
+55758	56947	1777057350862346613	module_sample.so	b61c2e5bedc9ebab

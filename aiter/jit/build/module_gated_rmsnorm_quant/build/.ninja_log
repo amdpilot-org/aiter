@@ -1,0 +1,4 @@
+# ninja log v7
+1	59072	1777056454420400058	gated_rmsnorm_quant_pybind.cuda.o	d2b78bb97dbc140b
+0	63913	1777056454420400058	gated_rmsnorm_quant_kernels.cuda.o	762c5ed6889ad0ec
+63913	65010	1777056518333281618	module_gated_rmsnorm_quant.so	3b08f955bbc1110b

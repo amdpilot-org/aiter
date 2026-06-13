@@ -1,0 +1,3 @@
+# ninja log v7
+0	47525	1777058395530230626	hipbsolgemm.cuda.o	e50c160ffbba3458
+47525	48726	1777058443054900859	module_hipbsolgemm.so	79f2a1daaa7adb36

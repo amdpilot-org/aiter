@@ -1,0 +1,4 @@
+# ninja log v7
+0	12814	1777053743148568986	custom_all_reduce.cuda.o	821e904f9ce3dca
+1	13209	1777053743148568986	custom_all_reduce_pybind.cuda.o	776705dc3f6aad92
+13209	13811	1777053756356750403	module_custom_all_reduce.so	879018997bc25ea6

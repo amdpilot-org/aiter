@@ -1,0 +1,3 @@
+# ninja log v7
+0	5238	1777054762334174998	asm_gemm_a8w8.cuda.o	ea5eb9eeacb1be2f
+5238	5466	1777054767570242361	module_gemm_a8w8_asm.so	57a6c84fefd8a3ce

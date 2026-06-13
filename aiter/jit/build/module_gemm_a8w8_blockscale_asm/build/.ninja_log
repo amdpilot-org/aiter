@@ -1,0 +1,3 @@
+# ninja log v7
+0	4039	1777054783738448926	asm_flatmm_a8w8_blockscale.cuda.o	abfbcaca3a2cc2ee
+4039	4265	1777054787778500168	module_gemm_a8w8_blockscale_asm.so	da5f246feb1820d

@@ -1,0 +1,4 @@
+# ninja log v7
+1	64935	1777056355059003082	fused_qk_rmsnorm_group_quant_pybind.cuda.o	a42028a993d96718
+0	98034	1777056355059003082	fused_qk_rmsnorm_group_quant.cuda.o	bbe639e864d3b436
+98034	99280	1777056453092381402	module_fused_qk_rmsnorm_group_quant.so	4d49115aeb557

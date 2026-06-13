@@ -1,0 +1,4 @@
+# ninja log v7
+0	44882	1777058075437225803	rope_general_1c_thd_bwd_pybind.cuda.o	ec50d26810b9b3ac
+0	78507	1777058075437225803	general_1c_thd_bwd_kernels.cuda.o	7a9c01d015890644
+78507	79681	1777058153946518086	module_rope_1c_thd_bwd.so	6480b1f5ff444213
