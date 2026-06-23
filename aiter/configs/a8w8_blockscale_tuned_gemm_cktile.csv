@@ -1,0 +1,2 @@
+cu_num,M,N,K,libtype,kernelId,splitK,us,kernelName,tflops,bw,errRatio
+304,8,10240,8192,cktile,7,0,58.3318,a8w8_blockscale_cktile_16x128x256_1x4x1_16x16x64_intrawave_0x1x0_4,23.01,1442.02,0.0
