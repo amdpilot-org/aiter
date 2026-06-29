@@ -1,0 +1,14 @@
+{
+  "best_known_starting_point": {
+    "shape": {"M": 8192, "N": 512, "K": 4096},
+    "gfx": "gfx950",
+    "libtype": "cktile",
+    "config_file": "aiter/configs/a8w8_blockscale_bpreshuffle_tuned_gemm.csv",
+    "config_row": "gfx950,256,8192,512,4096,cktile,0,0,0,,0,0,0",
+    "implementation": "aiter/ops/gemm_op_a8w8.py -> gemm_a8w8_blockscale_bpreshuffle_cktile (CKTile)"
+  },
+  "recovery_notes": "Stage0 added the missing gfx950 WKV tuned-config row (M=8192,N=512,K=4096 -> cktile) to a8w8_blockscale_bpreshuffle_tuned_gemm.csv, routing this shape to the deterministic CKTile path in aiter/ops/gemm_op_a8w8.py. Verified unique_hashes=1/1000 (metric_value=1.0) across multiple runs on MI355X/gfx950. Do not modify this row or the cktile routing.",
+  "unique_hashes": 1,
+  "metric_value": 1.0,
+  "iterations": 1000
+}
