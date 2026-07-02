@@ -7,6 +7,7 @@ import torch
 
 from aiter.ops.triton._triton_kernels.flash_attn_triton_amd import flash_attn_3
 from aiter.ops.triton._triton_kernels.flash_attn_triton_amd.utils import is_fp8
+from aiter.ops.triton._triton_kernels.flash_attn_triton_amd.common import cast_to_fp8
 from aiter.ops.triton.utils.types import get_fp8_e4m3_dtype
 from aiter.jit.utils.torch_guard import torch_compile_guard
 
@@ -703,24 +704,12 @@ def _quantize_bshd(
             (x_grouped * scale).view(batch, seqlen, num_heads, head_dim).to(fp8_dtype)
         )
     else:
-        # Standard case: compute scaling per head
-        reduce_dims = (1, 3)  # seq_len and dim dimensions
-
-        # Compute the absolute max along reduce_dims, clamped to avoid 0-scale
-        # Result shape: [batch, heads]
-        x_abs_max = x.abs().amax(dim=reduce_dims)
-        x_abs_max = torch.maximum(x_abs_max, x.new_tensor(clamp_val))
-
-        # Unsqueeze to [batch, 1, heads, 1] for broadcasting during scaling
-        x_abs_max_broadcast = x_abs_max.unsqueeze(1).unsqueeze(3)
-
-        # compute scale and descale
-        fp8_max = torch.finfo(fp8_dtype).max
-        scale = fp8_max / x_abs_max_broadcast
-        descale_factor = (x_abs_max / fp8_max).to(torch.float32)
-
-        # Quantize to FP8
-        x_fp8 = (x * scale).to(fp8_dtype)
+        # Standard case: use fused Triton kernel (cast_to_fp8) that computes
+        # amax, scale, and FP8 cast in a single pass — replaces the separate
+        # abs→amax→maximum→div→mul→to(fp8) chain (7 kernel launches → 1).
+        x_fp8, descale_factor = cast_to_fp8(
+            x, fp8_dtype, layout="bshd", clamp_val=clamp_val
+        )
 
     # Detach to make a leaf tensor, This is required because PyTorch only populates .grad on leaf tensors
     # x_fp8_leaf = x_fp8.detach().requires_grad_(True)

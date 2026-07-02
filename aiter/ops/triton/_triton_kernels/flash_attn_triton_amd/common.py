@@ -300,8 +300,8 @@ def cast_to_fp8(
     padded_head_dim = 1 << (head_dim - 1).bit_length()
     padded_head_dim = max(padded_head_dim, 32)
 
-    x_fp8 = torch.zeros_like(x, dtype=fp8_dtype)
-    descale_factors = torch.zeros(
+    x_fp8 = torch.empty_like(x, dtype=fp8_dtype)
+    descale_factors = torch.empty(
         (batch, num_heads), device=x.device, dtype=torch.float32
     )
     BLOCK_SIZE = 128

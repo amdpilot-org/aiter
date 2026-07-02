@@ -137,6 +137,41 @@ def get_fwd_prefill_configs(mode: AutotuneMode):
                     num_stages=2,
                     num_warps=4,
                 ),
+                # PRE_LOAD_V=True: issue V load before softmax to overlap
+                # memory latency with exp/softmax compute. Never autotuned before.
+                triton.Config(
+                    {
+                        "BLOCK_M": 128,
+                        "BLOCK_N": 64,
+                        "waves_per_eu": 2,
+                        "PRE_LOAD_V": True,
+                    },
+                    num_stages=1,
+                    num_warps=4,
+                ),
+                # waves_per_eu=4: higher occupancy for memory latency hiding
+                # (kernel is slightly memory-bound at ~250 FP8 ops/byte)
+                triton.Config(
+                    {
+                        "BLOCK_M": 128,
+                        "BLOCK_N": 64,
+                        "waves_per_eu": 4,
+                        "PRE_LOAD_V": False,
+                    },
+                    num_stages=1,
+                    num_warps=4,
+                ),
+                # num_warps=8: more threads for memory latency hiding
+                triton.Config(
+                    {
+                        "BLOCK_M": 128,
+                        "BLOCK_N": 64,
+                        "waves_per_eu": 2,
+                        "PRE_LOAD_V": False,
+                    },
+                    num_stages=1,
+                    num_warps=8,
+                ),
             ]
         elif arch.name == "gfx942":
             if arch.cu_count < 304:
@@ -295,6 +330,11 @@ def _attn_fwd_inner(
     if USE_EXP2:
         RCP_LN2: tl.constexpr = 1.4426950408889634
 
+    # Precompute combined QK scale: fuses q_descale * k_descale * SM_SCALE
+    # into a single scalar, saving 2 elementwise muls per K-block iteration.
+    if IS_FP8:
+        qk_scale = q_descale * k_descale * SM_SCALE
+
     # seqlen diff (only used when APPLY_MASK=True)
     seqlen_delta_qk = seqlen_k - seqlen_q
 
@@ -345,10 +385,11 @@ def _attn_fwd_inner(
 
         # -- compute qk ----
         if IS_FP8:
-            qk += tl.dot(q, k) * q_descale * k_descale
+            qk += tl.dot(q, k) * qk_scale
+            qk_scaled = qk
         else:
             qk = tl.dot(q, k, acc=qk)
-        qk_scaled = qk * SM_SCALE
+            qk_scaled = qk * SM_SCALE
 
         if USE_ALIBI:
             # compute the global position of each token within the sequence
@@ -415,11 +456,9 @@ def _attn_fwd_inner(
                     causal_mask = offs_m[:, None] >= causal_boundary[None, :]
                     qk_scaled = tl.where(causal_mask, qk_scaled, float("-inf"))
 
-        # compute qk mask for bounds checking
-        qk_mask = (offs_m[:, None] < seqlen_q) & (kv_offs_n[None, :] < seqlen_k)
-
-        # compute bias
+        # compute bias (qk_mask only needed when bias is present)
         if bias_base_ptrs is not None:
+            qk_mask = (offs_m[:, None] < seqlen_q) & (kv_offs_n[None, :] < seqlen_k)
             bias_ptrs = bias_base_ptrs + start_n * stride_bn
             bias = tl.load(bias_ptrs, mask=qk_mask, other=0.0)
             qk_scaled += bias
@@ -428,10 +467,13 @@ def _attn_fwd_inner(
         m_ij = tl.maximum(m_i, tl.max(qk_scaled, 1))
 
         # scale and subtract max
-        # Handle the case where all values are -inf
-        q_shifted = tl.where(
-            m_ij[:, None] == float("-inf"), float("-inf"), qk_scaled - m_ij[:, None]
-        )
+        # Handle the case where all values are -inf (only possible in masked blocks)
+        if APPLY_MASK:
+            q_shifted = tl.where(
+                m_ij[:, None] == float("-inf"), float("-inf"), qk_scaled - m_ij[:, None]
+            )
+        else:
+            q_shifted = qk_scaled - m_ij[:, None]
 
         # Compute scaled QK and softmax probabilities
         if USE_EXP2:
