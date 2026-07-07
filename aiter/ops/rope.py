@@ -3,7 +3,7 @@
 
 from torch import Tensor, empty, empty_like, autograd
 from typing import Tuple, Union
-from ..jit.core import compile_ops
+from ..jit.core import compile_ops, get_module
 
 MD_NAME = "module_rope"
 
@@ -616,6 +616,23 @@ def rope_cached_bwd(
     return input_grads
 
 
+# Cache the raw pybind11 C++ op to bypass the torch.ops.aiter custom-op dispatcher
+# (compile_ops -> torch_compile_guard -> torch.ops.aiter) on every call.  For small
+# decode batches the dispatcher Python overhead dominates kernel time.
+try:
+    _rope_cached_2c_raw_op = get_module(
+        "module_rope_2c_cached_fwd"
+    ).rope_cached_2c_fwd_impl
+except Exception:
+    _rope_cached_2c_raw_op = None
+
+# Static output buffers reused across calls with the same shape to avoid
+# per-call empty_like allocation overhead (~0.7 us each on MI355X).
+# Safe for inference where outputs are consumed before the next call.
+_rope_static_out_x = None
+_rope_static_out_y = None
+
+
 def rope_cached_2c_fwd(
     input_x: Tensor,
     input_y: Tensor,
@@ -626,29 +643,30 @@ def rope_cached_2c_fwd(
     nope_first: bool,
     transpose_output: bool = False,
 ) -> Tensor:
-    s, b, h_x, d = input_x.shape
-    h_y = input_y.shape[2]
-    output_x = (
-        empty(
+    global _rope_static_out_x, _rope_static_out_y
+    if transpose_output:
+        s, b, h_x, d = input_x.shape
+        h_y = input_y.shape[2]
+        output_x = empty(
             (b, s, h_x, d),
             dtype=input_x.dtype,
             device=input_x.device,
             requires_grad=False,
         ).transpose(0, 1)
-        if transpose_output
-        else empty_like(input_x, requires_grad=False)
-    )
-    output_y = (
-        empty(
+        output_y = empty(
             (b, s, h_y, d),
             dtype=input_y.dtype,
             device=input_y.device,
             requires_grad=False,
         ).transpose(0, 1)
-        if transpose_output
-        else empty_like(input_y, requires_grad=False)
-    )
-    rope_cached_2c_fwd_impl(
+    else:
+        if _rope_static_out_x is None or _rope_static_out_x.shape != input_x.shape:
+            _rope_static_out_x = empty_like(input_x)
+        if _rope_static_out_y is None or _rope_static_out_y.shape != input_y.shape:
+            _rope_static_out_y = empty_like(input_y)
+        output_x = _rope_static_out_x
+        output_y = _rope_static_out_y
+    _rope_cached_2c_raw_op(
         output_x,
         output_y,
         input_x,
