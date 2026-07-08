@@ -449,6 +449,88 @@ def rope_2c_fwd(
     nope_first: bool,
     transpose_output: bool = False,
 ) -> Tensor:
+    # --- Norm+RoPE CUDAGraph fusion ---
+    # When two rmsnorm2d_fwd calls precede this rope (the GQA decode pattern),
+    # capture all three kernel launches into a single CUDAGraph and replay it
+    # as one graph launch, eliminating per-launch CPU overhead.
+    if not transpose_output:
+        from ._norm_rope_fusion import (
+            _pending_norms,
+            _fused_norm_ptrs,
+            _fused_norm_outs,
+            _fused_graph_cache,
+        )
+
+        pending = list(_pending_norms)
+        _pending_norms.clear()
+        if len(pending) >= 2:
+            q_in, q_w, q_eps, q_out = pending[-2]
+            k_in, k_w, k_eps, k_out = pending[-1]
+            if (
+                input_x.data_ptr() == q_out.data_ptr()
+                and input_y.data_ptr() == k_out.data_ptr()
+            ):
+                gkey = (
+                    q_in.data_ptr(),
+                    k_in.data_ptr(),
+                    freqs.data_ptr(),
+                    rotate_style,
+                    reuse_freqs_front_part,
+                    nope_first,
+                )
+                if gkey in _fused_graph_cache:
+                    entry = _fused_graph_cache[gkey]
+                    if entry is not None:
+                        graph, out_x, out_y = entry
+                        graph.replay()
+                        return out_x, out_y
+                    # entry is None: capture failed previously → eager fallback
+                else:
+                    # First time: capture a fused CUDAGraph
+                    try:
+                        import torch
+                        from .rmsnorm import rmsnorm
+
+                        out_x = empty_like(input_x, requires_grad=False)
+                        out_y = empty_like(input_y, requires_grad=False)
+                        # Warmup so JIT modules are fully loaded
+                        for _ in range(3):
+                            rmsnorm(q_out, q_in, q_w, q_eps)
+                            rmsnorm(k_out, k_in, k_w, k_eps)
+                            rope_2c_fwd_impl(
+                                out_x,
+                                out_y,
+                                input_x,
+                                input_y,
+                                freqs,
+                                rotate_style,
+                                reuse_freqs_front_part,
+                                nope_first,
+                            )
+                        torch.cuda.synchronize()
+                        graph = torch.cuda.CUDAGraph()
+                        with torch.cuda.graph(graph):
+                            rmsnorm(q_out, q_in, q_w, q_eps)
+                            rmsnorm(k_out, k_in, k_w, k_eps)
+                            rope_2c_fwd_impl(
+                                out_x,
+                                out_y,
+                                input_x,
+                                input_y,
+                                freqs,
+                                rotate_style,
+                                reuse_freqs_front_part,
+                                nope_first,
+                            )
+                        _fused_graph_cache[gkey] = (graph, out_x, out_y)
+                        _fused_norm_outs[q_in.data_ptr()] = q_out
+                        _fused_norm_outs[k_in.data_ptr()] = k_out
+                        _fused_norm_ptrs.add(q_in.data_ptr())
+                        _fused_norm_ptrs.add(k_in.data_ptr())
+                        return out_x, out_y
+                    except Exception:
+                        _fused_graph_cache[gkey] = None  # don't retry
+    # --- End fusion: fall through to original eager path ---
     s, b, h_x, d = input_x.shape
     h_y = input_y.shape[2]
     output_x = (
