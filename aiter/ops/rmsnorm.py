@@ -430,7 +430,15 @@ def rmsnorm2d_fwd(
     epsilon: float,
     use_model_sensitive_rmsnorm: int = 0,
 ) -> Tensor:
-    return _rms_norm_fwd_dispatch(input, weight, epsilon, use_model_sensitive_rmsnorm)
+    from ._norm_rope_fusion import _pending_norms, _fused_norm_ptrs, _fused_norm_outs
+
+    if input.data_ptr() in _fused_norm_ptrs:
+        # Fused path: return the buffer the graph captured; skip eager launch
+        out = _fused_norm_outs[input.data_ptr()]
+    else:
+        out = _rms_norm_fwd_dispatch(input, weight, epsilon, use_model_sensitive_rmsnorm)
+    _pending_norms.append((input, weight, epsilon, out))
+    return out
 
 
 @torch_compile_guard(

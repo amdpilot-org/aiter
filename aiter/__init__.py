@@ -112,6 +112,7 @@ else:
     from .ops.rmsnorm import *  # noqa: F403,E402
     from .ops.communication import *  # noqa: F403,E402
     from .ops.rope import *  # noqa: F403,E402
+    from .ops.fused_norm_rope import *  # noqa: F403,E402
     from .ops.topk import *  # noqa: F403,E402
     from .ops.topk_plain import topk_plain  # noqa: F403,F401,E402
     from .ops.mha import *  # noqa: F403,E402
