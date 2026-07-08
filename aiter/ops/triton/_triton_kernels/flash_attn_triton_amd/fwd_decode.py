@@ -87,13 +87,22 @@ def get_fwd_decode_configs(mode: AutotuneMode):
                 [triton.Config({}, num_stages=1, num_warps=4)],
             )
         elif arch.is_cdna:
+            # Decode-optimized autotune sweep for CDNA (gfx942/gfx950).
+            # Decode has N_CTX_Q=1, so a large BLOCK_M wastes (BLOCK_M-1)/BLOCK_M
+            # of the Q tile on padding. The stock single BLOCK_M=64/BLOCK_N=64
+            # config is ~6.8x slower than BLOCK_M=16 at S=32768 on MI355X
+            # (0.455 vs 3.076+ TFLOP/s). Curate small-BLOCK_M configs and let
+            # Triton autotune pick the best per (N_CTX_K, ...) key. Note: unlike
+            # fwd_prefill, fwd_decode does NOT consume FLASH_ATTENTION_FWD_TRITON_AMD_CONFIG_JSON
+            # (FWD_CONF_OVERRIDE), so the decode config must live in-source here.
             return (
                 [
-                    triton.Config(
-                        {"BLOCK_M": 64, "BLOCK_N": 64, "waves_per_eu": 1},
-                        num_stages=1,
-                        num_warps=4,
-                    ),
+                    triton.Config({"BLOCK_M": 16, "BLOCK_N": 32, "waves_per_eu": 1}, num_stages=1, num_warps=4),
+                    triton.Config({"BLOCK_M": 16, "BLOCK_N": 64, "waves_per_eu": 1}, num_stages=1, num_warps=4),
+                    triton.Config({"BLOCK_M": 16, "BLOCK_N": 128, "waves_per_eu": 1}, num_stages=1, num_warps=4),
+                    triton.Config({"BLOCK_M": 16, "BLOCK_N": 32, "waves_per_eu": 2}, num_stages=1, num_warps=4),
+                    triton.Config({"BLOCK_M": 32, "BLOCK_N": 32, "waves_per_eu": 1}, num_stages=1, num_warps=4),
+                    triton.Config({"BLOCK_M": 64, "BLOCK_N": 64, "waves_per_eu": 1}, num_stages=1, num_warps=4),
                 ],
                 [triton.Config({}, num_stages=1, num_warps=4)],
             )
