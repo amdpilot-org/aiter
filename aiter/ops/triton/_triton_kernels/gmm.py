@@ -44,13 +44,17 @@ def get_config(
                 gmm_type in get_config._config_dict
                 for gmm_type in {"gmm", "ptgmm", "nptgmm"}
             ), "Not all GMM variants are present in the configuration file."
-    # TODO: Fine tune GMM kernels and use (M, K, N, G) shape to query the best
-    #       config in the dictionary.
+    # Per-shape tuned config: look up by (M, K, N, G), fall back to default.
+    variant = get_config._config_dict[gmm_type]
+    shape_key = f"{M}_{K}_{N}_{G}"
+    shapes = variant.get("shapes", {})
+    if shape_key in shapes:
+        return shapes[shape_key]
     assert (
-        "default" in get_config._config_dict[gmm_type]
+        "default" in variant
     ), "Default configuration is absent."
     key = "accumulate" if accumulate else "default"
-    return get_config._config_dict[gmm_type][key]
+    return variant[key]
 
 
 # Common code shared by GMM and TGMM kernels.

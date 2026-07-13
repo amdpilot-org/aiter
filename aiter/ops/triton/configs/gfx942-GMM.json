@@ -8,6 +8,44 @@
             "GRID_DIM": 304,
             "num_warps": 8,
             "num_stages": 1
+        },
+        "shapes": {
+            "32_8192_4096_1": {
+                "BLOCK_SIZE_M": 64,
+                "BLOCK_SIZE_K": 128,
+                "BLOCK_SIZE_N": 64,
+                "GROUP_SIZE": 1,
+                "GRID_DIM": 304,
+                "num_warps": 8,
+                "num_stages": 3
+            },
+            "64_8192_4096_1": {
+                "BLOCK_SIZE_M": 64,
+                "BLOCK_SIZE_K": 256,
+                "BLOCK_SIZE_N": 64,
+                "GROUP_SIZE": 1,
+                "GRID_DIM": 304,
+                "num_warps": 8,
+                "num_stages": 2
+            },
+            "128_8192_4096_1": {
+                "BLOCK_SIZE_M": 64,
+                "BLOCK_SIZE_K": 256,
+                "BLOCK_SIZE_N": 64,
+                "GROUP_SIZE": 1,
+                "GRID_DIM": 304,
+                "num_warps": 8,
+                "num_stages": 2
+            },
+            "256_8192_4096_1": {
+                "BLOCK_SIZE_M": 128,
+                "BLOCK_SIZE_K": 128,
+                "BLOCK_SIZE_N": 64,
+                "GROUP_SIZE": 1,
+                "GRID_DIM": 304,
+                "num_warps": 8,
+                "num_stages": 2
+            }
         }
     },
     "ptgmm": {
