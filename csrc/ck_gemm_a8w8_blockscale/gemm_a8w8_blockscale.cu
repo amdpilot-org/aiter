@@ -94,7 +94,13 @@ torch::Tensor gemm_a8w8_blockscale(torch::Tensor& XQ,
                 "splitK must be in the range [0, 30], got ",
                 splitK);
 
-    int KBatch = 1 << splitK;
+    // Force KBatch = 1 to guarantee bit-deterministic output.
+    // When splitK > 0 the CK device kernel uses BF16/FP16 atomic-add to
+    // accumulate split-K partial sums into the C tile; the atomic-add
+    // ordering is non-deterministic across runs, producing distinct output
+    // hashes on identical inputs (most visible for small-M shapes).
+    // Disabling split-K (KBatch = 1) eliminates the atomic-add path entirely.
+    int KBatch = 1;
 
     if(x_scale.dtype() == at::ScalarType::Float && Y.dtype() == at::ScalarType::Half)
     {

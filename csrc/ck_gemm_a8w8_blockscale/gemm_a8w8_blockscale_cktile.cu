@@ -75,7 +75,12 @@ torch::Tensor gemm_a8w8_blockscale_cktile(torch::Tensor& XQ,
                 "splitK must be in the range [0, 30], got ",
                 splitK);
 
-    int KBatch = 1 << splitK;
+    // Force KBatch = 1 to guarantee bit-deterministic output.
+    // When splitK > 0 the ck_tile kernel uses atomic_add to accumulate
+    // split-K partial sums into C; the atomic-add ordering is
+    // non-deterministic across runs on identical inputs.  Disabling split-K
+    // (KBatch = 1) eliminates the atomic-add path entirely.
+    int KBatch = 1;
 
     if(x_scale.dtype() == at::ScalarType::Float && Y.dtype() == at::ScalarType::Half)
     {
