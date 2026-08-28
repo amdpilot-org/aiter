@@ -68,7 +68,7 @@ AITER is the **default kernel backend for LLM inference on AMD GPUs**, integrate
 |---|---|---|
 | AMD Instinct MI300X | gfx942 (CDNA3) | Fully supported |
 | AMD Instinct MI325X | gfx942 (CDNA3) | Fully supported |
-| AMD Instinct MI350 | gfx950 (CDNA4) | Supported |
+| AMD Instinct MI350X | gfx950 (CDNA4) | Supported |
 | AMD Instinct MI355X | gfx950 (CDNA4) | Supported |
 | AMD Pro W7900 | gfx1100 (RDNA3) | Experimental<sup>1</sup> |
 | AMD AI Max and Max Pro 400/300 Series | gfx1151 (RDNA3.5) | Experimental<sup>1</sup> |
