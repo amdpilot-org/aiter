@@ -1,0 +1,301 @@
+commit 408a5bbebd4e1eaec3ddce3c35ef16df37a7acfb
+Author: SONLE5 <sonle5@OM-SONLE5-M5.local>
+Date:   Tue May 19 12:00:42 2026 +0700
+
+    Stabilize CK bpreshuffle blockscale GEMM accumulator
+
+diff --git a/include/ck/tensor_operation/gpu/block/blockwise_gemm_pipeline_xdlops_blockscale_b_preshuffle_v1.hpp b/include/ck/tensor_operation/gpu/block/blockwise_gemm_pipeline_xdlops_blockscale_b_preshuffle_v1.hpp
+index bfeeb71..f76d95b 100644
+--- a/include/ck/tensor_operation/gpu/block/blockwise_gemm_pipeline_xdlops_blockscale_b_preshuffle_v1.hpp
++++ b/include/ck/tensor_operation/gpu/block/blockwise_gemm_pipeline_xdlops_blockscale_b_preshuffle_v1.hpp
+@@ -281,10 +281,35 @@ struct BlockwiseGemmXdlops_pipeline_blockscale_bpreshuffle_v1<BlockGemmPipelineS
+         const BScaleGridBuffer& b_scale_grid_buf,
+         const BScaleThreadTransferStep& b_scale_thread_copy_step,
+         // num_loop
+-        index_t num_loop) const
++        index_t num_loop,
++        float* p_accum_observer        = nullptr,
++        index_t accum_observer_tile_m  = 0,
++        index_t accum_observer_tile_n  = 0,
++        index_t accum_observer_kblock  = 0,
++        index_t accum_observer_mrepeat = 0,
++        index_t accum_observer_thread  = 0,
++        index_t block_m_id             = 0,
++        index_t block_n_id             = 0) const
+     {
+         ignore = b_block_desc;
+         ignore = b_block_buf;
++
++        const bool accum_observer_tile =
++            p_accum_observer != nullptr && block_m_id == accum_observer_tile_m &&
++            block_n_id == accum_observer_tile_n;
++        auto anchor_accumulator_value = [&](float value) {
++            if(p_accum_observer != nullptr)
++            {
++                asm volatile("" : : "v"(value));
++            }
++        };
++        auto anchor_accumulator_target_thread = [&]() {
++            if(accum_observer_tile && get_thread_local_1d_id() == accum_observer_thread)
++            {
++                asm volatile("" : : "s"(accum_observer_thread));
++            }
++        };
++
+         // __builtin_amdgcn_sched_barrier(0);
+         auto a_thread_buf = make_static_buffer<AddressSpaceEnum::Vgpr, ComputeDataType>(
+             a_thread_desc_.GetElementSpaceSize());
+@@ -494,6 +519,10 @@ struct BlockwiseGemmXdlops_pipeline_blockscale_bpreshuffle_v1<BlockGemmPipelineS
+                         constexpr index_t c_offset =
+                             c_thread_desc_.CalculateOffset(make_tuple(m0, n0, 0));
+ 
++                        const bool observe_target_outer =
++                            accum_observer_tile && (i + mfma_reg_buf.value == accum_observer_kblock) &&
++                            (m0.value == accum_observer_mrepeat);
++
+                         static_for<0, xdlops_gemm.GetRegSizePerXdlops() / 2, 1>{}([&](auto t) {
+                             using pk_fma_type = typename vector_type<AccDataType, 2>::type;
+ 
+@@ -505,6 +534,16 @@ struct BlockwiseGemmXdlops_pipeline_blockscale_bpreshuffle_v1<BlockGemmPipelineS
+                                 c_thread_buf.GetVectorTypeReference(Number<c_offset>{})
+                                     .template AsType<pk_fma_type>()[t]);
+                         });
++
++                        if(observe_target_outer)
++                        {
++                            anchor_accumulator_target_thread();
++                        }
++
++                        anchor_accumulator_value(
++                            type_convert<float>(
++                                c_thread_buf.GetVectorTypeReference(Number<c_offset>{})
++                                    .template AsType<AccDataType>()[Number<0>{}]));
+                     });
+ 
+                     block_sync_lds();
+@@ -647,6 +686,11 @@ struct BlockwiseGemmXdlops_pipeline_blockscale_bpreshuffle_v1<BlockGemmPipelineS
+                         c_thread_buf.GetVectorTypeReference(Number<c_offset>{})
+                             .template AsType<pk_fma_type>()[t]);
+                 });
++
++                anchor_accumulator_value(
++                    type_convert<float>(
++                        c_thread_buf.GetVectorTypeReference(Number<c_offset>{})
++                            .template AsType<AccDataType>()[Number<0>{}]));
+             });
+ 
+             static_ford<Sequence<MRepeat, num_scale_n_block, num_scale_k_block>>{}([&](auto mnk) {
+@@ -793,6 +837,11 @@ struct BlockwiseGemmXdlops_pipeline_blockscale_bpreshuffle_v1<BlockGemmPipelineS
+                         c_thread_buf.GetVectorTypeReference(Number<c_offset>{})
+                             .template AsType<pk_fma_type>()[t]);
+                 });
++
++                anchor_accumulator_value(
++                    type_convert<float>(
++                        c_thread_buf.GetVectorTypeReference(Number<c_offset>{})
++                            .template AsType<AccDataType>()[Number<0>{}]));
+             });
+         }
+     }
+diff --git a/include/ck/tensor_operation/gpu/grid/gridwise_gemm_xdl_cshuffle_v3_multi_d_blockscale_b_preshuffle.hpp b/include/ck/tensor_operation/gpu/grid/gridwise_gemm_xdl_cshuffle_v3_multi_d_blockscale_b_preshuffle.hpp
+index 8bd4a35..54d570b 100644
+--- a/include/ck/tensor_operation/gpu/grid/gridwise_gemm_xdl_cshuffle_v3_multi_d_blockscale_b_preshuffle.hpp
++++ b/include/ck/tensor_operation/gpu/grid/gridwise_gemm_xdl_cshuffle_v3_multi_d_blockscale_b_preshuffle.hpp
+@@ -643,7 +643,13 @@ struct GridwiseGemmMultiD_blockscale_xdl_cshuffle_v3_b_preshuffle
+               AK0{CalculateAK0Padded(K_, KBatch_)},
+               BK0{CalculateBK0Padded(K_, KBatch_)},
+               MBlock{CalculateMBlock(M_)},
+-              NBlock{CalculateNBlock(N_)}
++              NBlock{CalculateNBlock(N_)},
++              p_accum_observer{nullptr},
++              AccumObserverTileM{0},
++              AccumObserverTileN{0},
++              AccumObserverKBlock{0},
++              AccumObserverMRepeat{0},
++              AccumObserverThread{0}
+         {
+         }
+ 
+@@ -673,6 +679,12 @@ struct GridwiseGemmMultiD_blockscale_xdl_cshuffle_v3_b_preshuffle
+         index_t BK0;
+         index_t MBlock;
+         index_t NBlock;
++        float* p_accum_observer;
++        index_t AccumObserverTileM;
++        index_t AccumObserverTileN;
++        index_t AccumObserverKBlock;
++        index_t AccumObserverMRepeat;
++        index_t AccumObserverThread;
+     };
+ 
+     // Argument
+@@ -1233,36 +1245,55 @@ struct GridwiseGemmMultiD_blockscale_xdl_cshuffle_v3_b_preshuffle
+ 
+         constexpr auto NumKBlockPerScale = math::integer_divide_ceil(ScaleBlockK, KPerBlock);
+ 
+-        blockwise_gemm_pipeline.template Run<HasMainKBlockLoop, NumKBlockPerScale, TailNum>(
+-            a_grid_desc_ak0_m_ak1,
+-            a_block_desc_ak0_m_ak1,
+-            a_blockwise_copy,
+-            a_grid_buf,
+-            a_block_buf,
+-            a_block_slice_copy_step,
+-            b_grid_desc_bpreshuffled,
+-            b_block_desc_bk0_n_bk1,
+-            b_blockwise_copy,
+-            b_grid_buf,
+-            b_block_buf,
+-            b_block_slice_copy_step,
+-
+-            c_scale_thread_desc,
+-            c_thread_buf,
+-
+-            a_scale_grid_desc_am_ak,
+-            a_scale_thread_desc,
+-            a_scale_thread_copy,
+-            a_scale_grid_buf,
+-            a_scale_thread_slice_copy_step,
+-
+-            b_scale_grid_desc_bn_ak,
+-            b_scale_thread_desc,
+-            b_scale_thread_copy,
+-            b_scale_grid_buf,
+-            b_scale_thread_slice_copy_step,
++        auto run_blockwise_gemm_pipeline = [&](auto... accum_observer_args) {
++            blockwise_gemm_pipeline.template Run<HasMainKBlockLoop, NumKBlockPerScale, TailNum>(
++                a_grid_desc_ak0_m_ak1,
++                a_block_desc_ak0_m_ak1,
++                a_blockwise_copy,
++                a_grid_buf,
++                a_block_buf,
++                a_block_slice_copy_step,
++                b_grid_desc_bpreshuffled,
++                b_block_desc_bk0_n_bk1,
++                b_blockwise_copy,
++                b_grid_buf,
++                b_block_buf,
++                b_block_slice_copy_step,
++
++                c_scale_thread_desc,
++                c_thread_buf,
+ 
+-            num_k_block_main_loop);
++                a_scale_grid_desc_am_ak,
++                a_scale_thread_desc,
++                a_scale_thread_copy,
++                a_scale_grid_buf,
++                a_scale_thread_slice_copy_step,
++
++                b_scale_grid_desc_bn_ak,
++                b_scale_thread_desc,
++                b_scale_thread_copy,
++                b_scale_grid_buf,
++                b_scale_thread_slice_copy_step,
++
++                num_k_block_main_loop,
++                accum_observer_args...);
++        };
++
++        if constexpr(BlkGemmPipelineVer == BlockGemmPipelineVersion::v1)
++        {
++            run_blockwise_gemm_pipeline(problem.p_accum_observer,
++                                        problem.AccumObserverTileM,
++                                        problem.AccumObserverTileN,
++                                        problem.AccumObserverKBlock,
++                                        problem.AccumObserverMRepeat,
++                                        problem.AccumObserverThread,
++                                        block_m_id,
++                                        block_n_id);
++        }
++        else
++        {
++            run_blockwise_gemm_pipeline();
++        }
+ 
+         // shuffle C and write out
+ 
+@@ -1499,36 +1530,55 @@ struct GridwiseGemmMultiD_blockscale_xdl_cshuffle_v3_b_preshuffle
+ 
+         constexpr auto NumKBlockPerScale = math::integer_divide_ceil(ScaleBlockK, KPerBlock);
+ 
+-        blockwise_gemm_pipeline.template Run<HasMainKBlockLoop, NumKBlockPerScale, TailNum>(
+-            a_grid_desc_ak0_m_ak1,
+-            a_block_desc_ak0_m_ak1,
+-            a_blockwise_copy,
+-            a_grid_buf,
+-            a_block_bufs,
+-            a_block_slice_copy_step,
+-            b_grid_desc_bpreshuffled,
+-            b_block_desc_bk0_n_bk1,
+-            b_blockwise_copy,
+-            b_grid_buf,
+-            b_block_bufs,
+-            b_block_slice_copy_step,
+-
+-            c_scale_thread_desc,
+-            c_thread_buf,
+-
+-            a_scale_grid_desc_am_ak,
+-            a_scale_thread_desc,
+-            a_scale_thread_copy,
+-            a_scale_grid_buf,
+-            a_scale_thread_slice_copy_step,
+-
+-            b_scale_grid_desc_bn_ak,
+-            b_scale_thread_desc,
+-            b_scale_thread_copy,
+-            b_scale_grid_buf,
+-            b_scale_thread_slice_copy_step,
++        auto run_blockwise_gemm_pipeline = [&](auto... accum_observer_args) {
++            blockwise_gemm_pipeline.template Run<HasMainKBlockLoop, NumKBlockPerScale, TailNum>(
++                a_grid_desc_ak0_m_ak1,
++                a_block_desc_ak0_m_ak1,
++                a_blockwise_copy,
++                a_grid_buf,
++                a_block_bufs,
++                a_block_slice_copy_step,
++                b_grid_desc_bpreshuffled,
++                b_block_desc_bk0_n_bk1,
++                b_blockwise_copy,
++                b_grid_buf,
++                b_block_bufs,
++                b_block_slice_copy_step,
++
++                c_scale_thread_desc,
++                c_thread_buf,
+ 
+-            num_k_block_main_loop);
++                a_scale_grid_desc_am_ak,
++                a_scale_thread_desc,
++                a_scale_thread_copy,
++                a_scale_grid_buf,
++                a_scale_thread_slice_copy_step,
++
++                b_scale_grid_desc_bn_ak,
++                b_scale_thread_desc,
++                b_scale_thread_copy,
++                b_scale_grid_buf,
++                b_scale_thread_slice_copy_step,
++
++                num_k_block_main_loop,
++                accum_observer_args...);
++        };
++
++        if constexpr(BlkGemmPipelineVer == BlockGemmPipelineVersion::v1)
++        {
++            run_blockwise_gemm_pipeline(problem.p_accum_observer,
++                                        problem.AccumObserverTileM,
++                                        problem.AccumObserverTileN,
++                                        problem.AccumObserverKBlock,
++                                        problem.AccumObserverMRepeat,
++                                        problem.AccumObserverThread,
++                                        block_m_id,
++                                        block_n_id);
++        }
++        else
++        {
++            run_blockwise_gemm_pipeline();
++        }
+ 
+         // shuffle C and write out
+         const auto ds_grid_desc_m_n = MakeDsGridDescriptor_M_N(
