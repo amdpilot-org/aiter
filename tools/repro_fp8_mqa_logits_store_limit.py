@@ -78,6 +78,7 @@ def main() -> None:
         raise SystemExit("This reproducer requires a CUDA/ROCm GPU.")
 
     device = "cuda"
+    print(f"device: {torch.cuda.get_device_name()}")
     torch.manual_seed(0)
     q = torch.randn(
         args.num_q, args.num_heads, head_dim, device=device, dtype=torch.float32
