@@ -80,28 +80,29 @@ def main() -> None:
 
     device = "cuda"
     print(f"device: {torch.cuda.get_device_name()}")
-    torch.manual_seed(0)
-    q = torch.randn(
-        args.num_q, args.num_heads, head_dim, device=device, dtype=torch.float32
-    ).to(e4m3_dtype)
-    kv = torch.randn(args.num_k, head_dim, device=device, dtype=torch.float32).to(
-        e4m3_dtype
-    )
-    kv_scales = torch.ones(args.num_k, device=device, dtype=torch.float32)
-    weights = torch.randn(
-        args.num_q, args.num_heads, device=device, dtype=torch.float32
-    )
-    cu_starts = torch.zeros(args.num_q, dtype=torch.int32, device=device)
-    cu_ends = torch.clamp(
-        torch.arange(1, args.num_q + 1, dtype=torch.int32, device=device),
-        max=args.num_k,
-    )
+    with torch.inference_mode():
+        torch.manual_seed(0)
+        q = torch.randn(
+            args.num_q, args.num_heads, head_dim, device=device, dtype=torch.float32
+        ).to(e4m3_dtype)
+        kv = torch.randn(args.num_k, head_dim, device=device, dtype=torch.float32).to(
+            e4m3_dtype
+        )
+        kv_scales = torch.ones(args.num_k, device=device, dtype=torch.float32)
+        weights = torch.randn(
+            args.num_q, args.num_heads, device=device, dtype=torch.float32
+        )
+        cu_starts = torch.zeros(args.num_q, dtype=torch.int32, device=device)
+        cu_ends = torch.clamp(
+            torch.arange(1, args.num_q + 1, dtype=torch.int32, device=device),
+            max=args.num_k,
+        )
 
-    logits = fp8_mqa_logits(
-        q, kv, kv_scales, weights, cu_starts, cu_ends, clean_logits=True
-    )
-    torch.cuda.synchronize()
-    print(f"fp8_mqa_logits returned logits with shape {tuple(logits.shape)}")
+        logits = fp8_mqa_logits(
+            q, kv, kv_scales, weights, cu_starts, cu_ends, clean_logits=True
+        )
+        torch.cuda.synchronize()
+        print(f"fp8_mqa_logits returned logits with shape {tuple(logits.shape)}")
 
 
 if __name__ == "__main__":
