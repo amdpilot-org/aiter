@@ -41,7 +41,7 @@ from aiter.ops.triton.attention.fp8_mqa_logits import fp8_mqa_logits
 from aiter.ops.triton.utils.types import e4m3_dtype
 
 BUFFER_LIMIT_BYTES = 2 * 1024 * 1024 * 1024
-LOGITS_ELEMENT_SIZE = 4
+LOGITS_ELEMENT_SIZE = torch.finfo(torch.float32).bits // 8
 
 
 def main() -> None:
