@@ -37,9 +37,6 @@ import argparse
 
 import torch
 
-from aiter.ops.triton.attention.fp8_mqa_logits import fp8_mqa_logits
-from aiter.ops.triton.utils.types import e4m3_dtype
-
 BUFFER_LIMIT_BYTES = 2 * 1024 * 1024 * 1024
 LOGITS_ELEMENT_SIZE = torch.finfo(torch.float32).bits // 8
 
@@ -80,6 +77,9 @@ def main() -> None:
 
     device = "cuda"
     print(f"device: {torch.cuda.get_device_name()}")
+    from aiter.ops.triton.attention.fp8_mqa_logits import fp8_mqa_logits
+    from aiter.ops.triton.utils.types import e4m3_dtype
+
     with torch.inference_mode():
         torch.manual_seed(0)
         q = torch.randn(
