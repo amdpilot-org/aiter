@@ -49,7 +49,9 @@ def main() -> None:
     )
     parser.add_argument("num_q", type=int, help="number of query rows")
     parser.add_argument("num_k", type=int, help="number of key/value rows")
-    parser.add_argument("--num_heads", type=int, default=32, help="query head count")
+    parser.add_argument(
+        "num_heads", nargs="?", type=int, default=32, help="query head count"
+    )
     args = parser.parse_args()
 
     if not torch.cuda.is_available():
