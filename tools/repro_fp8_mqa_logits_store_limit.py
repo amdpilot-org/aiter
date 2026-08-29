@@ -77,8 +77,11 @@ def main() -> None:
 
     device = "cuda"
     print(f"device: {torch.cuda.get_device_name()}")
-    from aiter.ops.triton.attention.fp8_mqa_logits import fp8_mqa_logits
-    from aiter.ops.triton.utils.types import e4m3_dtype
+    try:
+        from aiter.ops.triton.attention.fp8_mqa_logits import fp8_mqa_logits
+        from aiter.ops.triton.utils.types import e4m3_dtype
+    except ImportError as error:
+        raise SystemExit("This reproducer requires AITER.") from error
 
     with torch.inference_mode():
         torch.manual_seed(0)
