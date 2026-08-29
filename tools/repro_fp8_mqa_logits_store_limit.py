@@ -55,6 +55,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    if args.num_q <= 0 or args.num_k <= 0:
+        parser.error("num_q and num_k must be positive")
     if args.num_heads <= 0 or args.num_heads & (args.num_heads - 1):
         parser.error("num_heads must be a positive power of 2")
 
