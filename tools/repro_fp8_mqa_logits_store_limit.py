@@ -96,6 +96,7 @@ def main() -> None:
     logits = fp8_mqa_logits(
         q, kv, kv_scales, weights, cu_starts, cu_ends, clean_logits=True
     )
+    torch.cuda.synchronize()
     print(f"fp8_mqa_logits returned logits with shape {tuple(logits.shape)}")
 
 
