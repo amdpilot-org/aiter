@@ -46,7 +46,8 @@ LOGITS_ELEMENT_SIZE = torch.finfo(torch.float32).bits // 8
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Reproduce the fp8_mqa_logits 2 GiB logits store boundary"
+        description="Reproduce the fp8_mqa_logits 2 GiB logits store boundary",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("num_q", type=int, help="number of query rows")
     parser.add_argument("num_k", type=int, help="number of key/value rows")
