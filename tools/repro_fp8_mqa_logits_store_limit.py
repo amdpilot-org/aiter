@@ -54,6 +54,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    if args.num_heads <= 0 or args.num_heads & (args.num_heads - 1):
+        parser.error("num_heads must be a positive power of 2")
+
     if not torch.cuda.is_available():
         raise SystemExit("This reproducer requires a CUDA/ROCm GPU.")
 
