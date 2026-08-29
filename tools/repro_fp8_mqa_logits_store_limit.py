@@ -41,6 +41,7 @@ from aiter.ops.triton.attention.fp8_mqa_logits import fp8_mqa_logits
 from aiter.ops.triton.utils.types import e4m3_dtype
 
 BUFFER_LIMIT_BYTES = 2 * 1024 * 1024 * 1024
+LOGITS_ELEMENT_SIZE = 4
 
 
 def main() -> None:
@@ -57,12 +58,11 @@ def main() -> None:
     if args.num_heads <= 0 or args.num_heads & (args.num_heads - 1):
         parser.error("num_heads must be a positive power of 2")
 
-    if not torch.cuda.is_available():
-        raise SystemExit("This reproducer requires a CUDA/ROCm GPU.")
-
-    logits_bytes = args.num_q * args.num_k * torch.float32.element_size()
+    head_dim = 128
+    logits_bytes = args.num_q * args.num_k * LOGITS_ELEMENT_SIZE
     store_path = "buffer_store" if logits_bytes < BUFFER_LIMIT_BYTES else "gl.store"
     print(f"logits shape: ({args.num_q}, {args.num_k}), dtype: torch.float32")
+    print(f"num_heads: {args.num_heads}, head_dim: {head_dim}")
     print(f"logits bytes: {logits_bytes:,}")
     print(f"store byte-offset limit: {BUFFER_LIMIT_BYTES:,}")
     print(f"bytes below limit: {BUFFER_LIMIT_BYTES - logits_bytes:,}")
@@ -72,8 +72,10 @@ def main() -> None:
         print("The abort is not a Python exception and cannot be caught safely.")
     print("calling fp8_mqa_logits...", flush=True)
 
+    if not torch.cuda.is_available():
+        raise SystemExit("This reproducer requires a CUDA/ROCm GPU.")
+
     device = "cuda"
-    head_dim = 128
     torch.manual_seed(0)
     q = torch.randn(
         args.num_q, args.num_heads, head_dim, device=device, dtype=torch.float32
