@@ -30,12 +30,15 @@ def ipc_buffer_pool_tcp_store_worker(world_size, worker_rank, port):
     device = torch.device(f"cuda:{worker_rank}")
     torch.cuda.set_device(device)
 
-    store = dist.TCPStore(
+    tcp_store = dist.TCPStore(
         host_name="127.0.0.1",
         port=port,
         world_size=world_size,
         is_master=worker_rank == 0,
         wait_for_workers=True,
+    )
+    store = dist.PrefixStore(
+        "outer", dist.PrefixStore("inner", tcp_store)
     )
     dist.init_process_group(
         backend="nccl",
