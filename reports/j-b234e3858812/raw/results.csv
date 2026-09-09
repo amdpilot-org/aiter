@@ -1,0 +1,57 @@
+path,sequence_length,d_qk,d_v,causal,lse,status,max_abs_error,lse_max_abs_error,quant_fwd_us,fwd_us,error
+fixed,512,128,128,False,True,pass,0.0078125,1.9073486328125e-06,19.48596,27.59986,
+fixed,512,128,128,True,True,fail,0.0390625,3.2928357124328613,,,AssertionError: measured value exceeded harness tolerance
+fixed,512,128,64,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,512,128,64,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,512,192,128,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,512,192,128,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,512,256,256,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,512,256,256,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,128,128,128,False,False,pass,0.009765625,,14.999273,16.703714,
+fixed,128,128,128,True,False,pass,0.05078125,,15.562566,13.061547,
+fixed,128,128,64,False,False,pass,0.0078125,,11.08419,9.152511,
+fixed,128,128,64,True,False,pass,0.046875,,12.656367,10.15483,
+fixed,128,192,128,False,False,pass,0.01171875,,15.4282,17.86372,
+fixed,128,192,128,True,False,pass,0.046875,,16.7284,19.38698,
+fixed,128,256,256,False,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,128,256,256,True,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,512,128,128,False,False,pass,0.0078125,,20.03365,27.40744,
+fixed,512,128,128,True,False,pass,0.0390625,,32.526423,45.270213,
+fixed,512,128,64,False,False,pass,0.0078125,,21.049708,21.490359,
+fixed,512,128,64,True,False,pass,0.046875,,22.32688,22.936606,
+fixed,512,192,128,False,False,pass,0.0078125,,26.691737,19.84079,
+fixed,512,192,128,True,False,pass,0.04296875,,28.51487,20.18084,
+fixed,512,256,256,False,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+fixed,512,256,256,True,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,128,128,False,True,pass,0.01171875,9.5367431640625e-07,10.71848,13.1088,
+varlen,128,128,128,True,True,pass,0.04296875,9.5367431640625e-07,11.689673,14.0378,
+varlen,128,128,64,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,128,64,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,192,128,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,192,128,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,256,256,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,256,256,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,128,128,False,True,pass,0.0078125,1.9073486328125e-06,19.97673,28.2065,
+varlen,512,128,128,True,True,fail,0.04296875,3.2909841537475586,,,AssertionError: measured value exceeded harness tolerance
+varlen,512,128,64,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,128,64,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,192,128,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,192,128,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,256,256,False,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,256,256,True,True,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,128,128,False,False,pass,0.01171875,,11.70764,13.17175,
+varlen,128,128,128,True,False,pass,0.04296875,,12.15702,14.03498,
+varlen,128,128,64,False,False,pass,0.01171875,,11.4679,9.774351,
+varlen,128,128,64,True,False,pass,0.0390625,,12.4281,10.974855,
+varlen,128,192,128,False,False,pass,0.01171875,,15.27823,10.699115,
+varlen,128,192,128,True,False,pass,0.0390625,,16.410776,10.93826,
+varlen,128,256,256,False,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,128,256,256,True,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,128,128,False,False,pass,0.0078125,,20.91321,27.9988,
+varlen,512,128,128,True,False,pass,0.04296875,,34.02428,46.39529,
+varlen,512,128,64,False,False,pass,0.0078125,,22.69747,22.87545,
+varlen,512,128,64,True,False,pass,0.0390625,,25.59186,25.286286,
+varlen,512,192,128,False,False,pass,0.0078125,,28.465938,20.22444,
+varlen,512,192,128,True,False,pass,0.0390625,,30.82293,20.46741,
+varlen,512,256,256,False,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd
+varlen,512,256,256,True,False,fail,,,,,RuntimeError: invalid argument for fmha_fwd

@@ -1,0 +1,11 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] import [mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor] under /job/aiter-build-cache/jit/mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor.so
+[aiter] type hints mismatch, override to --> mha_fwd(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, dropout_p: float, softmax_scale: float, is_causal: bool, window_size_left: int, window_size_right: int, sink_size: int, return_softmax_lse: bool, return_dropout_randval: bool, cu_seqlens_q: Optional[torch.Tensor] = None, cu_seqlens_kv: Optional[torch.Tensor] = None, out: Optional[torch.Tensor] = None, bias: Optional[torch.Tensor] = None, alibi_slopes: Optional[torch.Tensor] = None, q_descale: Optional[torch.Tensor] = None, k_descale: Optional[torch.Tensor] = None, v_descale: Optional[torch.Tensor] = None, sink_ptr: Optional[torch.Tensor] = None, gen: Optional[torch.Generator] = None) -> List[torch.Tensor]
+[W909 13:24:40.478387854 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 6 (function operator())
+[aiter] import [mha_fwd_bf16_nbias_mask_nlse_ndropout_nqscale] under /job/aiter-build-cache/jit/mha_fwd_bf16_nbias_mask_nlse_ndropout_nqscale.so
+[aiter] mha summary:
+   quant_fwd_us  quant_fwd_tflops  quant_fwd_gb_per_sec     fwd_us  fwd_tflops  fwd_gb_per_sec
+0      22.32688         36.068916             70.447102  22.936606   35.110092      137.148798
+Output nrms: 0.005950927734375
+Output max diff: 0.046875

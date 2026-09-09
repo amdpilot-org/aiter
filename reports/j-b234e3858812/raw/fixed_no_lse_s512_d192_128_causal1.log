@@ -1,0 +1,14 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] import [mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor] under /job/aiter-build-cache/jit/mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor.so
+[aiter] type hints mismatch, override to --> mha_fwd(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, dropout_p: float, softmax_scale: float, is_causal: bool, window_size_left: int, window_size_right: int, sink_size: int, return_softmax_lse: bool, return_dropout_randval: bool, cu_seqlens_q: Optional[torch.Tensor] = None, cu_seqlens_kv: Optional[torch.Tensor] = None, out: Optional[torch.Tensor] = None, bias: Optional[torch.Tensor] = None, alibi_slopes: Optional[torch.Tensor] = None, q_descale: Optional[torch.Tensor] = None, k_descale: Optional[torch.Tensor] = None, v_descale: Optional[torch.Tensor] = None, sink_ptr: Optional[torch.Tensor] = None, gen: Optional[torch.Generator] = None) -> List[torch.Tensor]
+[W909 13:24:29.086950265 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 6 (function operator())
+[aiter] import [module_fmha_v3_fwd] under /job/aiter-build-cache/jit/module_fmha_v3_fwd.so
+[aiter] type hints mismatch, override to --> fmha_v3_fwd(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, dropout_p: float, softmax_scale: float, is_causal: bool, window_size_left: int, window_size_right: int, return_softmax_lse: bool, return_dropout_randval: bool, how_v3_bf16_cvt: int, out: Optional[torch.Tensor] = None, bias: Optional[torch.Tensor] = None, alibi_slopes: Optional[torch.Tensor] = None, q_descale: Optional[torch.Tensor] = None, k_descale: Optional[torch.Tensor] = None, v_descale: Optional[torch.Tensor] = None, gen: Optional[torch.Generator] = None) -> List[torch.Tensor]
+[aiter] pciChipId: 0x74a1, CU count: 304
+[aiter] LoadKernel: _ZN5aiter35fmha_fwd_hd192x128_bf16_causal_rtnaE hsaco: /job/aiter-validation/hsa//gfx942/fmha_v3_fwd/MI300/fwd_hd192x128_bf16_causal_rtna.co
+[aiter] mha summary:
+   quant_fwd_us  quant_fwd_tflops  quant_fwd_gb_per_sec    fwd_us  fwd_tflops  fwd_gb_per_sec
+0      28.51487         47.069381             91.932385  20.18084   66.507503      259.794934
+Output nrms: 0.006378173828125
+Output max diff: 0.04296875

@@ -1,0 +1,10 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] import [mha_varlen_fwd_fp8bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_pertensor] under /job/aiter-build-cache/jit/mha_varlen_fwd_fp8bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_pertensor.so
+[W909 13:34:00.641986857 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 6 (function operator())
+[aiter] import [mha_varlen_fwd_bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_nqscale] under /job/aiter-build-cache/jit/mha_varlen_fwd_bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_nqscale.so
+[aiter] mha summary:
+   quant_fwd_us  quant_fwd_tflops  quant_fwd_gb_per_sec    fwd_us  fwd_tflops  fwd_gb_per_sec
+0      22.69747         33.827708            203.018222  22.87545   33.564515       134.29244
+Output nrms: 0.007110595703125
+Output max diff: 0.0078125

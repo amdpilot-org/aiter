@@ -1,0 +1,18 @@
+date_utc=2026-09-09T13:34:28Z
+validation_path=/job/aiter-validation
+validation_head=94996d72b232ac3e640c692e10d1d908710520a5
+validation_branch=
+validation_status_clean=yes
+validation_status_output:
+validation_submodule:
+ af9e1d1f1ae347c22feeb08fd2d42645075e0c5d 3rdparty/composable_kernel (therock-7.10-910-gaf9e1d1f1)
+delivery_path=/job/aiter-delivery
+delivery_head=f0321c0e8927d1d90a29385433f71e592b1c51f5
+delivery_branch=main
+pr19_head=94996d72b232ac3e640c692e10d1d908710520a5
+pr19_base=c6677e075198a78dfee0d3490c97b37533b5610f
+torch_version=2.9.1+rocm7.2.0.git7e1940d4
+device_name=AMD Instinct MI300X
+device_capability=(9, 4)
+aiter_import_path=/job/aiter-validation/aiter/__init__.py
+aiter_core_import=[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so

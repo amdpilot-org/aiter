@@ -1,0 +1,43 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] import [mha_varlen_fwd_fp8bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_pertensor] under /job/aiter-build-cache/jit/mha_varlen_fwd_fp8bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_pertensor.so
+Traceback (most recent call last):
+  File "/job/aiter-build-cache/run_harness.py", line 11, in <module>
+    runpy.run_path(harness, run_name="__main__")
+  File "/usr/lib/python3.10/runpy.py", line 289, in run_path
+    return _run_module_code(code, init_globals, run_name,
+  File "/usr/lib/python3.10/runpy.py", line 96, in _run_module_code
+    _run_code(code, mod_globals, init_globals,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "op_tests/test_mha_varlen_fp8.py", line 428, in <module>
+    test_flash_attn_varlen_output(
+  File "op_tests/test_mha_varlen_fp8.py", line 225, in test_flash_attn_varlen_output
+    quant_result, us_quant_fwd = run_ck(
+  File "op_tests/test_mha_varlen_fp8.py", line 73, in run_ck
+    return run_perftest(
+  File "/job/aiter-validation/aiter/test_common.py", line 228, in run_perftest
+    return worker(*args, **kwargs)
+  File "/job/aiter-validation/aiter/test_common.py", line 61, in wrapper
+    iter_used_memory, inputSize, _, _ = device_memory_profiling(
+  File "/job/aiter-validation/aiter/test_common.py", line 170, in device_memory_profiling
+    _ = func(*args, **kwargs)
+  File "/job/aiter-validation/aiter/test_common.py", line 226, in worker
+    return func(*args, **kwargs)
+  File "/job/aiter-validation/aiter/ops/mha.py", line 4228, in flash_attn_varlen_fp8_pertensor_func
+    out_padded, _, _, _ = _flash_attn_varlen_forward(
+  File "/job/aiter-validation/aiter/ops/mha.py", line 3155, in _flash_attn_varlen_forward
+    out, softmax_lse, S_dmask, rng_state = mha_varlen_fwd(
+  File "/job/aiter-validation/aiter/jit/utils/torch_guard.py", line 294, in wrapper_custom
+    getattr(torch.ops.aiter, f"{loadName}")(*args, **kwargs)
+  File "/opt/venv/lib/python3.10/site-packages/torch/_ops.py", line 1255, in __call__
+    return self._op(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/utils/torch_guard.py", line 317, in outer_wrapper
+    wrapper(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/utils/torch_guard.py", line 211, in wrapper
+    return func(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/core.py", line 2131, in custom_wrapper
+    return wrapper(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/core.py", line 2127, in wrapper
+    return op(*args, **kwargs)
+RuntimeError: invalid argument for fmha_fwd

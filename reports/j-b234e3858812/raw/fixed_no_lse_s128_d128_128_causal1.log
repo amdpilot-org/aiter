@@ -1,0 +1,16 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] [pid=17201 pname=MainProcess] start build [mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor] under /job/aiter-build-cache/jit/build/mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor
+[aiter] Current hipcc not support: -mllvm -amdgpu-coerce-illegal-types=1, skip it.
+[aiter] [pid=17201 pname=MainProcess] [32mfinish build [mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor], cost 42.2s [0m
+[aiter] import [mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor] under /job/aiter-build-cache/jit/mha_fwd_fp8bf16_nbias_mask_nlse_ndropout_pertensor.so
+[aiter] type hints mismatch, override to --> mha_fwd(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, dropout_p: float, softmax_scale: float, is_causal: bool, window_size_left: int, window_size_right: int, sink_size: int, return_softmax_lse: bool, return_dropout_randval: bool, cu_seqlens_q: Optional[torch.Tensor] = None, cu_seqlens_kv: Optional[torch.Tensor] = None, out: Optional[torch.Tensor] = None, bias: Optional[torch.Tensor] = None, alibi_slopes: Optional[torch.Tensor] = None, q_descale: Optional[torch.Tensor] = None, k_descale: Optional[torch.Tensor] = None, v_descale: Optional[torch.Tensor] = None, sink_ptr: Optional[torch.Tensor] = None, gen: Optional[torch.Generator] = None) -> List[torch.Tensor]
+[W909 13:22:16.488817379 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 6 (function operator())
+[aiter] [pid=17201 pname=MainProcess] start build [mha_fwd_bf16_nbias_mask_nlse_ndropout_nqscale] under /job/aiter-build-cache/jit/build/mha_fwd_bf16_nbias_mask_nlse_ndropout_nqscale
+[aiter] [pid=17201 pname=MainProcess] [32mfinish build [mha_fwd_bf16_nbias_mask_nlse_ndropout_nqscale], cost 83.1s [0m
+[aiter] import [mha_fwd_bf16_nbias_mask_nlse_ndropout_nqscale] under /job/aiter-build-cache/jit/mha_fwd_bf16_nbias_mask_nlse_ndropout_nqscale.so
+[aiter] mha summary:
+   quant_fwd_us  quant_fwd_tflops  quant_fwd_gb_per_sec     fwd_us  fwd_tflops  fwd_gb_per_sec
+0     15.562566          4.312198             33.689047  13.061547    5.137895       80.279615
+Output nrms: 0.00927734375
+Output max diff: 0.05078125

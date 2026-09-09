@@ -1,0 +1,44 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] import [mha_fwd_fp8bf16_nbias_mask_lse_ndropout_pertensor] under /job/aiter-build-cache/jit/mha_fwd_fp8bf16_nbias_mask_lse_ndropout_pertensor.so
+[aiter] type hints mismatch, override to --> mha_fwd(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, dropout_p: float, softmax_scale: float, is_causal: bool, window_size_left: int, window_size_right: int, sink_size: int, return_softmax_lse: bool, return_dropout_randval: bool, cu_seqlens_q: Optional[torch.Tensor] = None, cu_seqlens_kv: Optional[torch.Tensor] = None, out: Optional[torch.Tensor] = None, bias: Optional[torch.Tensor] = None, alibi_slopes: Optional[torch.Tensor] = None, q_descale: Optional[torch.Tensor] = None, k_descale: Optional[torch.Tensor] = None, v_descale: Optional[torch.Tensor] = None, sink_ptr: Optional[torch.Tensor] = None, gen: Optional[torch.Generator] = None) -> List[torch.Tensor]
+Traceback (most recent call last):
+  File "/job/aiter-build-cache/run_harness.py", line 11, in <module>
+    runpy.run_path(harness, run_name="__main__")
+  File "/usr/lib/python3.10/runpy.py", line 289, in run_path
+    return _run_module_code(code, init_globals, run_name,
+  File "/usr/lib/python3.10/runpy.py", line 96, in _run_module_code
+    _run_code(code, mod_globals, init_globals,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "op_tests/test_mha_fp8.py", line 340, in <module>
+    test_flash_attn_output(
+  File "op_tests/test_mha_fp8.py", line 173, in test_flash_attn_output
+    quant_result, us_quant_fwd = run_ck(
+  File "op_tests/test_mha_fp8.py", line 59, in run_ck
+    return run_perftest(run_fp8_lse)
+  File "/job/aiter-validation/aiter/test_common.py", line 228, in run_perftest
+    return worker(*args, **kwargs)
+  File "/job/aiter-validation/aiter/test_common.py", line 61, in wrapper
+    iter_used_memory, inputSize, _, _ = device_memory_profiling(
+  File "/job/aiter-validation/aiter/test_common.py", line 170, in device_memory_profiling
+    _ = func(*args, **kwargs)
+  File "/job/aiter-validation/aiter/test_common.py", line 226, in worker
+    return func(*args, **kwargs)
+  File "op_tests/test_mha_fp8.py", line 39, in run_fp8_lse
+    out, lse, _, _ = _flash_attn_forward(
+  File "/job/aiter-validation/aiter/ops/mha.py", line 2202, in _flash_attn_forward
+    out_, softmax_lse, S_dmask, rng_state = mha_fwd(
+  File "/job/aiter-validation/aiter/jit/utils/torch_guard.py", line 294, in wrapper_custom
+    getattr(torch.ops.aiter, f"{loadName}")(*args, **kwargs)
+  File "/opt/venv/lib/python3.10/site-packages/torch/_ops.py", line 1255, in __call__
+    return self._op(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/utils/torch_guard.py", line 317, in outer_wrapper
+    wrapper(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/utils/torch_guard.py", line 211, in wrapper
+    return func(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/core.py", line 2131, in custom_wrapper
+    return wrapper(*args, **kwargs)
+  File "/job/aiter-validation/aiter/jit/core.py", line 2127, in wrapper
+    return op(*args, **kwargs)
+RuntimeError: invalid argument for fmha_fwd
