@@ -1,0 +1,11 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /sgl-workspace/aiter/aiter/jit/module_aiter_core.so
+[aiter] import [module_moe_asm] under /sgl-workspace/aiter/aiter/jit/module_moe_asm.so
+[W909 20:30:57.187431803 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 1 (function operator())
+[aiter] import [module_moe_sorting] under /sgl-workspace/aiter/aiter/jit/module_moe_sorting.so
+[aiter] import [module_quant] under /sgl-workspace/aiter/aiter/jit/module_quant.so
+[aiter] LoadKernel: fmoe_int4fp8_g1u1_subGU_256_gelu hsaco: /sgl-workspace/aiter/hsa//gfx942/fmoe_int4fp8_g1u1_subGU_256_gelu.co
+[aiter] [perf] use_g1u1=True token=32, quant=wint4afp8smoothquant, model_dim=2048, inter_dim=1792, E=32, shared_E=0, topk=5, dtype: torch.bfloat16, torch_avg: 4783.84  us, asm_avg:    86.02 us ...... uplift: 5461.2%[checkAllclose atol=100 rtol=0.01 [32mpassed~[0m]
+
+Running test: g1u1_int4
+[BW  ] token=32, quant=wint4afp8smoothquant, model_dim=2048, inter_dim=1792, E=32, shared_E=0, topk=5, dtype: torch.bfloat16, asm_bandwidth:     1.88TB/s
