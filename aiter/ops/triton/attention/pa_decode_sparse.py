@@ -96,6 +96,7 @@ def pa_decode_sparse(
             isolation and for callers that fold the reduce into a downstream op.
         extra_cache/extra_indices/extra_indptr: gfx950 packed-only — the SWA+top-k
             two-loop's second (top-k) cache + index set; must be None otherwise.
+            Non-gfx950 callers receive an explicit pre-launch architecture error.
 
     On gfx950 the DSv4 gluon driver handles this: a 3D ``unified_kv`` selects the
     packed fp8_ds_mla / bf16 block cache (``extra_*`` = the two-loop), a 2D one the
@@ -120,6 +121,20 @@ def pa_decode_sparse(
         raise RuntimeError("pa_decode_sparse requires CUDA/HIP tensors")
     if q.dtype not in (torch.bfloat16, torch.float16):
         raise RuntimeError(f"pa_decode_sparse expects fp16/bf16 q, got {q.dtype}")
+
+    if DEVICE_ARCH != "gfx950" and unified_kv.ndim == 3:
+        raise RuntimeError(
+            f"pa_decode_sparse packed fp8_ds_mla/bf16 cache requires gfx950; "
+            f"got {DEVICE_ARCH}. Use a 2D dequantized cache instead."
+        )
+    if DEVICE_ARCH != "gfx950" and (
+        extra_cache is not None
+        or extra_indices is not None
+        or extra_indptr is not None
+    ):
+        raise RuntimeError(
+            f"pa_decode_sparse extra_* two-loop requires gfx950; got {DEVICE_ARCH}"
+        )
 
     # gfx950: route to the merged DSv4 sparse-MLA gluon driver. Format is inferred
     # from the cache: 3D -> packed fp8_ds_mla / bf16 block cache (optional SWA+top-k

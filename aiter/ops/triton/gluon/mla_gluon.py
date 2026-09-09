@@ -820,6 +820,60 @@ def _mla_softmax_reducev_kernel(
 # fmt: on
 
 
+def _mla_gluon_gfx942_decode_fallback(
+    q_nope,
+    q_pe,
+    kv_c,
+    o,
+    page_table,
+    seq_info,
+    sm_scale,
+    use_2d_view,
+    return_lse,
+    batch_size,
+    nhead,
+    head_dim_ckv,
+    head_dim_kpe,
+):
+    q = torch.cat((q_nope, q_pe), dim=-1)
+    o_decode = o.view(batch_size, nhead, head_dim_ckv)
+    kv_buffer = kv_c.reshape(kv_c.shape[0], 1, 1, head_dim_ckv + head_dim_kpe)
+    qo_indptr = torch.arange(batch_size + 1, device=o.device, dtype=torch.int32)
+    kv_last_page_lens = torch.ones(
+        batch_size, device=o.device, dtype=torch.int32
+    )
+
+    if use_2d_view:
+        seq_lens = seq_info.reshape(-1).to(torch.int32)
+        kv_indptr = torch.zeros(batch_size + 1, device=o.device, dtype=torch.int32)
+        kv_indptr[1:] = seq_lens.cumsum(0)
+        kv_indices = page_table.reshape(-1).to(torch.int32).contiguous()
+    else:
+        kv_indices = page_table.to(torch.int32).contiguous()
+        kv_indptr = seq_info.to(torch.int32).contiguous()
+
+    from aiter.mla import mla_decode_fwd
+
+    _, final_lse = mla_decode_fwd(
+        q,
+        kv_buffer,
+        o_decode,
+        qo_indptr,
+        kv_indptr,
+        kv_indices,
+        kv_last_page_lens,
+        1,
+        page_size=1,
+        nhead_kv=1,
+        sm_scale=sm_scale,
+        return_lse=return_lse,
+        causal=True,
+    )
+    if return_lse:
+        final_lse = final_lse.unsqueeze(1)
+    return o, final_lse
+
+
 def mla_gluon(
     q_nope,  # [batch, nhead, kv_lora_rank] or MTP [batch, qlen, nhead, kv_lora_rank]
     q_pe,  # [batch, nhead, qk_rope_head_dim] or MTP [batch, qlen, nhead, qk_rope_head_dim]
@@ -840,7 +894,7 @@ def mla_gluon(
     has_pe=True,
     attn_sink=None,  # [nhead] fp32 per-head sink bias, None means no sink
 ):
-    """Unified Gluon MLA entry (gfx950 / CDNA4) — decode and DeepSeek V4 sparse prefill.
+    """Unified Gluon MLA entry — decode and DeepSeek V4 sparse prefill.
 
     `mla_gluon` supports the full decode (stage-1 + stage-2 reduce, or the stage-1-only
     fast path when NUM_KV_SPLITS==1) and writes the final attention into the
@@ -862,6 +916,11 @@ def mla_gluon(
     DSv4 Sparse prefill packs NoPE and RoPE in to one contiguous row (448+64).
     To run DSv4 prefill, it requires has_pe=False, prepares valid Q / K in q_nope / kv_c,
     and attn_sink, q_pe / k_pe are unused placeholders.
+
+    gfx942 (CDNA3) has no Gluon build. Only the exact plain-decode overlap —
+    qlen=1, nhead=16, bf16 Q/KV, shared [N,576] KV, page_size=1, no sink, and
+    kv_scale=1.0 — is routed to ``aiter.mla.mla_decode_fwd``. Every other gfx942
+    contract fails before launch with an explicit architecture error.
     """
     if k_pe is None:
         k_pe = kv_c
@@ -884,9 +943,44 @@ def mla_gluon(
         kv_pe_offset = 0
         use_2d_view = False
 
-    assert (
-        arch_info.get_arch() == "gfx950"
-    ), f"mla_gluon requires gfx950 (CDNA4), got {arch_info.get_arch()}"
+    arch = arch_info.get_arch()
+    if arch == "gfx942" and (
+        qlen == 1
+        and nhead == 16
+        and head_dim_ckv == 512
+        and head_dim_kpe == 64
+        and has_pe
+        and attn_sink is None
+        and min_kv_seq_len >= 1
+        and kv_scale == 1.0
+        and k_pe is kv_c
+        and kv_pe_offset == head_dim_ckv
+        and q_nope.dtype == torch.bfloat16
+        and q_pe.dtype == torch.bfloat16
+        and kv_c.dtype == torch.bfloat16
+        and kv_c.ndim == 2
+        and o.is_contiguous()
+    ):
+        return _mla_gluon_gfx942_decode_fallback(
+            q_nope,
+            q_pe,
+            kv_c,
+            o,
+            page_table,
+            seq_info,
+            sm_scale,
+            use_2d_view,
+            return_lse,
+            batch_size,
+            nhead,
+            head_dim_ckv,
+            head_dim_kpe,
+        )
+    if arch != "gfx950":
+        raise RuntimeError(
+            f"mla_gluon requires gfx950 (CDNA4); {arch} supports only the "
+            "bf16 KV, nhead=16, qlen=1, page-size=1 fallback"
+        )
     assert (
         head_dim_ckv == 512
     ), f"mla_gluon requires head_dim_ckv=512, got {head_dim_ckv}"
