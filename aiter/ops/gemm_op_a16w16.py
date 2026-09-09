@@ -139,7 +139,13 @@ def gemm_a16w16_asm(
     bpreshuffle: bool = False,
 ):
     _validate_asm_gemm_layout(A, B, out, bias)
-    if A.shape[0] == 0:
+    if A.shape[0] == 0 or B.shape[0] == 0:
+        return out
+    if A.shape[1] == 0:
+        if bias is None:
+            out.zero_()
+        else:
+            out.copy_(bias)
         return out
 
     if _buffer_extent_bytes(B) > _BUFFER_BYTE_LIMIT:

@@ -118,6 +118,25 @@ def test_rejects_mismatched_devices():
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
+@pytest.mark.parametrize("with_bias", (False, True))
+def test_zero_k_falls_back_to_host(with_bias):
+    m, n = 256, 128
+    a = torch.empty(m, 0, device="cuda", dtype=torch.bfloat16)
+    b = torch.empty(n, 0, device="cuda", dtype=torch.bfloat16)
+    bias = (
+        torch.randn(n, device="cuda", dtype=torch.bfloat16) * 0.01
+        if with_bias
+        else None
+    )
+    out = torch.empty(m, n, device="cuda", dtype=torch.bfloat16)
+
+    gemm_op_a16w16.gemm_a16w16_asm(a, b, out, bias=bias)
+    torch.cuda.synchronize()
+    expected = bias.expand(m, n) if with_bias else torch.zeros_like(out)
+    _assert_close(out, expected)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
 def test_accepts_padded_input_row_stride():
     m, k, n = 512, 128, 128
     a = torch.randn(m, 2 * k, device="cuda", dtype=torch.bfloat16)[:, :k]
