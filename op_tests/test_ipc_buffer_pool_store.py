@@ -16,8 +16,9 @@ def test_ipc_store_contract(tmp_path):
     nested_store = dist.PrefixStore(
         "outer", dist.PrefixStore("inner", file_store)
     )
+    nested_tcp_store = dist.PrefixStore("outer", tcp_store)
 
-    for store in (tcp_store, file_store, nested_store):
+    for store in (tcp_store, file_store, nested_store, nested_tcp_store):
         IPCBufferPool._assert_supported_ipc_store(store)
         store.set("aiter/ipc-store-contract", b"payload")
         assert store.get("aiter/ipc-store-contract") == b"payload"
