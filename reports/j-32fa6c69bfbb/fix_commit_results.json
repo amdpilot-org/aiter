@@ -1,0 +1,322 @@
+{
+  "overall_pass": true,
+  "git_commit": "97f5bf71acb0002bd08b97310e6e147390ba8344",
+  "gpu": {
+    "name": "AMD Instinct MI300X",
+    "capability": [
+      9,
+      4
+    ]
+  },
+  "torch_version": "2.9.1+rocm7.2.0.git7e1940d4",
+  "python_version": "3.10.12",
+  "aiter_python_path": "/job/aiter-fix-97f5/aiter/__init__.py",
+  "operator_python_module": "/job/aiter-fix-97f5/aiter/ops/fused_qk_norm_rope_cache_quant.py",
+  "operator_native_module": "/job/aiter-fix-97f5/aiter/jit/module_fused_qk_norm_rope_cache_quant_shuffle.so",
+  "operator": "fused_qk_norm_rope_cache_pts_quant_shuffle",
+  "cases": [
+    {
+      "cache_dtype": "torch.bfloat16",
+      "head_size": 128,
+      "num_heads_q": 32,
+      "num_heads_kv": 8,
+      "num_tokens": 17,
+      "block_size": 16,
+      "num_blocks": 4,
+      "rotary_dim": 64,
+      "is_neox_style": true,
+      "eps": 1e-06,
+      "independent_rtol": 0.01,
+      "independent_atol": 0.05,
+      "contiguous_strides": {
+        "k": [
+          16384,
+          1024,
+          128,
+          1
+        ],
+        "v": [
+          16384,
+          1024,
+          128,
+          1
+        ]
+      },
+      "packed_strides": {
+        "k": [
+          33152,
+          259,
+          4144,
+          1
+        ],
+        "v": [
+          33152,
+          259,
+          4144,
+          1
+        ]
+      },
+      "view_parity_exact": true,
+      "contiguous_sentinel_ok": true,
+      "packed_sentinel_ok": true,
+      "comparisons": {
+        "contiguous": {
+          "q_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          }
+        },
+        "packed_strided": {
+          "q_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          }
+        }
+      }
+    },
+    {
+      "cache_dtype": "torch.bfloat16",
+      "head_size": 256,
+      "num_heads_q": 32,
+      "num_heads_kv": 8,
+      "num_tokens": 19,
+      "block_size": 16,
+      "num_blocks": 4,
+      "rotary_dim": 128,
+      "is_neox_style": false,
+      "eps": 1e-06,
+      "independent_rtol": 0.01,
+      "independent_atol": 0.05,
+      "contiguous_strides": {
+        "k": [
+          32768,
+          2048,
+          256,
+          1
+        ],
+        "v": [
+          32768,
+          2048,
+          256,
+          1
+        ]
+      },
+      "packed_strides": {
+        "k": [
+          65920,
+          515,
+          8240,
+          1
+        ],
+        "v": [
+          65920,
+          515,
+          8240,
+          1
+        ]
+      },
+      "view_parity_exact": true,
+      "contiguous_sentinel_ok": true,
+      "packed_sentinel_ok": true,
+      "comparisons": {
+        "contiguous": {
+          "q_out": {
+            "max_abs_error": 0.00048828125,
+            "max_rel_error": 0.005102040711790323,
+            "pass": true
+          },
+          "k_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          }
+        },
+        "packed_strided": {
+          "q_out": {
+            "max_abs_error": 0.00048828125,
+            "max_rel_error": 0.005102040711790323,
+            "pass": true
+          },
+          "k_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          }
+        }
+      }
+    },
+    {
+      "cache_dtype": "torch.float8_e4m3fnuz",
+      "head_size": 128,
+      "num_heads_q": 32,
+      "num_heads_kv": 8,
+      "num_tokens": 17,
+      "block_size": 16,
+      "num_blocks": 4,
+      "rotary_dim": 64,
+      "is_neox_style": true,
+      "eps": 1e-06,
+      "independent_rtol": 0.0,
+      "independent_atol": 0.0625,
+      "contiguous_strides": {
+        "k": [
+          16384,
+          1024,
+          128,
+          1
+        ],
+        "v": [
+          16384,
+          1024,
+          128,
+          1
+        ]
+      },
+      "packed_strides": {
+        "k": [
+          33152,
+          259,
+          4144,
+          1
+        ],
+        "v": [
+          33152,
+          259,
+          4144,
+          1
+        ]
+      },
+      "view_parity_exact": true,
+      "contiguous_sentinel_ok": true,
+      "packed_sentinel_ok": true,
+      "comparisons": {
+        "contiguous": {
+          "q_out": {
+            "max_abs_error": 0.0009765625,
+            "max_rel_error": 0.004739336669445038,
+            "pass": true
+          },
+          "k_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          }
+        },
+        "packed_strided": {
+          "q_out": {
+            "max_abs_error": 0.0009765625,
+            "max_rel_error": 0.004739336669445038,
+            "pass": true
+          },
+          "k_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_out": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "k_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          },
+          "v_cache": {
+            "max_abs_error": 0.0,
+            "max_rel_error": 0.0,
+            "pass": true
+          }
+        }
+      }
+    }
+  ]
+}
