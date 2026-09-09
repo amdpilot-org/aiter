@@ -25,10 +25,20 @@ def get_num_sms():
 
 _HIP_DEVICE_ATTRIBUTE_NUMBER_OF_XCCS = 10018
 _HIP_ERROR_INVALID_VALUE = 1
+_MIN_ROCM_MAJOR_WITH_XCC_ATTRIBUTE = 7
 _NUM_XCDS_COMPATIBILITY_FALLBACK = 8
 
 
-def _query_num_xcds(device_id, libhip):
+def _get_rocm_major():
+    import torch
+
+    hip_version = torch.version.hip
+    if not hip_version:
+        raise RuntimeError("torch.version.hip is unavailable")
+    return int(hip_version.split(".", 1)[0])
+
+
+def _query_num_xcds(device_id, libhip, rocm_major):
     value = ctypes.c_int(0)
     status = libhip.hipDeviceGetAttribute(
         ctypes.byref(value),
@@ -36,7 +46,12 @@ def _query_num_xcds(device_id, libhip):
         device_id,
     )
     if status == _HIP_ERROR_INVALID_VALUE:
-        return _NUM_XCDS_COMPATIBILITY_FALLBACK
+        if rocm_major < _MIN_ROCM_MAJOR_WITH_XCC_ATTRIBUTE:
+            return _NUM_XCDS_COMPATIBILITY_FALLBACK
+        raise RuntimeError(
+            "hipDeviceGetAttribute(NumberOfXccs) is unsupported by this "
+            f"ROCm {rocm_major} runtime"
+        )
     if status != 0:
         raise RuntimeError(
             f"hipDeviceGetAttribute(NumberOfXccs) failed with error {status} "
@@ -53,7 +68,7 @@ def _query_num_xcds(device_id, libhip):
 @functools.lru_cache(maxsize=None)
 def _get_num_xcds(device_id):
     libhip = ctypes.CDLL("libamdhip64.so")
-    return _query_num_xcds(device_id, libhip)
+    return _query_num_xcds(device_id, libhip, _get_rocm_major())
 
 
 def get_num_xcds(device_id=None):

@@ -56,14 +56,19 @@ class TestGetNumXcds(unittest.TestCase):
 
     def test_unsupported_attribute_falls_back_only_for_valid_device(self):
         fake_hip = FakeHipRuntime(status=device_info._HIP_ERROR_INVALID_VALUE)
-        self.assertEqual(device_info._query_num_xcds(0, fake_hip), 8)
+        self.assertEqual(device_info._query_num_xcds(0, fake_hip, 6), 8)
+
+    def test_modern_runtime_does_not_fallback_for_unsupported_attribute(self):
+        fake_hip = FakeHipRuntime(status=device_info._HIP_ERROR_INVALID_VALUE)
+        with self.assertRaises(RuntimeError):
+            device_info._query_num_xcds(0, fake_hip, 7)
 
     def test_zero_and_failed_queries_are_errors(self):
         for status, value in ((0, 0), (999, 8)):
             with self.subTest(status=status, value=value):
                 fake_hip = FakeHipRuntime({0: value}, status=status)
                 with self.assertRaises(RuntimeError):
-                    device_info._query_num_xcds(0, fake_hip)
+                    device_info._query_num_xcds(0, fake_hip, 7)
 
     @unittest.skipUnless(
         torch.cuda.is_available() and torch.version.hip,
