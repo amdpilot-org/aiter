@@ -150,6 +150,14 @@ def test_splitk_partitions_align_to_k_tiles(requested, actual):
     assert config["SPLITK_BLOCK_SIZE"] == 12800 // actual
 
 
+def test_splitk_tail_pads_to_k_tile():
+    config = {"BLOCK_SIZE_K": 128, "NUM_KSPLIT": 8}
+    compute_splitk_params(config, 12864)
+
+    assert config["NUM_KSPLIT"] == 1
+    assert config["SPLITK_BLOCK_SIZE"] == 12928
+
+
 def test_splitk_config_cache_is_not_mutated():
     first, _ = _get_config(1, 5120, 12800, backend="triton")
     second, _ = _get_config(1, 5120, 12800, backend="triton")
