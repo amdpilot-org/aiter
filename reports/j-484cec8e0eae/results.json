@@ -1,0 +1,443 @@
+{
+  "image": "amdpilotv2/open-job-mi300:jit-config-readable-260909-banff5",
+  "image_id": "sha256:39fe745feda79ecf4c17f4d806d8ef12150bef720f2f07f5c63a20b3ccfd63f1",
+  "python": "/opt/venv/bin/python",
+  "torch": "2.9.1+rocm7.2.0.git7e1940d4",
+  "hip": "7.2.26015-fc0010cf6a",
+  "device": "AMD Instinct MI300X",
+  "capability": [
+    9,
+    4
+  ],
+  "production_shape": [
+    8192,
+    4,
+    4096
+  ],
+  "cases": [
+    {
+      "label": "production",
+      "shape": [
+        8192,
+        4,
+        4096
+      ],
+      "status": "validated",
+      "error": null,
+      "output_shapes": [
+        [
+          8192,
+          4,
+          1
+        ],
+        [
+          8192,
+          4,
+          4
+        ],
+        [
+          8192,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ],
+      "reference": [
+        {
+          "shape": [
+            8192,
+            4,
+            1
+          ],
+          "dtype": "torch.float32",
+          "rtol": 0.001,
+          "atol": 0.001,
+          "max_abs_error": 1.239776611328125e-05,
+          "mismatch_count": 0,
+          "element_count": 32768,
+          "passed": true
+        },
+        {
+          "shape": [
+            8192,
+            4,
+            4
+          ],
+          "dtype": "torch.float32",
+          "rtol": 0.001,
+          "atol": 0.001,
+          "max_abs_error": 6.407499313354492e-06,
+          "mismatch_count": 0,
+          "element_count": 131072,
+          "passed": true
+        },
+        {
+          "shape": [
+            8192,
+            4096
+          ],
+          "dtype": "torch.bfloat16",
+          "rtol": 0.01,
+          "atol": 0.01,
+          "max_abs_error": 0.0625,
+          "mismatch_count": 0,
+          "element_count": 33554432,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "label": "tokens_off_by_one_minus",
+      "shape": [
+        8191,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          8191,
+          4,
+          1
+        ],
+        [
+          8191,
+          4,
+          4
+        ],
+        [
+          8191,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "tokens_off_by_one_plus",
+      "shape": [
+        8193,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          8193,
+          4,
+          1
+        ],
+        [
+          8193,
+          4,
+          4
+        ],
+        [
+          8193,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "tokens_tile_boundary_minus",
+      "shape": [
+        8128,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          8128,
+          4,
+          1
+        ],
+        [
+          8128,
+          4,
+          4
+        ],
+        [
+          8128,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "tokens_tile_boundary_plus",
+      "shape": [
+        8256,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          8256,
+          4,
+          1
+        ],
+        [
+          8256,
+          4,
+          4
+        ],
+        [
+          8256,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "big_fuse_nt_boundary_minus",
+      "shape": [
+        2431,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          2431,
+          4,
+          1
+        ],
+        [
+          2431,
+          4,
+          4
+        ],
+        [
+          2431,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "big_fuse_nt_boundary",
+      "shape": [
+        2432,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          2432,
+          4,
+          1
+        ],
+        [
+          2432,
+          4,
+          4
+        ],
+        [
+          2432,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "big_fuse_nt_boundary_plus",
+      "shape": [
+        2433,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          2433,
+          4,
+          1
+        ],
+        [
+          2433,
+          4,
+          4
+        ],
+        [
+          2433,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "big_fuse_dispatch_minus",
+      "shape": [
+        3647,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          3647,
+          4,
+          1
+        ],
+        [
+          3647,
+          4,
+          4
+        ],
+        [
+          3647,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "big_fuse_dispatch",
+      "shape": [
+        3648,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          3648,
+          4,
+          1
+        ],
+        [
+          3648,
+          4,
+          4
+        ],
+        [
+          3648,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "big_fuse_dispatch_plus",
+      "shape": [
+        3649,
+        4,
+        4096
+      ],
+      "status": "launched",
+      "error": null,
+      "output_shapes": [
+        [
+          3649,
+          4,
+          1
+        ],
+        [
+          3649,
+          4,
+          4
+        ],
+        [
+          3649,
+          4096
+        ]
+      ],
+      "output_dtypes": [
+        "torch.float32",
+        "torch.float32",
+        "torch.bfloat16"
+      ]
+    },
+    {
+      "label": "hc_mult_minus",
+      "shape": [
+        8192,
+        3,
+        4096
+      ],
+      "status": "unsupported",
+      "error": "mhc_pre_big_fuse only supports hc_mult=4"
+    },
+    {
+      "label": "hc_mult_plus",
+      "shape": [
+        8192,
+        5,
+        4096
+      ],
+      "status": "unsupported",
+      "error": "mhc_pre_big_fuse only supports hc_mult=4"
+    },
+    {
+      "label": "hidden_off_by_one_minus",
+      "shape": [
+        8192,
+        4,
+        4095
+      ],
+      "status": "unsupported",
+      "error": "mhc_pre_big_fuse only supports hidden_size in [1280, 2560, 4096, 7168]"
+    },
+    {
+      "label": "hidden_off_by_one_plus",
+      "shape": [
+        8192,
+        4,
+        4097
+      ],
+      "status": "unsupported",
+      "error": "mhc_pre_big_fuse only supports hidden_size in [1280, 2560, 4096, 7168]"
+    }
+  ]
+}
