@@ -11,6 +11,7 @@ import torch.nn.functional as F
 
 from aiter.ops.shuffle import shuffle_weight
 from aiter.ops.triton.gemm.basic.gemm_a8w8_blockscale import (
+    _get_config,
     gemm_a8w8_blockscale,
     gemm_a8w8_blockscale_preshuffle,
 )
@@ -147,6 +148,16 @@ def test_splitk_partitions_align_to_k_tiles(requested, actual):
 
     assert config["NUM_KSPLIT"] == actual
     assert config["SPLITK_BLOCK_SIZE"] == 12800 // actual
+
+
+def test_splitk_config_cache_is_not_mutated():
+    first, _ = _get_config(1, 5120, 12800, backend="triton")
+    second, _ = _get_config(1, 5120, 12800, backend="triton")
+
+    assert first == second
+    assert "SPLITK_BLOCK_SIZE" not in first
+    assert "GROUP_K" not in first
+    assert "GROUP_N" not in first
 
 
 @pytest.mark.parametrize("K", [5120, 12800, 25600, 12864])
