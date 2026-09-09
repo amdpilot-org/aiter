@@ -1,0 +1,2 @@
+[aiter] import [module_aiter_core] under /job/aiter-validation/aiter/jit/module_aiter_core.so
+graph capture and replay completed; now destroying graph normally

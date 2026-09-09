@@ -6,6 +6,8 @@ The unresolved gfx950 portion of [PR27](https://github.com/amdpilot-org/aiter/pu
 
 The validation checkout was a separate ordinary clone checked out at exactly `29790464f03a9c626355a7c963aefee25a85242a`, detached and clean. The delivery branch is cut from current `main` at `f0321c0e8927d1d90a29385433f71e592b1c51f5`.
 
+Draft mirror PR: <https://github.com/amdpilot-org/aiter/pull/30>. This branch is report-only and must not be interpreted as containing PR27's runtime change.
+
 ## Production consumers
 
 The two actual production GEMM call sites using `get_num_xcds` are:
