@@ -64,6 +64,12 @@ If you have built moe kernels before tuning new MoE shapes, please add `AITER_RE
 --errRatio 0.01
 ```
 
+#### `AITER_MOE_COS_DIFF_ROWWISE`
+
+- **Type**: Environment variable
+- **Default**: disabled
+- **Description**: Score cosine-diff per output row and use the worst row in addition to the whole-tensor value. Rows whose reference energy is below 0.1% of the peak row energy are ignored. This is opt-in because it can reject candidates that the existing whole-tensor metric accepts.
+
 #### `--mp`
 - **Type**: Integer
 - **Default**: Number of available GPUs
@@ -214,4 +220,3 @@ python3 csrc/ck_gemm_moe_2stages_codegen/gemm_moe_tune.py \
 - Only G1U1 (gate-up fused) MoE configurations are currently supported for tuning
 - Supported quantization types include: per_Token, per_1x128 (blockscale), per_1x32 (MXFP4, gfx950 only)
 - If you use flag `PREBUILD_KERNELS=1` when you install aiter, it will build moe kernels in tuned csv by default. If you want to use the new result of moe tuning, please remove `build` and `*.so` in `aiter/jit` first, then re-install aiter after finishing tune. This can take a lot of time and is not recommended.
-
