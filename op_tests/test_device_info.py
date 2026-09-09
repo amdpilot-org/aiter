@@ -63,6 +63,10 @@ class TestGetNumXcds(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             device_info._query_num_xcds(0, fake_hip, 7)
 
+    def test_older_runtime_uses_real_measurement_when_available(self):
+        fake_hip = FakeHipRuntime({0: 6})
+        self.assertEqual(device_info._query_num_xcds(0, fake_hip, 6), 6)
+
     def test_zero_and_failed_queries_are_errors(self):
         for status, value in ((0, 0), (999, 8)):
             with self.subTest(status=status, value=value):
