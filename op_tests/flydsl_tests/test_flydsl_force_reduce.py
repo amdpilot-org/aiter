@@ -70,3 +70,9 @@ def test_get_2stage_cfgs_force_reduce_cache_key():
     assert cache_info.hits == 1
     assert cache_info.misses == 2
     assert cache_info.currsize == 2
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_force_flydsl_stage2_reduce_ignores_non_flydsl_names(force):
+    kernel_name = "cktile_moe_stage2"
+    assert _force_flydsl_stage2_reduce(kernel_name, force=force) == kernel_name
