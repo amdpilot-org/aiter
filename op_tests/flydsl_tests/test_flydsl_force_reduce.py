@@ -1,6 +1,7 @@
 import pytest
 
-from aiter.fused_moe import _force_flydsl_stage2_reduce
+from aiter import ActivationType, QuantType, dtypes
+from aiter.fused_moe import _force_flydsl_stage2_reduce, get_2stage_cfgs
 
 
 @pytest.mark.parametrize("force", [False, True])
@@ -28,3 +29,41 @@ def test_force_flydsl_stage2_reduce(force):
         == expected_native_nt
     )
     assert _force_flydsl_stage2_reduce(reduce_name, force=force) == reduce_name
+
+
+def test_get_2stage_cfgs_force_reduce_cache_key():
+    get_2stage_cfgs.cache_clear()
+    args = (
+        1024,
+        6144,
+        512,
+        257,
+        9,
+        dtypes.bf16,
+        dtypes.fp4x2,
+        dtypes.fp4x2,
+        QuantType.per_1x32,
+        True,
+        ActivationType.Silu,
+        False,
+        0,
+        0,
+    )
+    kwargs = {
+        "is_shuffled": True,
+        "gate_mode": "separated",
+        "is_ep": False,
+        "has_stage2_bias": False,
+        "opus_weights_shuffled": True,
+        "config_file": None,
+    }
+
+    atomic = get_2stage_cfgs(*args, force_reduce=False, **kwargs)
+    reduce = get_2stage_cfgs(*args, force_reduce=True, **kwargs)
+    atomic_again = get_2stage_cfgs(*args, force_reduce=False, **kwargs)
+
+    assert atomic is not reduce
+    assert atomic_again is atomic
+    assert "_atomic_" in atomic.stage2.keywords["kernelName"]
+    assert "_reduce_" in reduce.stage2.keywords["kernelName"]
+    assert get_2stage_cfgs.cache_info().currsize >= 2
