@@ -632,6 +632,10 @@ def per_tensor_quant_hip(
     num_rows: torch.Tensor | None = None,
     num_rows_factor=1,
 ):
+    if num_rows is not None:
+        assert num_rows.dtype == torch.int32, "num_rows must be int32"
+        assert num_rows.device == x.device, "num_rows must be on the input device"
+        assert num_rows.numel() == 1, "num_rows must contain exactly one value"
     y = torch.empty(x.shape, dtype=quant_dtype, device=x.device)
     if quant_dtype in [dtypes.fp8, dtypes.i8]:
         if scale is None:
