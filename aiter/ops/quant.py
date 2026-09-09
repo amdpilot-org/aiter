@@ -630,16 +630,39 @@ def per_tensor_quant_hip(
     scale=None,
     quant_dtype=dtypes.i8,
     num_rows: torch.Tensor | None = None,
-    num_rows_factor=1,
+    num_rows_factor: int = 1,
 ):
-    assert num_rows is None, "num_rows is not supported for per_tensor_quant_hip"
+    """Quantize active rows with a single tensor-wide scale.
+
+    ``num_rows`` optionally limits dynamic-scale computation and quantization to
+    the first ``num_rows * num_rows_factor`` rows. This supports padded
+    expert-parallel buffers without allowing poisoned padding rows to affect the
+    scale.
+    """
+    assert num_rows_factor > 0, "num_rows_factor must be positive"
+    if num_rows is not None:
+        assert num_rows.dtype == torch.int32, "num_rows must be int32"
+        assert num_rows.device == x.device, "num_rows must be on the input device"
+        assert num_rows.numel() == 1, "num_rows must contain exactly one value"
     y = torch.empty(x.shape, dtype=quant_dtype, device=x.device)
     if quant_dtype in [dtypes.fp8, dtypes.i8]:
         if scale is None:
             scale = torch.empty(1, dtype=dtypes.fp32, device=x.device)
-            dynamic_per_tensor_quant(y, x, scale)
+            dynamic_per_tensor_quant(
+                y,
+                x,
+                scale,
+                num_rows=num_rows,
+                num_rows_factor=num_rows_factor,
+            )
         else:
-            static_per_tensor_quant(y, x, scale)
+            static_per_tensor_quant(
+                y,
+                x,
+                scale,
+                num_rows=num_rows,
+                num_rows_factor=num_rows_factor,
+            )
     else:
         raise ValueError(f"unsupported: {quant_dtype=}")
     return y, scale.view(1)
@@ -745,11 +768,23 @@ def moe_smooth_per_token_scaled_quant(
 
 
 @compile_ops("module_quant", develop=True)
-def static_per_tensor_quant(out: Tensor, input: Tensor, scale: Tensor) -> None: ...
+def static_per_tensor_quant(
+    out: Tensor,
+    input: Tensor,
+    scale: Tensor,
+    num_rows: Tensor | None = None,
+    num_rows_factor: int = 1,
+) -> None: ...
 
 
 @compile_ops("module_quant", develop=True)
-def dynamic_per_tensor_quant(out: Tensor, input: Tensor, scale: Tensor) -> None: ...
+def dynamic_per_tensor_quant(
+    out: Tensor,
+    input: Tensor,
+    scale: Tensor,
+    num_rows: Tensor | None = None,
+    num_rows_factor: int = 1,
+) -> None: ...
 
 
 @compile_ops("module_quant", develop=True)
