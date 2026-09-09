@@ -1,0 +1,1351 @@
+{
+  "schema_version": 1,
+  "label": "candidate-04906a6",
+  "environment": {
+    "image_id": "sha256:dfc9419089c338b5712da4841768b38b1ab79f3da41f8c58c3cd4dfcc1147ff1",
+    "git_commit": "04906a670e187c6a6091c77e03ff3781cfd2867f",
+    "python_executable": "/opt/venv/bin/python",
+    "repo_root": "/job/aiter-candidate",
+    "aiter_root_dir": "/job/aiter-build-candidate",
+    "rocm_smi_returncode": 0,
+    "rocm_smi_stdout": "\n\n============================ ROCm System Management Interface ============================\n=========================================== ID ===========================================\nGPU[0]\t\t: Device Name: \t\tAMD Instinct MI300X\nGPU[0]\t\t: Device ID: \t\t0x74a1\nGPU[0]\t\t: Device Rev: \t\t0x00\nGPU[0]\t\t: Subsystem ID: \t0x74a1\nGPU[0]\t\t: GUID: \t\t39656\n==========================================================================================\n====================================== Product Info ======================================\nGPU[0]\t\t: Card Series: \t\tAMD Instinct MI300X\nGPU[0]\t\t: Card Model: \t\t0x74a1\nGPU[0]\t\t: Card Vendor: \t\tAdvanced Micro Devices, Inc. [AMD/ATI]\nGPU[0]\t\t: Card SKU: \t\tM3000108\nGPU[0]\t\t: Subsystem ID: \t0x74a1\nGPU[0]\t\t: Device Rev: \t\t0x00\nGPU[0]\t\t: Node ID: \t\t3\nGPU[0]\t\t: GUID: \t\t39656\nGPU[0]\t\t: GFX Version: \t\tgfx942\n==========================================================================================\n================================== End of ROCm SMI Log ===================================\n",
+    "rocm_smi_stderr": "WARNING: AMD GPU device(s) is/are in a low-power state. Check power control/runtime_status\n\n"
+  },
+  "cases": [
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 69.686,
+      "child_result": {
+        "case_id": "scalar-v111-k1",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          111
+        ],
+        "max_abs_difference": 0.0,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          1,
+          1,
+          1
+        ],
+        "reference_nonzero_counts": [
+          1,
+          1,
+          1
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v111-k1\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 111], \"max_abs_difference\": 0.0, \"numerical_match\": true, \"actual_nonzero_counts\": [1, 1, 1], \"reference_nonzero_counts\": [1, 1, 1], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] [pid=4905 pname=MainProcess] start build [module_aiter_core] under /job/aiter-candidate/aiter/jit/build/module_aiter_core\n[aiter] Current hipcc not support: -mllvm -amdgpu-coerce-illegal-types=1, skip it.\n[aiter] [pid=4905 pname=MainProcess] \u001b[32mfinish build [module_aiter_core], cost 21.9s \u001b[0m\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n[aiter] compile_template_op func_name = 'top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e' with {'src_template': <Template memory:7f9e2aacab30>, 'md_name': 'top_k_renorm_probs', 'includes': ['/job/aiter-candidate/csrc/cpp_itfs/utils.h', '/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh', '/job/aiter-candidate/csrc/cpp_itfs/sampling/vec_dtypes.cuh'], 'sources': [], 'cxxflags': [], 'func_name': 'top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e', 'folder': 'top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e', 'kwargs': OrderedDict()}...\n[aiter] start build /job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e\nclang (LLVM option parsing): Unknown command line argument '-amdgpu-coerce-illegal-types=1'.  Try: 'clang (LLVM option parsing) --help'\nclang (LLVM option parsing): Did you mean '--amdgpu-mode-register=1'?\nfailed to execute:/opt/rocm-7.2.0/lib/llvm/bin/clang++  --offload-arch=gfx942 -O3  -mllvm -amdgpu-coerce-illegal-types=1 -x hip -c /dev/null -o \"/dev/null\"\n[aiter] -mllvm -amdgpu-coerce-illegal-types=1 is not supported by hipcc.\n[aiter] finish build /job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e, cost 34.31876206s\n",
+      "case": {
+        "case_id": "scalar-v111-k1",
+        "batch_size": 3,
+        "vocab_size": 111,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          1
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 10.984,
+      "child_result": {
+        "case_id": "scalar-v111-k50",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          111
+        ],
+        "max_abs_difference": 1.862645149230957e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          50,
+          50,
+          50
+        ],
+        "reference_nonzero_counts": [
+          50,
+          50,
+          50
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v111-k50\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 111], \"max_abs_difference\": 1.862645149230957e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [50, 50, 50], \"reference_nonzero_counts\": [50, 50, 50], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v111-k50",
+        "batch_size": 3,
+        "vocab_size": 111,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          50
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 10.917,
+      "child_result": {
+        "case_id": "scalar-v111-k110",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          111
+        ],
+        "max_abs_difference": 1.862645149230957e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          111,
+          111,
+          111
+        ],
+        "reference_nonzero_counts": [
+          111,
+          111,
+          111
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v111-k110\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 111], \"max_abs_difference\": 1.862645149230957e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [111, 111, 111], \"reference_nonzero_counts\": [111, 111, 111], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v111-k110",
+        "batch_size": 3,
+        "vocab_size": 111,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          110
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 8.79,
+      "child_result": {
+        "case_id": "scalar-v111-k111",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          111
+        ],
+        "max_abs_difference": 1.862645149230957e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          111,
+          111,
+          111
+        ],
+        "reference_nonzero_counts": [
+          111,
+          111,
+          111
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v111-k111\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 111], \"max_abs_difference\": 1.862645149230957e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [111, 111, 111], \"reference_nonzero_counts\": [111, 111, 111], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v111-k111",
+        "batch_size": 3,
+        "vocab_size": 111,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          111
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 10.877,
+      "child_result": {
+        "case_id": "scalar-v111-k112",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          111
+        ],
+        "max_abs_difference": 1.862645149230957e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          111,
+          111,
+          111
+        ],
+        "reference_nonzero_counts": [
+          111,
+          111,
+          111
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v111-k112\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 111], \"max_abs_difference\": 1.862645149230957e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [111, 111, 111], \"reference_nonzero_counts\": [111, 111, 111], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v111-k112",
+        "batch_size": 3,
+        "vocab_size": 111,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          112
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 10.23,
+      "child_result": {
+        "case_id": "scalar-v500-k100",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          500
+        ],
+        "max_abs_difference": 9.313225746154785e-10,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          100,
+          100,
+          100
+        ],
+        "reference_nonzero_counts": [
+          100,
+          100,
+          100
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v500-k100\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 500], \"max_abs_difference\": 9.313225746154785e-10, \"numerical_match\": true, \"actual_nonzero_counts\": [100, 100, 100], \"reference_nonzero_counts\": [100, 100, 100], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v500-k100",
+        "batch_size": 3,
+        "vocab_size": 500,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          100
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 11.577,
+      "child_result": {
+        "case_id": "scalar-v32000-k50",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 3.725290298461914e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          50,
+          50,
+          50
+        ],
+        "reference_nonzero_counts": [
+          50,
+          50,
+          50
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v32000-k50\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 3.725290298461914e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [50, 50, 50], \"reference_nonzero_counts\": [50, 50, 50], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v32000-k50",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          50
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 12.148,
+      "child_result": {
+        "case_id": "scalar-v32000-k100",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 9.313225746154785e-10,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          100,
+          100,
+          100
+        ],
+        "reference_nonzero_counts": [
+          100,
+          100,
+          100
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v32000-k100\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 9.313225746154785e-10, \"numerical_match\": true, \"actual_nonzero_counts\": [100, 100, 100], \"reference_nonzero_counts\": [100, 100, 100], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v32000-k100",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          100
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 11.021,
+      "child_result": {
+        "case_id": "scalar-v32000-k31999",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 7.275957614183426e-12,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          32000,
+          32000,
+          32000
+        ],
+        "reference_nonzero_counts": [
+          32000,
+          32000,
+          32000
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v32000-k31999\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 7.275957614183426e-12, \"numerical_match\": true, \"actual_nonzero_counts\": [32000, 32000, 32000], \"reference_nonzero_counts\": [32000, 32000, 32000], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v32000-k31999",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          31999
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 8.644,
+      "child_result": {
+        "case_id": "scalar-v32000-k32000",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 7.275957614183426e-12,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          32000,
+          32000,
+          32000
+        ],
+        "reference_nonzero_counts": [
+          32000,
+          32000,
+          32000
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v32000-k32000\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 7.275957614183426e-12, \"numerical_match\": true, \"actual_nonzero_counts\": [32000, 32000, 32000], \"reference_nonzero_counts\": [32000, 32000, 32000], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v32000-k32000",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          32000
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 11.907,
+      "child_result": {
+        "case_id": "scalar-v128256-k100",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          128256
+        ],
+        "max_abs_difference": 9.313225746154785e-10,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          100,
+          100,
+          100
+        ],
+        "reference_nonzero_counts": [
+          100,
+          100,
+          100
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v128256-k100\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 128256], \"max_abs_difference\": 9.313225746154785e-10, \"numerical_match\": true, \"actual_nonzero_counts\": [100, 100, 100], \"reference_nonzero_counts\": [100, 100, 100], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v128256-k100",
+        "batch_size": 3,
+        "vocab_size": 128256,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          100
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 12.17,
+      "child_result": {
+        "case_id": "scalar-v128256-k128255",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          128256
+        ],
+        "max_abs_difference": 1.8189894035458565e-12,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "reference_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v128256-k128255\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 128256], \"max_abs_difference\": 1.8189894035458565e-12, \"numerical_match\": true, \"actual_nonzero_counts\": [128256, 128256, 128256], \"reference_nonzero_counts\": [128256, 128256, 128256], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v128256-k128255",
+        "batch_size": 3,
+        "vocab_size": 128256,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          128255
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 8.554,
+      "child_result": {
+        "case_id": "scalar-v128256-k128256",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          128256
+        ],
+        "max_abs_difference": 1.8189894035458565e-12,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "reference_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v128256-k128256\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 128256], \"max_abs_difference\": 1.8189894035458565e-12, \"numerical_match\": true, \"actual_nonzero_counts\": [128256, 128256, 128256], \"reference_nonzero_counts\": [128256, 128256, 128256], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v128256-k128256",
+        "batch_size": 3,
+        "vocab_size": 128256,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          128256
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 10.867,
+      "child_result": {
+        "case_id": "scalar-v128256-k128257",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          128256
+        ],
+        "max_abs_difference": 1.8189894035458565e-12,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "reference_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v128256-k128257\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 128256], \"max_abs_difference\": 1.8189894035458565e-12, \"numerical_match\": true, \"actual_nonzero_counts\": [128256, 128256, 128256], \"reference_nonzero_counts\": [128256, 128256, 128256], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v128256-k128257",
+        "batch_size": 3,
+        "vocab_size": 128256,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          128257
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 9.906,
+      "child_result": {
+        "case_id": "per-row-v500-mixed",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          500
+        ],
+        "max_abs_difference": 7.450580596923828e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          10,
+          100,
+          500
+        ],
+        "reference_nonzero_counts": [
+          10,
+          100,
+          500
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v500-mixed\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 500], \"max_abs_difference\": 7.450580596923828e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [10, 100, 500], \"reference_nonzero_counts\": [10, 100, 500], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v500-mixed",
+        "batch_size": 3,
+        "vocab_size": 500,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          10,
+          100,
+          500
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 11.791,
+      "child_result": {
+        "case_id": "per-row-v32000-mixed",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 1.4901161193847656e-08,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          10,
+          100,
+          32000
+        ],
+        "reference_nonzero_counts": [
+          10,
+          100,
+          32000
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v32000-mixed\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 1.4901161193847656e-08, \"numerical_match\": true, \"actual_nonzero_counts\": [10, 100, 32000], \"reference_nonzero_counts\": [10, 100, 32000], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v32000-mixed",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          10,
+          100,
+          32000
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 12.018,
+      "child_result": {
+        "case_id": "per-row-v32000-k50-disabled",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          2,
+          32000
+        ],
+        "max_abs_difference": 3.725290298461914e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          50,
+          32000
+        ],
+        "reference_nonzero_counts": [
+          50,
+          32000
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v32000-k50-disabled\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [2, 32000], \"max_abs_difference\": 3.725290298461914e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [50, 32000], \"reference_nonzero_counts\": [50, 32000], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v32000-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 32000,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          32000
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 11.694,
+      "child_result": {
+        "case_id": "per-row-v128256-k50-disabled",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          2,
+          128256
+        ],
+        "max_abs_difference": 3.725290298461914e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          50,
+          128256
+        ],
+        "reference_nonzero_counts": [
+          50,
+          128256
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v128256-k50-disabled\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [2, 128256], \"max_abs_difference\": 3.725290298461914e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [50, 128256], \"reference_nonzero_counts\": [50, 128256], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v128256-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 128256,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          128256
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 11.543,
+      "child_result": {
+        "case_id": "per-row-v1048576-k50-disabled",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          2,
+          1048576
+        ],
+        "max_abs_difference": 1.862645149230957e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          50,
+          1048576
+        ],
+        "reference_nonzero_counts": [
+          50,
+          1048576
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v1048576-k50-disabled\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [2, 1048576], \"max_abs_difference\": 1.862645149230957e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [50, 1048576], \"reference_nonzero_counts\": [50, 1048576], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v1048576-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          1048576
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 10.963,
+      "child_result": {
+        "case_id": "per-row-v1048576-mixed",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          1048576
+        ],
+        "max_abs_difference": 1.4901161193847656e-08,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          10,
+          100,
+          1048576
+        ],
+        "reference_nonzero_counts": [
+          10,
+          100,
+          1048576
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v1048576-mixed\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 1048576], \"max_abs_difference\": 1.4901161193847656e-08, \"numerical_match\": true, \"actual_nonzero_counts\": [10, 100, 1048576], \"reference_nonzero_counts\": [10, 100, 1048576], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v1048576-mixed",
+        "batch_size": 3,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          10,
+          100,
+          1048576
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 10.802,
+      "child_result": {
+        "case_id": "per-row-v1048576-boundary",
+        "input_dtype": "torch.float32",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          2,
+          1048576
+        ],
+        "max_abs_difference": 1.862645149230957e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          1048576,
+          50
+        ],
+        "reference_nonzero_counts": [
+          1048576,
+          50
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v1048576-boundary\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [2, 1048576], \"max_abs_difference\": 1.862645149230957e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [1048576, 50], \"reference_nonzero_counts\": [1048576, 50], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v1048576-boundary",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          1048575,
+          50
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 12.385,
+      "child_result": {
+        "case_id": "per-row-v32000-float16",
+        "input_dtype": "torch.float16",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 9.313225746154785e-10,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          29,
+          102,
+          32000
+        ],
+        "reference_nonzero_counts": [
+          29,
+          102,
+          32000
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v32000-float16\", \"input_dtype\": \"torch.float16\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 9.313225746154785e-10, \"numerical_match\": true, \"actual_nonzero_counts\": [29, 102, 32000], \"reference_nonzero_counts\": [29, 102, 32000], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v32000-float16",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "float16",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          10,
+          100,
+          32000
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 9.931,
+      "child_result": {
+        "case_id": "per-row-v32000-bfloat16",
+        "input_dtype": "torch.bfloat16",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 0.0,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          247,
+          313,
+          32000
+        ],
+        "reference_nonzero_counts": [
+          247,
+          313,
+          32000
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v32000-bfloat16\", \"input_dtype\": \"torch.bfloat16\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 0.0, \"numerical_match\": true, \"actual_nonzero_counts\": [247, 313, 32000], \"reference_nonzero_counts\": [247, 313, 32000], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v32000-bfloat16",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "bfloat16",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          10,
+          100,
+          32000
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 7.865,
+      "child_result": {
+        "case_id": "scalar-v128256-float16-full",
+        "input_dtype": "torch.float16",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          128256
+        ],
+        "max_abs_difference": 1.8189894035458565e-12,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "reference_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v128256-float16-full\", \"input_dtype\": \"torch.float16\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 128256], \"max_abs_difference\": 1.8189894035458565e-12, \"numerical_match\": true, \"actual_nonzero_counts\": [128256, 128256, 128256], \"reference_nonzero_counts\": [128256, 128256, 128256], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v128256-float16-full",
+        "batch_size": 3,
+        "vocab_size": 128256,
+        "dtype": "float16",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          128256
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 11.421,
+      "child_result": {
+        "case_id": "scalar-v128256-bfloat16-near",
+        "input_dtype": "torch.bfloat16",
+        "input_layout": "contiguous",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          128256
+        ],
+        "max_abs_difference": 1.8189894035458565e-12,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "reference_nonzero_counts": [
+          128256,
+          128256,
+          128256
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"scalar-v128256-bfloat16-near\", \"input_dtype\": \"torch.bfloat16\", \"input_layout\": \"contiguous\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 128256], \"max_abs_difference\": 1.8189894035458565e-12, \"numerical_match\": true, \"actual_nonzero_counts\": [128256, 128256, 128256], \"reference_nonzero_counts\": [128256, 128256, 128256], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "scalar-v128256-bfloat16-near",
+        "batch_size": 3,
+        "vocab_size": 128256,
+        "dtype": "bfloat16",
+        "layout": "contiguous",
+        "k_mode": "scalar",
+        "k_values": [
+          128255
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 12.117,
+      "child_result": {
+        "case_id": "per-row-v32000-offset",
+        "input_dtype": "torch.float32",
+        "input_layout": "storage-offset",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          3,
+          32000
+        ],
+        "max_abs_difference": 9.313225746154785e-10,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          10,
+          100,
+          32000
+        ],
+        "reference_nonzero_counts": [
+          10,
+          100,
+          32000
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v32000-offset\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"storage-offset\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [3, 32000], \"max_abs_difference\": 9.313225746154785e-10, \"numerical_match\": true, \"actual_nonzero_counts\": [10, 100, 32000], \"reference_nonzero_counts\": [10, 100, 32000], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v32000-offset",
+        "batch_size": 3,
+        "vocab_size": 32000,
+        "dtype": "float32",
+        "layout": "storage-offset",
+        "k_mode": "per-row",
+        "k_values": [
+          10,
+          100,
+          32000
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 12.156,
+      "child_result": {
+        "case_id": "per-row-v1048576-offset-disabled",
+        "input_dtype": "torch.float32",
+        "input_layout": "storage-offset",
+        "input_is_contiguous": true,
+        "output_dtype": "torch.float32",
+        "output_shape": [
+          2,
+          1048576
+        ],
+        "max_abs_difference": 1.862645149230957e-09,
+        "numerical_match": true,
+        "actual_nonzero_counts": [
+          50,
+          1048576
+        ],
+        "reference_nonzero_counts": [
+          50,
+          1048576
+        ],
+        "python_wrapper_path": "/job/aiter-candidate/aiter/ops/sampling.py",
+        "python_interface_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+        "native_source_path": "/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh",
+        "native_library_paths": [
+          "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+        ]
+      },
+      "stdout_tail": "CHILD_RESULT {\"case_id\": \"per-row-v1048576-offset-disabled\", \"input_dtype\": \"torch.float32\", \"input_layout\": \"storage-offset\", \"input_is_contiguous\": true, \"output_dtype\": \"torch.float32\", \"output_shape\": [2, 1048576], \"max_abs_difference\": 1.862645149230957e-09, \"numerical_match\": true, \"actual_nonzero_counts\": [50, 1048576], \"reference_nonzero_counts\": [50, 1048576], \"python_wrapper_path\": \"/job/aiter-candidate/aiter/ops/sampling.py\", \"python_interface_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/top_k_renorm_probs.py\", \"native_source_path\": \"/job/aiter-candidate/csrc/cpp_itfs/sampling/sampling.cuh\", \"native_library_paths\": [\"/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so\"]}\n",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter-candidate/aiter/jit/module_aiter_core.so\n",
+      "case": {
+        "case_id": "per-row-v1048576-offset-disabled",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "storage-offset",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          1048576
+        ]
+      },
+      "repeat": 1,
+      "passed": true
+    }
+  ],
+  "summary": {
+    "total_runs": 27,
+    "passed": 27,
+    "failed": 0
+  }
+}
