@@ -104,6 +104,26 @@ def test_rmsnorm2d_fuseAdd(dtype, m, n):
             / res_a.float().abs().clamp_min(1e-30)
         )[nonzero].mean()
         assert signed_bias.abs().item() < 1e-6, "bf16 residual has signed bias"
+        subnormal_input = torch.full(
+            (1, n), 9.18354962e-41, dtype=dtype, device="cuda"
+        )
+        subnormal_residual = subnormal_input.clone()
+        subnormal_out = torch.empty_like(subnormal_input)
+        subnormal_residual_out = torch.empty_like(subnormal_input)
+        aiter.rmsnorm2d_fwd_with_add(
+            subnormal_out,
+            subnormal_input,
+            subnormal_residual,
+            subnormal_residual_out,
+            weight,
+            1e-5,
+        )
+        subnormal_reference = (
+            subnormal_input.float() + subnormal_residual.float()
+        ).to(torch.bfloat16)
+        assert torch.equal(
+            subnormal_residual_out, subnormal_reference
+        ), "bf16 subnormal residual must use RNE"
     # checkAllclose(a, d, atol=0.03, msg='cu')
     # checkAllclose(res_a, res_d, atol=0.01, msg='cu res check')
 

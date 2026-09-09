@@ -11,9 +11,96 @@
 #include "aiter_stream.h"
 #include "aiter_tensor.h"
 #include "mx_quant_utils.h"
+#include <hip/amd_detail/math_fwd.h>
 #include "rocprim/rocprim.hpp"
 
 namespace aiter {
+
+__device__ double bf16_to_double(opus::bf16_t value)
+{
+    unsigned short bits = __builtin_bit_cast(unsigned short, value);
+    unsigned int sign = bits >> 15;
+    unsigned int exponent = (bits >> 7) & 0xff;
+    unsigned int mantissa = bits & 0x7f;
+    double magnitude;
+    if(exponent == 0xff)
+    {
+        magnitude = mantissa ? __builtin_nan("") : __builtin_huge_val();
+    }
+    else if(exponent == 0)
+    {
+        magnitude = __ocml_ldexp_f64(static_cast<double>(mantissa), -133);
+    }
+    else
+    {
+        magnitude = __ocml_ldexp_f64(static_cast<double>(128 + mantissa), exponent - 134);
+    }
+    return sign ? -magnitude : magnitude;
+}
+
+__device__ opus::bf16_t double_to_bf16_rne(double value)
+{
+    uint64_t bits = __builtin_bit_cast(uint64_t, value);
+    unsigned int sign = static_cast<unsigned int>(bits >> 63);
+    unsigned int exponent = static_cast<unsigned int>((bits >> 52) & 0x7ff);
+    uint64_t fraction = bits & ((1ULL << 52) - 1);
+    unsigned short result;
+    if(exponent == 0x7ff)
+    {
+        result = static_cast<unsigned short>((sign << 15) | (fraction ? 0x7fc0 : 0x7f80));
+    }
+    else if(exponent == 0)
+    {
+        result = static_cast<unsigned short>(sign << 15);
+    }
+    else
+    {
+        int bf16_exponent = static_cast<int>(exponent) - 896;
+        if(bf16_exponent > 254)
+        {
+            result = static_cast<unsigned short>((sign << 15) | 0x7f80);
+        }
+        else if(bf16_exponent < 1)
+        {
+            double magnitude = sign ? -value : value;
+            double scaled = magnitude * 0x1p133;
+            double rounded = __ocml_nearbyint_f64(scaled);
+            unsigned int mantissa = static_cast<unsigned int>(rounded);
+            if(mantissa >= 128)
+            {
+                result = static_cast<unsigned short>((sign << 15) | (1 << 7));
+            }
+            else
+            {
+                result = static_cast<unsigned short>((sign << 15) | mantissa);
+            }
+        }
+        else
+        {
+            uint64_t rounded_fraction = (fraction + (1ULL << 44)) >> 45;
+            if((fraction & ((1ULL << 45) - 1)) == (1ULL << 44) && (rounded_fraction & 1))
+            {
+                --rounded_fraction;
+            }
+            if(rounded_fraction >= 128)
+            {
+                rounded_fraction = 0;
+                ++bf16_exponent;
+            }
+            if(bf16_exponent > 254)
+            {
+                result = static_cast<unsigned short>((sign << 15) | 0x7f80);
+            }
+            else
+            {
+                result = static_cast<unsigned short>(
+                    (sign << 15) | (bf16_exponent << 7) | rounded_fraction
+                );
+            }
+        }
+    }
+    return __builtin_bit_cast(opus::bf16_t, result);
+}
 
 template <typename DTYPE_I, typename DTYPE_O, int BlockSize, int thread_data_size, bool ADD_RESIDUAL=true, bool FUSE_QUANT=true, bool interleave = false, int num_row = 1>
 __global__ void add_rmsnorm_quant_kernel(
@@ -117,10 +204,32 @@ __global__ void add_rmsnorm_quant_kernel(
                 if constexpr(!FUSE_QUANT && std::is_same_v<DTYPE_I, opus::bf16_t>)
                 {
                     vec_i thread_data_residual_out;
+                    bool any_subnormal = false;
                     for(int i = 0; i < thread_data_size; i++)
                     {
-                        thread_data_residual_out[i] = opus::fp32_to_bf16(
-                            thread_data_float[i], opus::number<0>{});
+                        unsigned short input_bits = __builtin_bit_cast(
+                            unsigned short, thread_data_i[i]);
+                        unsigned short residual_bits = __builtin_bit_cast(
+                            unsigned short, thread_data_residual_in[i]);
+                        any_subnormal |= (((input_bits >> 7) & 0xff) == 0 && (input_bits & 0x7f) != 0);
+                        any_subnormal |= (((residual_bits >> 7) & 0xff) == 0 && (residual_bits & 0x7f) != 0);
+                    }
+                    if(any_subnormal)
+                    {
+                        for(int i = 0; i < thread_data_size; i++)
+                        {
+                            double sum = bf16_to_double(thread_data_i[i]) +
+                                         bf16_to_double(thread_data_residual_in[i]);
+                            thread_data_residual_out[i] = double_to_bf16_rne(sum);
+                        }
+                    }
+                    else
+                    {
+                        for(int i = 0; i < thread_data_size; i++)
+                        {
+                            thread_data_residual_out[i] = opus::fp32_to_bf16(
+                                thread_data_float[i], opus::number<0>{});
+                        }
                     }
                     store_vector<DTYPE_I, DTYPE_I, thread_data_size, load_aux, interleave, interleave_size, num_load_inst, DTYPE_I>(buffer_residual_out, thread_data_residual_out, row_offset);
                 }
