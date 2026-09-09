@@ -60,6 +60,18 @@ def test_rejects_noncontiguous_output():
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
+def test_rejects_noncontiguous_bias():
+    k, n = 128, 128
+    a = torch.randn(256, k, device="cuda", dtype=torch.bfloat16)
+    b = torch.randn(n, k, device="cuda", dtype=torch.bfloat16)
+    bias = torch.randn(2 * n, device="cuda", dtype=torch.bfloat16)[::2]
+    out = torch.empty(256, n, device="cuda", dtype=torch.bfloat16)
+
+    with pytest.raises(ValueError, match="bias must be contiguous"):
+        gemm_op_a16w16.gemm_a16w16_asm(a, b, out, bias=bias)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
 def test_accepts_padded_input_row_stride():
     m, k, n = 512, 128, 128
     a = torch.randn(m, 2 * k, device="cuda", dtype=torch.bfloat16)[:, :k]

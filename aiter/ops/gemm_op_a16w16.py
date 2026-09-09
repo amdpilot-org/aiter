@@ -87,7 +87,9 @@ def _rows_within_buffer_limit(tensor: Tensor, limit: int) -> int:
     return (element_limit - fixed_elements) // row_stride + 1
 
 
-def _validate_asm_gemm_layout(A: Tensor, B: Tensor, out: Tensor) -> None:
+def _validate_asm_gemm_layout(
+    A: Tensor, B: Tensor, out: Tensor, bias: Tensor | None = None
+) -> None:
     if A.ndim != 2 or B.ndim != 2 or out.ndim != 2:
         raise ValueError("gemm_a16w16_asm expects 2-D A, B, and out tensors")
     if A.shape[0] != out.shape[0] or A.shape[1] != B.shape[1]:
@@ -99,6 +101,13 @@ def _validate_asm_gemm_layout(A: Tensor, B: Tensor, out: Tensor) -> None:
         raise ValueError(
             f"incompatible gemm shapes: B={tuple(B.shape)}, out={tuple(out.shape)}"
         )
+    if bias is not None and (bias.ndim != 1 or bias.shape[0] != B.shape[0]):
+        raise ValueError(
+            f"gemm_a16w16_asm bias must have shape ({B.shape[0]},), "
+            f"got {tuple(bias.shape)}"
+        )
+    if bias is not None and not bias.is_contiguous():
+        raise ValueError("gemm_a16w16_asm bias must be contiguous")
     for name, tensor in (("A", A), ("B", B)):
         if tensor.shape[1] > 1 and tensor.stride(1) != 1:
             raise ValueError(
@@ -117,7 +126,7 @@ def gemm_a16w16_asm(
     kernelName: str | None = None,
     bpreshuffle: bool = False,
 ):
-    _validate_asm_gemm_layout(A, B, out)
+    _validate_asm_gemm_layout(A, B, out, bias)
     if A.shape[0] == 0:
         return out
 
