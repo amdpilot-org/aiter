@@ -23,7 +23,10 @@ def ipc_buffer_pool_file_store_worker(world_size, worker_rank, store_path):
     device = torch.device(f"cuda:{worker_rank}")
     torch.cuda.set_device(device)
 
-    store = dist.FileStore(store_path, world_size)
+    file_store = dist.FileStore(store_path, world_size)
+    store = dist.PrefixStore(
+        "outer", dist.PrefixStore("inner", file_store)
+    )
     dist.init_process_group(
         backend="nccl",
         store=store,
@@ -45,6 +48,13 @@ def ipc_buffer_pool_file_store_worker(world_size, worker_rank, store_path):
     group = get_tp_group()
     custom_allreduce = group.device_communicator.ca_comm
     assert custom_allreduce is not None and not custom_allreduce.disabled
+
+    for exchange in range(3):
+        handles, offsets = custom_allreduce._pool._gather_ipc_meta(
+            (worker_rank, exchange)
+        )
+        assert handles == list(range(world_size))
+        assert offsets == [exchange] * world_size
 
     numel = 1024
     indices = torch.arange(numel, dtype=torch.float32)
