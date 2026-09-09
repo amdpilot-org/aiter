@@ -520,6 +520,7 @@ def moe_cktile2stages_gemm2(
 dtype2str_dict = {
     dtypes.fp16: "f16",
     dtypes.bf16: "b16",
+    dtypes.fp32: "f32",
     dtypes.fp8: "f8",
     dtypes.i8: "i8",
     dtypes.fp4x2: "fp4x2",
@@ -530,6 +531,7 @@ dtype2str_dict = {
 str2dtype_dict = {
     "f16": dtypes.fp16,
     "b16": dtypes.bf16,
+    "f32": dtypes.fp32,
 }
 
 
