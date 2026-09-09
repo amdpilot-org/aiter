@@ -124,6 +124,46 @@ def test_rmsnorm2d_fuseAdd(dtype, m, n):
         assert torch.equal(
             subnormal_residual_out, subnormal_reference
         ), "bf16 subnormal residual must use RNE"
+        negative_subnormal_input = torch.full(
+            (1, n), -9.18354962e-41, dtype=dtype, device="cuda"
+        )
+        negative_subnormal_residual = negative_subnormal_input.clone()
+        negative_subnormal_out = torch.empty_like(negative_subnormal_input)
+        negative_subnormal_residual_out = torch.empty_like(negative_subnormal_input)
+        aiter.rmsnorm2d_fwd_with_add(
+            negative_subnormal_out,
+            negative_subnormal_input,
+            negative_subnormal_residual,
+            negative_subnormal_residual_out,
+            weight,
+            1e-5,
+        )
+        negative_subnormal_reference = (
+            negative_subnormal_input.float() + negative_subnormal_residual.float()
+        ).to(torch.bfloat16)
+        assert torch.equal(
+            negative_subnormal_residual_out, negative_subnormal_reference
+        ), "bf16 negative subnormal residual must use RNE"
+        mixed_subnormal_input = torch.full(
+            (1, n), 9.18354962e-41, dtype=dtype, device="cuda"
+        )
+        mixed_subnormal_residual = torch.ones_like(mixed_subnormal_input)
+        mixed_subnormal_out = torch.empty_like(mixed_subnormal_input)
+        mixed_subnormal_residual_out = torch.empty_like(mixed_subnormal_input)
+        aiter.rmsnorm2d_fwd_with_add(
+            mixed_subnormal_out,
+            mixed_subnormal_input,
+            mixed_subnormal_residual,
+            mixed_subnormal_residual_out,
+            weight,
+            1e-5,
+        )
+        mixed_subnormal_reference = (
+            mixed_subnormal_input.float() + mixed_subnormal_residual.float()
+        ).to(torch.bfloat16)
+        assert torch.equal(
+            mixed_subnormal_residual_out, mixed_subnormal_reference
+        ), "bf16 mixed subnormal residual must use RNE"
     # checkAllclose(a, d, atol=0.03, msg='cu')
     # checkAllclose(res_a, res_d, atol=0.01, msg='cu res check')
 
