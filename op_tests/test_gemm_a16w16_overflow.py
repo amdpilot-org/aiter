@@ -72,6 +72,52 @@ def test_rejects_noncontiguous_bias():
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
+def test_rejects_fp32_bias():
+    k, n = 128, 128
+    a = torch.randn(256, k, device="cuda", dtype=torch.bfloat16)
+    b = torch.randn(n, k, device="cuda", dtype=torch.bfloat16)
+    bias = torch.randn(n, device="cuda", dtype=torch.float32) * 0.01
+    out = torch.empty(256, n, device="cuda", dtype=torch.bfloat16)
+
+    with pytest.raises(ValueError, match="bias must be bfloat16"):
+        gemm_op_a16w16.gemm_a16w16_asm(a, b, out, bias=bias)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
+def test_rejects_mismatched_input_dtypes():
+    k, n = 128, 128
+    a = torch.randn(256, k, device="cuda", dtype=torch.bfloat16)
+    b = torch.randn(n, k, device="cuda", dtype=torch.float16)
+    out = torch.empty(256, n, device="cuda", dtype=torch.bfloat16)
+
+    with pytest.raises(ValueError, match="A and B must have the same dtype"):
+        gemm_op_a16w16.gemm_a16w16_asm(a, b, out)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
+def test_rejects_fp16_inputs():
+    k, n = 128, 128
+    a = torch.randn(256, k, device="cuda", dtype=torch.float16)
+    b = torch.randn(n, k, device="cuda", dtype=torch.float16)
+    out = torch.empty(256, n, device="cuda", dtype=torch.float32)
+
+    with pytest.raises(ValueError, match="bfloat16 A and B"):
+        gemm_op_a16w16.gemm_a16w16_asm(a, b, out)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
+def test_rejects_mismatched_devices():
+    k, n = 128, 128
+    a = torch.randn(256, k, device="cuda", dtype=torch.bfloat16)
+    b = torch.randn(n, k, device="cuda", dtype=torch.bfloat16)
+    bias = torch.randn(n, dtype=torch.bfloat16)
+    out = torch.empty(256, n, device="cuda", dtype=torch.bfloat16)
+
+    with pytest.raises(ValueError, match="bias must be on the same device"):
+        gemm_op_a16w16.gemm_a16w16_asm(a, b, out, bias=bias)
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="requires CUDA/HIP")
 def test_accepts_padded_input_row_stride():
     m, k, n = 512, 128, 128
     a = torch.randn(m, 2 * k, device="cuda", dtype=torch.bfloat16)[:, :k]

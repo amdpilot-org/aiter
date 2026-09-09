@@ -108,6 +108,18 @@ def _validate_asm_gemm_layout(
         )
     if bias is not None and not bias.is_contiguous():
         raise ValueError("gemm_a16w16_asm bias must be contiguous")
+    if bias is not None and bias.dtype != torch.bfloat16:
+        raise ValueError("gemm_a16w16_asm bias must be bfloat16")
+    if A.dtype != B.dtype:
+        raise ValueError(
+            f"gemm_a16w16_asm A and B must have the same dtype, got {A.dtype} and {B.dtype}"
+        )
+    if A.dtype != torch.bfloat16:
+        raise ValueError("gemm_a16w16_asm supports bfloat16 A and B")
+    if A.device != B.device or A.device != out.device:
+        raise ValueError("gemm_a16w16_asm A, B, and out must be on the same device")
+    if bias is not None and bias.device != A.device:
+        raise ValueError("gemm_a16w16_asm bias must be on the same device as A")
     for name, tensor in (("A", A), ("B", B)):
         if tensor.shape[1] > 1 and tensor.stride(1) != 1:
             raise ValueError(
