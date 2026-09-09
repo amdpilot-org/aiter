@@ -1,0 +1,783 @@
+{
+  "issue": "ROCm/aiter#4888",
+  "world_size": 8,
+  "tokens": 10,
+  "hidden": 6144,
+  "dtype": "torch.bfloat16",
+  "stage": "1stage",
+  "requested_use_1stage": true,
+  "seed": 5100,
+  "input_bytes": 122880,
+  "dispatch_boundary_bytes": 131072,
+  "idle_seconds": 75.0,
+  "replays": 3,
+  "tolerance": {
+    "atol": 0.05,
+    "rtol": 0.05
+  },
+  "torch_version": "2.9.1+rocm7.2.0.git7e1940d4",
+  "hip_version": "7.2.26015-fc0010cf6a",
+  "device_name": "AMD Instinct MI300X",
+  "ranks": [
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "fadf585e38e26f45",
+        "residual_input_checksum": "e8f3361445020a68",
+        "allreduce": {
+          "max_abs_error": 0.0308837890625,
+          "mean_abs_error": 0.002625160850584507,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002616195473819971,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.00354485004208982,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "1eda31899a7d68ff",
+        "residual_output_checksum": "9b1eb7c56034cd0f",
+        "norm_output_checksum": "ca9f3a4b42c0652b"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "583c4dc353fea26c",
+        "residual_input_checksum": "5c6a5eca6625243f",
+        "allreduce": {
+          "max_abs_error": 0.04638671875,
+          "mean_abs_error": 0.0026370512787252665,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0026270656380802393,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.003565076272934675,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "5ed967ae503dd0e3",
+        "residual_output_checksum": "f431d777ee5476c7",
+        "norm_output_checksum": "0442e52581533ff5"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "914d7db3cca02d4b",
+        "residual_input_checksum": "ecfc9cbc13382352",
+        "allreduce": {
+          "max_abs_error": 0.03076171875,
+          "mean_abs_error": 0.0026240521110594273,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002613696036860347,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035568359307944775,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "64a85ca3d61b4c79",
+        "residual_output_checksum": "d60288dde3b9b8d7",
+        "norm_output_checksum": "394061dbe48b10b1"
+      }
+    ],
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "d2c37ff15a9604df",
+        "residual_input_checksum": "f56e9e72cf51af5e",
+        "allreduce": {
+          "max_abs_error": 0.02978515625,
+          "mean_abs_error": 0.0026260176673531532,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002610274823382497,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035314117558300495,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "c57cb6f65c1251b8",
+        "residual_output_checksum": "e983b99ee26aa100",
+        "norm_output_checksum": "be902287881cf070"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "52082afb7061e527",
+        "residual_input_checksum": "1f26eef889558f37",
+        "allreduce": {
+          "max_abs_error": 0.0458984375,
+          "mean_abs_error": 0.0026421647053211927,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.002632817719131708,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035472421441227198,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "a51d604459b43984",
+        "residual_output_checksum": "b5753d31d32f8f19",
+        "norm_output_checksum": "adcd0b15d61e6996"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "7d9df789d7731e96",
+        "residual_input_checksum": "429c7b35a9bb48ad",
+        "allreduce": {
+          "max_abs_error": 0.0302734375,
+          "mean_abs_error": 0.0026252332609146833,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002613452496007085,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035563118290156126,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "0e9687359e0d3450",
+        "residual_output_checksum": "c3d54d2175805bf7",
+        "norm_output_checksum": "7f84e6e79b7bb1ec"
+      }
+    ],
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "c19347981731a47e",
+        "residual_input_checksum": "2ca6a9d1f63075a1",
+        "allreduce": {
+          "max_abs_error": 0.030517578125,
+          "mean_abs_error": 0.002631234470754862,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002625217428430915,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035413368605077267,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "ef17ded1e9f215b9",
+        "residual_output_checksum": "2b28e485d0ace68c",
+        "norm_output_checksum": "e6403725cfd69f80"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "17b2de523f03f803",
+        "residual_input_checksum": "25b6e4d6f5d1144e",
+        "allreduce": {
+          "max_abs_error": 0.04296875,
+          "mean_abs_error": 0.0026346645317971706,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.002623195992782712,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035575099755078554,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "cfd912e6443fd016",
+        "residual_output_checksum": "141bc5ce3ea546d7",
+        "norm_output_checksum": "c06fd0f26ea606c4"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "2d66e46edf65cc3f",
+        "residual_input_checksum": "4cfcd469d9e0c8a4",
+        "allreduce": {
+          "max_abs_error": 0.031005859375,
+          "mean_abs_error": 0.0026251915842294693,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026082422118633986,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035385936498641968,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "b9132a0a13ad7079",
+        "residual_output_checksum": "7333d7c7871bb69f",
+        "norm_output_checksum": "4057ab32962aba82"
+      }
+    ],
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "b0bfe8695bbc0912",
+        "residual_input_checksum": "5238541db547b511",
+        "allreduce": {
+          "max_abs_error": 0.03076171875,
+          "mean_abs_error": 0.002627957845106721,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026212059892714024,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.003540911478921771,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "abd48848f98d4ae5",
+        "residual_output_checksum": "992100dfc135ef83",
+        "norm_output_checksum": "54773665102cd8fe"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "b0bc1e569f6ceb0f",
+        "residual_input_checksum": "d55d71124518b80b",
+        "allreduce": {
+          "max_abs_error": 0.037353515625,
+          "mean_abs_error": 0.002637223107740283,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002630554838106036,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035332334227859974,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "1559328088692f08",
+        "residual_output_checksum": "099cc318e4cdac2d",
+        "norm_output_checksum": "4f9d96487a1db2db"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "e2495d2e7ae161a0",
+        "residual_input_checksum": "71282672aae10320",
+        "allreduce": {
+          "max_abs_error": 0.031005859375,
+          "mean_abs_error": 0.0026236858684569597,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026075795758515596,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035578240640461445,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "5d23804862020207",
+        "residual_output_checksum": "a7a677d97f58ba02",
+        "norm_output_checksum": "34e87f3f42a8bd8d"
+      }
+    ],
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "b7487ba268ed6e84",
+        "residual_input_checksum": "1931b9a8c9550153",
+        "allreduce": {
+          "max_abs_error": 0.02978515625,
+          "mean_abs_error": 0.0026246991474181414,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002621960826218128,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035305055789649487,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "1f61b474d5518fea",
+        "residual_output_checksum": "593605ee4be0e986",
+        "norm_output_checksum": "c853e4bf2ef30813"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "c389f09993a88938",
+        "residual_input_checksum": "674e195f1dca3ad6",
+        "allreduce": {
+          "max_abs_error": 0.0458984375,
+          "mean_abs_error": 0.0026366382371634245,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0026315804570913315,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.003541735466569662,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "219593d9afa69a76",
+        "residual_output_checksum": "497921a31b907aad",
+        "norm_output_checksum": "5aeb73f1c5c96f57"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "36a7737e5f9a64c9",
+        "residual_input_checksum": "5e9490afc1680d43",
+        "allreduce": {
+          "max_abs_error": 0.02587890625,
+          "mean_abs_error": 0.002620520070195198,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.002608911134302616,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035565143916755915,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "41ea33918165f74c",
+        "residual_output_checksum": "4c6dec52b50bd78d",
+        "norm_output_checksum": "49f73efb9a00154f"
+      }
+    ],
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "44e341746eee8b4f",
+        "residual_input_checksum": "5ba4602290739a1e",
+        "allreduce": {
+          "max_abs_error": 0.0306396484375,
+          "mean_abs_error": 0.0026195256505161524,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026057588402181864,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035592936910688877,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "62cab00a4928d26f",
+        "residual_output_checksum": "18b92fc17192f0c6",
+        "norm_output_checksum": "41b3290b98d2ae50"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "7b313ea827d933a6",
+        "residual_input_checksum": "73fc309996b25115",
+        "allreduce": {
+          "max_abs_error": 0.035400390625,
+          "mean_abs_error": 0.0026405456010252237,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026365830563008785,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.003530868561938405,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "07aa12d3a9ef83e0",
+        "residual_output_checksum": "1a8e7d90b5cdc49d",
+        "norm_output_checksum": "a8ddac9a1da5d24c"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "ffbd8b021e7559f2",
+        "residual_input_checksum": "3f4b31d496c7b2b9",
+        "allreduce": {
+          "max_abs_error": 0.029296875,
+          "mean_abs_error": 0.0026286516804248095,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026229259092360735,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035545462742447853,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "64db4747886fe85e",
+        "residual_output_checksum": "387feb7c4101161f",
+        "norm_output_checksum": "b8b6316cb181e4cb"
+      }
+    ],
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "760170ca3b429726",
+        "residual_input_checksum": "1afe686947005868",
+        "allreduce": {
+          "max_abs_error": 0.030517578125,
+          "mean_abs_error": 0.002627846086397767,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026201531291007996,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035543355625122786,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "c3efebbec6b439b3",
+        "residual_output_checksum": "5d5885dc257e6256",
+        "norm_output_checksum": "a47094766268aaff"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "f6494f6300377f89",
+        "residual_input_checksum": "6def667421207381",
+        "allreduce": {
+          "max_abs_error": 0.041015625,
+          "mean_abs_error": 0.0026418608613312244,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.002634896896779537,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035548191517591476,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "d1be19855b1fbe23",
+        "residual_output_checksum": "3c2ac10d9459bf55",
+        "norm_output_checksum": "e2d0c5bfcd6a4b31"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "103d9c02d26a588d",
+        "residual_input_checksum": "af6759a6bcac6839",
+        "allreduce": {
+          "max_abs_error": 0.031005859375,
+          "mean_abs_error": 0.0026294132694602013,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026155118830502033,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.003548982087522745,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "f5605749d6c4a4a3",
+        "residual_output_checksum": "c15edaa07122ede4",
+        "norm_output_checksum": "268fe70e66025d42"
+      }
+    ],
+    [
+      {
+        "replay_index": 0,
+        "phase": "cold",
+        "seed": 5110,
+        "input_checksum": "d6f461792f9f22ba",
+        "residual_input_checksum": "cd1b6fe90f533924",
+        "allreduce": {
+          "max_abs_error": 0.0294189453125,
+          "mean_abs_error": 0.002624113578349352,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.0026208560448139906,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.003572399029508233,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "ff160086ea95336c",
+        "residual_output_checksum": "8ddfde98bfe0dbf8",
+        "norm_output_checksum": "63ece6ccb083c166"
+      },
+      {
+        "replay_index": 1,
+        "phase": "warm_1",
+        "seed": 5112,
+        "input_checksum": "d8269bec0be46b19",
+        "residual_input_checksum": "c9bef96d8cd5668f",
+        "allreduce": {
+          "max_abs_error": 0.0390625,
+          "mean_abs_error": 0.0026350582484155893,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.002627788344398141,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.0625,
+          "mean_abs_error": 0.0035318953450769186,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "def57bbd2ca4d4c5",
+        "residual_output_checksum": "80c5d496b3050c8c",
+        "norm_output_checksum": "20c13d35c94cb2f8"
+      },
+      {
+        "replay_index": 2,
+        "phase": "warm_2",
+        "seed": 5114,
+        "input_checksum": "219ef7b9dcb460ff",
+        "residual_input_checksum": "44e65f98a5aa0376",
+        "allreduce": {
+          "max_abs_error": 0.0306396484375,
+          "mean_abs_error": 0.002627538749948144,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "residual": {
+          "max_abs_error": 0.03125,
+          "mean_abs_error": 0.00261356751434505,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "norm": {
+          "max_abs_error": 0.046875,
+          "mean_abs_error": 0.0035621083807200193,
+          "mismatches": 0,
+          "elements": 61440,
+          "passed": true
+        },
+        "allreduce_checksum": "c117d1070e76d872",
+        "residual_output_checksum": "b6bf6bb222ab153e",
+        "norm_output_checksum": "cfac3f21c472eaa2"
+      }
+    ]
+  ]
+}

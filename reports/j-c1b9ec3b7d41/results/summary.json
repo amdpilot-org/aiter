@@ -1,0 +1,46 @@
+{
+  "issue": "ROCm/aiter#4888",
+  "mirror_issue": "amdpilot-org/aiter#37",
+  "result": "not_reproduced",
+  "gpu": "8x AMD Instinct MI300X (gfx942)",
+  "image": "amdpilotv2/open-job-mi300:jit-config-readable-35122-260909",
+  "torch": "2.9.1+rocm7.2.0.git7e1940d4",
+  "hip": "7.2.26015-fc0010cf6a",
+  "rccl": "2.27.7",
+  "source_base": "f0321c0e8927d1d90a29385433f71e592b1c51f5",
+  "hidden": 6144,
+  "dtype": "torch.bfloat16",
+  "world_size": 8,
+  "token_counts": [8, 10, 11, 16],
+  "dispatch_boundary_bytes": 131072,
+  "idle_intervals_seconds": [0, 75],
+  "replays_per_process": 3,
+  "tolerance": {
+    "atol": 0.05,
+    "rtol": 0.05
+  },
+  "stages": {
+    "1stage": {
+      "fresh_processes": 12,
+      "cold_rank_replays": 96,
+      "warm_rank_replays": 192,
+      "tolerance_mismatches": 0,
+      "max_abs_error": {
+        "allreduce": 0.0463867,
+        "residual": 0.046875,
+        "norm": 0.0625
+      }
+    },
+    "2stage": {
+      "fresh_processes": 12,
+      "cold_rank_replays": 96,
+      "warm_rank_replays": 192,
+      "tolerance_mismatches": 0,
+      "max_abs_error": {
+        "allreduce": 0.0463867,
+        "residual": 0.046875,
+        "norm": 0.0625
+      }
+    }
+  }
+}
