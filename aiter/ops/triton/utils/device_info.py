@@ -25,6 +25,7 @@ def get_num_sms():
 
 _HIP_DEVICE_ATTRIBUTE_NUMBER_OF_XCCS = 10018
 _HIP_ERROR_INVALID_VALUE = 1
+_HIP_ERROR_NOT_SUPPORTED = 801
 _MIN_ROCM_MAJOR_WITH_XCC_ATTRIBUTE = 7
 _NUM_XCDS_COMPATIBILITY_FALLBACK = 8
 
@@ -45,7 +46,7 @@ def _query_num_xcds(device_id: int, libhip, rocm_major: int) -> int:
         _HIP_DEVICE_ATTRIBUTE_NUMBER_OF_XCCS,
         device_id,
     )
-    if status == _HIP_ERROR_INVALID_VALUE:
+    if status in (_HIP_ERROR_INVALID_VALUE, _HIP_ERROR_NOT_SUPPORTED):
         if rocm_major < _MIN_ROCM_MAJOR_WITH_XCC_ATTRIBUTE:
             return _NUM_XCDS_COMPATIBILITY_FALLBACK
         raise RuntimeError(
