@@ -388,8 +388,8 @@ def mhc_pre(
     return post_mix, comb_mix, layer_input
 
 
-@compile_ops("module_mhc", develop=True)
-def mhc_post(
+@compile_ops("module_mhc", fc_name="mhc_post", develop=True)
+def mhc_post_hip(
     out: Tensor,
     x: Tensor,
     residual: Tensor,
@@ -397,6 +397,25 @@ def mhc_post(
     comb_res_mix: Tensor,
     store_nt: int = -1,
 ) -> None: ...
+
+
+def mhc_post(
+    out: Tensor,
+    x: Tensor,
+    residual: Tensor,
+    post_layer_mix: Tensor,
+    comb_res_mix: Tensor,
+    store_nt: int = -1,
+) -> Tensor | None:
+    if not (
+        post_layer_mix.is_contiguous()
+        and comb_res_mix.is_contiguous()
+        and out.is_contiguous()
+    ):
+        from aiter.ops.triton.fusions.mhc import mhc_post as triton_mhc_post
+
+        return triton_mhc_post(out, x, residual, post_layer_mix, comb_res_mix)
+    return mhc_post_hip(out, x, residual, post_layer_mix, comb_res_mix, store_nt)
 
 
 def get_mhc_pre_splitk_large_m(m: int, hc_hidden_size: int) -> tuple[int, int]:
