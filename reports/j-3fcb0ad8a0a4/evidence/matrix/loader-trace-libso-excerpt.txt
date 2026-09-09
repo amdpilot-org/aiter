@@ -1,0 +1,35 @@
+1641-     18647:	
+1642-     18647:	
+1643-     18647:	calling init: /opt/venv/lib/python3.10/site-packages/psutil/_psutil_linux.abi3.so
+1644-     18647:	
+1645-     18647:	
+1646-     18647:	calling init: /opt/venv/lib/python3.10/site-packages/yaml/_yaml.cpython-310-x86_64-linux-gnu.so
+1647-     18647:	
+1648-     18647:	
+1649:     18647:	calling init: /job/aiter-cache-j-3fcb0ad8a0a4/prebuild/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so
+1650-     18647:	
+1651-     18647:	/opt/venv/lib/python3.10/site-packages/torch/lib/libc10.so: error: symbol lookup error: undefined symbol: c10_monitor_wait_counter_dynamic_backend_init_v1 (fatal)
+1652-     18647:	
+1653-     18647:	calling fini: /opt/venv/lib/python3.10/site-packages/torch/lib/libcaffe2_nvrtc.so [0]
+1654-     18647:	
+1655-     18647:	
+1656-     18647:	calling fini: /opt/venv/bin/python [0]
+1657-     18647:	
+--
+1996-     18647:	
+1997-     18647:	
+1998-     18647:	calling fini: /opt/venv/lib/python3.10/site-packages/psutil/_psutil_linux.abi3.so [0]
+1999-     18647:	
+2000-     18647:	
+2001-     18647:	calling fini: /opt/venv/lib/python3.10/site-packages/yaml/_yaml.cpython-310-x86_64-linux-gnu.so [0]
+2002-     18647:	
+2003-     18647:	
+2004:     18647:	calling fini: /job/aiter-cache-j-3fcb0ad8a0a4/prebuild/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so [0]
+2005-     18647:	
+2006-     18647:	
+2007-     18647:	calling fini: /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so [0]
+2008-     18647:	
+2009-     18647:	
+2010-     18647:	calling fini: /opt/venv/lib/python3.10/site-packages/torch/lib/libshm.so [0]
+2011-     18647:	
+2012-     18647:	

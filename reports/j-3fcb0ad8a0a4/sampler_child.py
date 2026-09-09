@@ -54,9 +54,31 @@ def instrument_utils(rank):
         return result
 
     def mp_lock(*args, **kwargs):
-        lock_path = args[0] if args else kwargs.get("lock_path")
+        arguments = list(args)
+        lock_path = arguments[0] if arguments else kwargs.get("lock_path")
+        if len(arguments) > 1:
+            main_func = arguments[1]
+        else:
+            main_func = kwargs["main_func"]
+
+        def instrumented_main():
+            emit(
+                "EVENT_JSON",
+                {"rank": rank, "event": "build_start", "lock_path": lock_path},
+            )
+            result = main_func()
+            emit(
+                "EVENT_JSON",
+                {"rank": rank, "event": "build_end", "lock_path": lock_path},
+            )
+            return result
+
+        if len(arguments) > 1:
+            arguments[1] = instrumented_main
+        else:
+            kwargs["main_func"] = instrumented_main
         emit("EVENT_JSON", {"rank": rank, "event": "lock_start", "lock_path": lock_path})
-        result = original_mp_lock(*args, **kwargs)
+        result = original_mp_lock(*arguments, **kwargs)
         emit("EVENT_JSON", {"rank": rank, "event": "lock_end", "lock_path": lock_path})
         return result
 

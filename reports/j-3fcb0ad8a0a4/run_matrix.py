@@ -235,6 +235,8 @@ def run_scenario(
 
     compile_starts = [event for event in events if event["event"] == "compile_start"]
     compile_ends = [event for event in events if event["event"] == "compile_end"]
+    build_starts = [event for event in events if event["event"] == "build_start"]
+    build_ends = [event for event in events if event["event"] == "build_end"]
     load_starts = [event for event in events if event["event"] == "load_start"]
     load_ends = [event for event in events if event["event"] == "load_end"]
     all_return_zero = all(record["return_code"] == 0 for record in process_records)
@@ -255,6 +257,9 @@ def run_scenario(
         "all_contract_pass": all_contract_pass,
         "compile_starts": len(compile_starts),
         "compile_ends": len(compile_ends),
+        "compile_calls": len(compile_starts),
+        "actual_build_starts": len(build_starts),
+        "actual_build_ends": len(build_ends),
         "load_starts": len(load_starts),
         "load_ends": len(load_ends),
         "library_paths": library_paths,

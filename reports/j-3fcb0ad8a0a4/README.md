@@ -29,3 +29,10 @@ Run the matrix with:
 The cache root must initially be empty. The harness keeps both the
 `cpp_itfs` cache (`AITER_ROOT_DIR`) and the Python JIT cache
 (`AITER_JIT_DIR`) under that private root.
+
+`compile_start` counts calls to `compile_lib`; `build_start` counts actual
+builds by the lock winner. This distinction matters for synchronized cold
+starts. After a matrix run, `analyze_matrix.py` compares whole-library,
+host-code, embedded-device-code, note, CUID, and flag-order hashes.
+
+See `FINDINGS.md` for the completed eight-GPU result and its limits.
