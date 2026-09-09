@@ -1,0 +1,46 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /sgl-workspace/aiter/aiter/jit/module_aiter_core.so
+[aiter] import [module_moe_asm] under /sgl-workspace/aiter/aiter/jit/module_moe_asm.so
+[W909 20:31:21.053373322 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 1 (function operator())
+[aiter] import [module_moe_sorting] under /sgl-workspace/aiter/aiter/jit/module_moe_sorting.so
+[aiter] LoadKernel: fmoe_kernel_func hsaco: /sgl-workspace/aiter/hsa//gfx942/fmoe_b16.co
+
+Running test: test_fmoe_16_bit
+test test_fmoe 16 bit
+
+g1u0 no quant
+Traceback (most recent call last):
+  File "/job/aiter/op_tests/test_moe.py", line 444, in <module>
+    test_fmoe(
+  File "/job/aiter/op_tests/test_moe.py", line 194, in test_fmoe
+    out_b, avg_b = asm_moe_test(
+  File "/sgl-workspace/aiter/aiter/test_common.py", line 75, in wrapper
+    rotate_args = [
+  File "/sgl-workspace/aiter/aiter/test_common.py", line 76, in <listcomp>
+    (copy.deepcopy(args), copy.deepcopy(kwargs)) for _ in range(num - 1)
+  File "/usr/lib/python3.10/copy.py", line 146, in deepcopy
+    y = copier(x, memo)
+  File "/usr/lib/python3.10/copy.py", line 211, in _deepcopy_tuple
+    y = [deepcopy(a, memo) for a in x]
+  File "/usr/lib/python3.10/copy.py", line 211, in <listcomp>
+    y = [deepcopy(a, memo) for a in x]
+  File "/usr/lib/python3.10/copy.py", line 153, in deepcopy
+    y = copier(memo)
+  File "/opt/venv/lib/python3.10/site-packages/torch/_tensor.py", line 178, in __deepcopy__
+    new_storage = self._typed_storage()._deepcopy(memo)
+  File "/opt/venv/lib/python3.10/site-packages/torch/storage.py", line 1139, in _deepcopy
+    return self._new_wrapped_storage(copy.deepcopy(self._untyped_storage, memo))
+  File "/usr/lib/python3.10/copy.py", line 153, in deepcopy
+    y = copier(memo)
+  File "/opt/venv/lib/python3.10/site-packages/torch/storage.py", line 243, in __deepcopy__
+    new_storage = self.clone()
+  File "/opt/venv/lib/python3.10/site-packages/torch/storage.py", line 257, in clone
+    return type(self)(self.nbytes(), device=self.device).copy_(self)
+torch.AcceleratorError: HIP error: an illegal memory access was encountered
+Search for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.
+HIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Compile with `TORCH_USE_HIP_DSA` to enable device-side assertions.
+
+Error code 700
+Error code 700
