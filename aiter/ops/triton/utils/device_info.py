@@ -39,7 +39,9 @@ def _get_rocm_major() -> int:
     return int(hip_version.split(".", 1)[0])
 
 
-def _query_num_xcds(device_id: int, libhip, rocm_major: int) -> int:
+def _query_num_xcds(
+    device_id: int, libhip: ctypes.CDLL, rocm_major: int
+) -> int:
     value = ctypes.c_int(0)
     status = libhip.hipDeviceGetAttribute(
         ctypes.byref(value),
