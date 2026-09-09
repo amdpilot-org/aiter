@@ -3,6 +3,7 @@
 
 import math
 import os
+import copy
 
 import torch
 import triton
@@ -95,7 +96,7 @@ def gemm_a8w8_blockscale(
     if config is None:
         config, _ = _get_config(M, N, K, backend=backend)
     else:
-        config = dict(config)
+        config = copy.deepcopy(config)
 
     compute_splitk_params(config, K)
 
@@ -288,7 +289,7 @@ def gemm_a8w8_blockscale_preshuffle(
     if config is None:
         config, _ = _get_config(M, N, K, True, backend=backend)
     else:
-        config = dict(config)
+        config = copy.deepcopy(config)
 
     # Triton 3.6 fails TritonAMDGPUConvertToBufferOps for gfx950 preshuffle
     # configs with three pipeline stages. Keep the tuned tile and split-K.
