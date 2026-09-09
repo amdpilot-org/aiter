@@ -32,6 +32,9 @@ def _gemm_a16w16_asm(
 _SEMA_SHAPE = (16, 64)
 ASM_SPLITK_MAX_GRID = _SEMA_SHAPE[0] * _SEMA_SHAPE[1]
 
+_BUFFER_BYTE_LIMIT = (1 << 32) - 1
+_CHUNK_ROW_ALIGNMENT = 256
+
 
 @functools.lru_cache(maxsize=64)
 def _get_semaphore_workspace_keyed(device: torch.device, stream_id: int) -> Tensor:
@@ -58,6 +61,74 @@ def get_semaphore_workspace(device: torch.device) -> Tensor:
     return _get_semaphore_workspace_keyed(device, stream.cuda_stream)
 
 
+def _buffer_extent_bytes(tensor: Tensor) -> int:
+    rows, cols = tensor.shape
+    if rows <= 0 or cols <= 0:
+        return 0
+    row_stride = tensor.stride(0) if rows > 1 else 0
+    col_stride = tensor.stride(1) if cols > 1 else 0
+    return (
+        (rows - 1) * row_stride + (cols - 1) * col_stride + 1
+    ) * tensor.element_size()
+
+
+def _rows_within_buffer_limit(tensor: Tensor, limit: int) -> int:
+    rows, cols = tensor.shape
+    if rows <= 0 or cols <= 0:
+        return 0
+    row_stride = tensor.stride(0) if rows > 1 else 0
+    col_stride = tensor.stride(1) if cols > 1 else 0
+    element_limit = limit // tensor.element_size()
+    fixed_elements = (cols - 1) * col_stride + 1
+    if fixed_elements > element_limit:
+        return 0
+    if row_stride == 0:
+        return rows
+    return (element_limit - fixed_elements) // row_stride + 1
+
+
+def _validate_asm_gemm_layout(
+    A: Tensor, B: Tensor, out: Tensor, bias: Tensor | None = None
+) -> None:
+    if A.ndim != 2 or B.ndim != 2 or out.ndim != 2:
+        raise ValueError("gemm_a16w16_asm expects 2-D A, B, and out tensors")
+    if A.shape[0] != out.shape[0] or A.shape[1] != B.shape[1]:
+        raise ValueError(
+            f"incompatible gemm shapes: A={tuple(A.shape)}, B={tuple(B.shape)}, "
+            f"out={tuple(out.shape)}"
+        )
+    if B.shape[0] != out.shape[1]:
+        raise ValueError(
+            f"incompatible gemm shapes: B={tuple(B.shape)}, out={tuple(out.shape)}"
+        )
+    if bias is not None and (bias.ndim != 1 or bias.shape[0] != B.shape[0]):
+        raise ValueError(
+            f"gemm_a16w16_asm bias must have shape ({B.shape[0]},), "
+            f"got {tuple(bias.shape)}"
+        )
+    if bias is not None and not bias.is_contiguous():
+        raise ValueError("gemm_a16w16_asm bias must be contiguous")
+    if bias is not None and bias.dtype != torch.bfloat16:
+        raise ValueError("gemm_a16w16_asm bias must be bfloat16")
+    if A.dtype != B.dtype:
+        raise ValueError(
+            f"gemm_a16w16_asm A and B must have the same dtype, got {A.dtype} and {B.dtype}"
+        )
+    if A.dtype != torch.bfloat16:
+        raise ValueError("gemm_a16w16_asm supports bfloat16 A and B")
+    if A.device != B.device or A.device != out.device:
+        raise ValueError("gemm_a16w16_asm A, B, and out must be on the same device")
+    if bias is not None and bias.device != A.device:
+        raise ValueError("gemm_a16w16_asm bias must be on the same device as A")
+    for name, tensor in (("A", A), ("B", B)):
+        if tensor.shape[1] > 1 and tensor.stride(1) != 1:
+            raise ValueError(
+                f"gemm_a16w16_asm {name} must have unit stride along its last dimension"
+            )
+    if not out.is_contiguous():
+        raise ValueError("gemm_a16w16_asm out must be contiguous")
+
+
 def gemm_a16w16_asm(
     A: Tensor,
     B: Tensor,
@@ -67,10 +138,55 @@ def gemm_a16w16_asm(
     kernelName: str | None = None,
     bpreshuffle: bool = False,
 ):
+    _validate_asm_gemm_layout(A, B, out, bias)
+    if A.shape[0] == 0 or B.shape[0] == 0:
+        return out
+    if A.shape[1] == 0:
+        if bias is None:
+            out.zero_()
+        else:
+            out.copy_(bias)
+        return out
+
+    if _buffer_extent_bytes(B) > _BUFFER_BYTE_LIMIT:
+        raise ValueError(
+            "gemm_a16w16_asm B exceeds the kernel's 32-bit buffer-addressing limit; "
+            "M chunking cannot repair a weight overflow"
+        )
+
+    needs_chunking = (
+        _buffer_extent_bytes(A) > _BUFFER_BYTE_LIMIT
+        or _buffer_extent_bytes(out) > _BUFFER_BYTE_LIMIT
+    )
+    if needs_chunking:
+        chunk_rows = min(
+            _rows_within_buffer_limit(A, _BUFFER_BYTE_LIMIT),
+            _rows_within_buffer_limit(out, _BUFFER_BYTE_LIMIT),
+        )
+        chunk_rows -= chunk_rows % _CHUNK_ROW_ALIGNMENT
+        if chunk_rows == 0:
+            raise ValueError(
+                "gemm_a16w16_asm cannot split A/out into chunks within the "
+                "kernel's 32-bit buffer-addressing limit"
+            )
+    else:
+        chunk_rows = A.shape[0]
+
     if splitK is None or splitK > 1:
         sema = get_semaphore_workspace(out.device)
     else:
         sema = torch.empty((0,), dtype=torch.uint32, device=out.device)
 
-    _gemm_a16w16_asm(A, B, out, sema, bias, splitK, kernelName, bpreshuffle)
+    for row_start in range(0, A.shape[0], chunk_rows):
+        row_stop = min(row_start + chunk_rows, A.shape[0])
+        _gemm_a16w16_asm(
+            A[row_start:row_stop],
+            B,
+            out[row_start:row_stop],
+            sema,
+            bias,
+            splitK,
+            kernelName,
+            bpreshuffle,
+        )
     return out
