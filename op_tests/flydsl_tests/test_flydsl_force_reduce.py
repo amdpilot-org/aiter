@@ -61,11 +61,13 @@ def test_get_2stage_cfgs_force_reduce_cache_key():
     atomic = get_2stage_cfgs(*args, force_reduce=False, **kwargs)
     reduce = get_2stage_cfgs(*args, force_reduce=True, **kwargs)
     atomic_again = get_2stage_cfgs(*args, force_reduce=False, **kwargs)
+    atomic_name = "flydsl_moe2_layout_afp4_wfp4_bf16_t64x128x128_atomic_nt_sbm64"
+    reduce_name = "flydsl_moe2_layout_afp4_wfp4_bf16_t64x128x128_reduce_nt_sbm64"
 
     assert atomic is not reduce
     assert atomic_again is atomic
-    assert "_atomic_" in atomic.stage2.keywords["kernelName"]
-    assert "_reduce_" in reduce.stage2.keywords["kernelName"]
+    assert atomic.stage2.keywords["kernelName"] == atomic_name
+    assert reduce.stage2.keywords["kernelName"] == reduce_name
     cache_info = get_2stage_cfgs.cache_info()
     assert cache_info.hits == 1
     assert cache_info.misses == 2
