@@ -258,8 +258,16 @@ __device__ __forceinline__ float atomicMaxFloat(float *addr, float value)
 
 template <typename DTYPE_I, typename DTYPE_O>
 __global__ void
-data_to_scale_kernel(float* __restrict__ scale, const DTYPE_I* __restrict__ input, const int cols)
+data_to_scale_kernel(float* __restrict__ scale,
+                     const DTYPE_I* __restrict__ input,
+                     const int cols,
+                     int32_t const* __restrict__ num_rows = nullptr,
+                     const int32_t num_rows_factor        = 1)
 {
+    if(num_rows != nullptr && blockIdx.x >= *num_rows * num_rows_factor)
+    {
+        return;
+    }
     auto res        = data_to_per_row_scale<DTYPE_I, DTYPE_O, 0>(input, cols);
     float row_scale = std::get<0>(res);
     if(threadIdx.x == 0)
@@ -368,8 +376,14 @@ template <typename DTYPE_I, typename DTYPE_O>
 __global__ void scaled_quant_kernel(DTYPE_O* __restrict__ out,
                                     const DTYPE_I* __restrict__ input,
                                     const float* __restrict__ scale,
-                                    const int cols)
+                                    const int cols,
+                                    int32_t const* __restrict__ num_rows = nullptr,
+                                    const int32_t num_rows_factor        = 1)
 {
+    if(num_rows != nullptr && blockIdx.x >= *num_rows * num_rows_factor)
+    {
+        return;
+    }
     scaled_quant_impl<DTYPE_I>(out, input, scale, cols);
 }
 
@@ -604,12 +618,16 @@ __global__ void smooth_per_token_scaled_quant_kernel(DTYPE_O* __restrict__ out,
 
 void static_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
                              const aiter_tensor_t& input, // [..., d]
-                             const aiter_tensor_t& scale) // [1]
+                             const aiter_tensor_t& scale,  // [1]
+                             std::optional<aiter_tensor_t> num_rows,
+                             int num_rows_factor)
 {
     const int cols = input.size(-1);
     int rows       = input.numel() / cols;
     dim3 grid(rows);
     dim3 block(BlockSize);
+    int32_t* num_rows_ptr =
+        num_rows.has_value() ? reinterpret_cast<int32_t*>(num_rows->data_ptr()) : nullptr;
     HipDeviceGuard device_guard(input.device_id);
     const hipStream_t stream = aiter::getCurrentHIPStream();
     if(out.dtype() == AITER_DTYPE_fp8)
@@ -620,7 +638,9 @@ void static_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
                 reinterpret_cast<opus::fp8_t*>(out.data_ptr()),
                 reinterpret_cast<input_dtype*>(input.data_ptr()),
                 reinterpret_cast<float*>(scale.data_ptr()),
-                cols);
+                cols,
+                num_rows_ptr,
+                num_rows_factor);
         });
     }
     else if(out.dtype() == AITER_DTYPE_i8)
@@ -631,7 +651,9 @@ void static_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
                 reinterpret_cast<opus::i8_t*>(out.data_ptr()),
                 reinterpret_cast<input_dtype*>(input.data_ptr()),
                 reinterpret_cast<float*>(scale.data_ptr()),
-                cols);
+                cols,
+                num_rows_ptr,
+                num_rows_factor);
         });
     }
     else
@@ -678,12 +700,16 @@ void static_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
 
 void dynamic_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
                               const aiter_tensor_t& input,  // [..., d]
-                              aiter_tensor_t& scale)        // [1]
+                              aiter_tensor_t& scale,        // [1]
+                              std::optional<aiter_tensor_t> num_rows,
+                              int num_rows_factor)
 {
     const int cols = input.size(-1);
     int rows       = input.numel() / cols;
     dim3 grid(rows);
     dim3 block(BlockSize);
+    int32_t* num_rows_ptr =
+        num_rows.has_value() ? reinterpret_cast<int32_t*>(num_rows->data_ptr()) : nullptr;
     HipDeviceGuard device_guard(input.device_id);
     const hipStream_t stream = aiter::getCurrentHIPStream();
     if(out.dtype() == AITER_DTYPE_fp8)
@@ -693,12 +719,15 @@ void dynamic_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
             aiter::initializeScale<<<dim3(1), dim3(64), 0, stream>>>(
                 reinterpret_cast<float*>(scale.data_ptr()), 1, 0.0f);
             aiter::data_to_scale_kernel<input_dtype, opus::fp8_t><<<grid, block, 0, stream>>>(
-                reinterpret_cast<float*>(scale.data_ptr()), reinterpret_cast<input_dtype*>(input.data_ptr()), cols);
+                reinterpret_cast<float*>(scale.data_ptr()), reinterpret_cast<input_dtype*>(input.data_ptr()), cols,
+                num_rows_ptr, num_rows_factor);
             aiter::scaled_quant_kernel<<<grid, block, 0, stream>>>(
                 reinterpret_cast<opus::fp8_t*>(out.data_ptr()),
                 reinterpret_cast<input_dtype*>(input.data_ptr()),
                 reinterpret_cast<float*>(scale.data_ptr()),
-                cols);
+                cols,
+                num_rows_ptr,
+                num_rows_factor);
         });
     }
     else if(out.dtype() == AITER_DTYPE_i8)
@@ -708,12 +737,15 @@ void dynamic_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
             aiter::initializeScale<<<dim3(1), dim3(64), 0, stream>>>(
                 reinterpret_cast<float*>(scale.data_ptr()), 1, 0.0f);
             aiter::data_to_scale_kernel<input_dtype, opus::i8_t><<<grid, block, 0, stream>>>(
-                reinterpret_cast<float*>(scale.data_ptr()), reinterpret_cast<input_dtype*>(input.data_ptr()), cols);
+                reinterpret_cast<float*>(scale.data_ptr()), reinterpret_cast<input_dtype*>(input.data_ptr()), cols,
+                num_rows_ptr, num_rows_factor);
             aiter::scaled_quant_kernel<<<grid, block, 0, stream>>>(
                 reinterpret_cast<opus::i8_t*>(out.data_ptr()),
                 reinterpret_cast<input_dtype*>(input.data_ptr()),
                 reinterpret_cast<float*>(scale.data_ptr()),
-                cols);
+                cols,
+                num_rows_ptr,
+                num_rows_factor);
         });
     }
     else

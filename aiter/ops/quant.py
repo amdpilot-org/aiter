@@ -332,9 +332,9 @@ def per_block_quant_wrapper(block_shape=(1, 128)):
     def decorator(per_token_quant_func):
         def wrapper(x, scale=None, quant_dtype=dtypes.i8):
             blk_m, blk_n = block_shape
-            assert (
-                x.shape[-1] % blk_n == 0
-            ), f"block size {blk_n} not match {x.shape[-1]}"
+            assert x.shape[-1] % blk_n == 0, (
+                f"block size {blk_n} not match {x.shape[-1]}"
+            )
             assert blk_m == 1, "only support 1xN block, TODO: support MxN"
             m, n = x.shape
             x = x.view(-1, blk_n)
@@ -612,9 +612,9 @@ def per_1x32_f4_quant_hip(
     the ``get_hip_quant(QuantType.per_1x32)`` lookup before MXFP8 support
     was added) keep working unchanged.
     """
-    assert (
-        quant_dtype == dtypes.fp4x2
-    ), "per_1x32_f4_quant_hip is fp4-only; use per_1x32_mx_quant_hip for fp8"
+    assert quant_dtype == dtypes.fp4x2, (
+        "per_1x32_f4_quant_hip is fp4-only; use per_1x32_mx_quant_hip for fp8"
+    )
     return per_1x32_mx_quant_hip(
         x,
         scale=scale,
@@ -632,14 +632,25 @@ def per_tensor_quant_hip(
     num_rows: torch.Tensor | None = None,
     num_rows_factor=1,
 ):
-    assert num_rows is None, "num_rows is not supported for per_tensor_quant_hip"
     y = torch.empty(x.shape, dtype=quant_dtype, device=x.device)
     if quant_dtype in [dtypes.fp8, dtypes.i8]:
         if scale is None:
             scale = torch.empty(1, dtype=dtypes.fp32, device=x.device)
-            dynamic_per_tensor_quant(y, x, scale)
+            dynamic_per_tensor_quant(
+                y,
+                x,
+                scale,
+                num_rows=num_rows,
+                num_rows_factor=num_rows_factor,
+            )
         else:
-            static_per_tensor_quant(y, x, scale)
+            static_per_tensor_quant(
+                y,
+                x,
+                scale,
+                num_rows=num_rows,
+                num_rows_factor=num_rows_factor,
+            )
     else:
         raise ValueError(f"unsupported: {quant_dtype=}")
     return y, scale.view(1)
@@ -745,11 +756,23 @@ def moe_smooth_per_token_scaled_quant(
 
 
 @compile_ops("module_quant", develop=True)
-def static_per_tensor_quant(out: Tensor, input: Tensor, scale: Tensor) -> None: ...
+def static_per_tensor_quant(
+    out: Tensor,
+    input: Tensor,
+    scale: Tensor,
+    num_rows: Tensor | None = None,
+    num_rows_factor: int = 1,
+) -> None: ...
 
 
 @compile_ops("module_quant", develop=True)
-def dynamic_per_tensor_quant(out: Tensor, input: Tensor, scale: Tensor) -> None: ...
+def dynamic_per_tensor_quant(
+    out: Tensor,
+    input: Tensor,
+    scale: Tensor,
+    num_rows: Tensor | None = None,
+    num_rows_factor: int = 1,
+) -> None: ...
 
 
 @compile_ops("module_quant", develop=True)
