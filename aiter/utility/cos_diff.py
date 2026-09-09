@@ -51,9 +51,8 @@ def worst_row_cos_diff(x, y, energy_floor=COS_DIFF_ROW_ENERGY_FLOOR):
         y = y[finite]
     if not torch.isfinite(y).all():
         return float("inf")
-    x_squared = x * x
-    y_squared = y * y
-    ref_energy = x_squared.sum(dim=-1)
+    ref_energy = (x * x).sum(dim=-1)
+    result_energy = (y * y).sum(dim=-1)
     peak_energy = ref_energy.max()
     if peak_energy <= 0:
         return 0.0
@@ -63,7 +62,7 @@ def worst_row_cos_diff(x, y, energy_floor=COS_DIFF_ROW_ENERGY_FLOOR):
         return 0.0
 
     error = ((x - y) ** 2).sum(dim=-1)[keep]
-    energy = (x_squared + y_squared).sum(dim=-1)[keep]
+    energy = (ref_energy + result_energy)[keep]
     return (error / energy.clamp_min(1e-12)).max().item()
 
 
