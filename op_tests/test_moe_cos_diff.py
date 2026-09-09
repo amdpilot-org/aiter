@@ -107,6 +107,14 @@ class TestMoeCosDiff(unittest.TestCase):
                 finally:
                     os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
 
+    def test_row_scoring_falls_back_on_unsupported_layouts(self):
+        reference = _reference()
+        self.assertEqual(
+            worst_row_cos_diff(reference, reference.reshape(COLS, ROWS)), 0.0
+        )
+        flat = reference.flatten()
+        self.assertEqual(worst_row_cos_diff(flat, flat), 0.0)
+
     def test_row_scoring_never_loosens_the_tuner_result(self):
         reference = _reference()
         torch.manual_seed(3)
