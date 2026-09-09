@@ -41,8 +41,9 @@ def make_inputs(batch, next_n, heads, dim, context_lens, block_size=16):
     return q, kv, weights, context_lens_tensor, block_table, max_context, values, scales
 
 
-def torch_reference(inputs, next_n, heads, dim, context_lens, block_size=16):
+def torch_reference(inputs, next_n, heads, dim, context_lens):
     q, _, weights, _, block_table, _, values, scales = inputs
+    block_size = values.shape[1]
     batch = len(context_lens)
     reference = torch.empty(
         batch * next_n, max(context_lens), device="cuda", dtype=torch.float32
@@ -66,6 +67,7 @@ def torch_reference(inputs, next_n, heads, dim, context_lens, block_size=16):
 
 def run_kernel(inputs, out, chunk_k, wave_per_eu=8):
     q, kv, weights, context_lens, block_table, max_context, *_ = inputs
+    block_size = kv.shape[1]
     out.fill_(float("nan"))
     deepgemm_fp8_paged_mqa_logits(
         q,
@@ -76,7 +78,7 @@ def run_kernel(inputs, out, chunk_k, wave_per_eu=8):
         block_table,
         max_context,
         Preshuffle=True,
-        KVBlockSize=16,
+        KVBlockSize=block_size,
         ChunkK=chunk_k,
         WavePerEU=wave_per_eu,
     )
@@ -105,8 +107,10 @@ def compare(out, reference, context_lens, next_n, label):
     print(f"PASS {label}: max_abs={max_abs:.6g}")
 
 
-def correctness_case(context_lens, batch, next_n, heads, dim, chunk_sizes):
-    inputs = make_inputs(batch, next_n, heads, dim, context_lens)
+def correctness_case(
+    context_lens, batch, next_n, heads, dim, chunk_sizes, block_size
+):
+    inputs = make_inputs(batch, next_n, heads, dim, context_lens, block_size)
     reference = torch_reference(inputs, next_n, heads, dim, context_lens)
     out = torch.empty(
         batch * next_n,
@@ -121,13 +125,16 @@ def correctness_case(context_lens, batch, next_n, heads, dim, chunk_sizes):
             reference,
             context_lens,
             next_n,
-            f"batch={batch} next_n={next_n} heads={heads} context={context_lens} ChunkK={chunk_k}",
+            f"batch={batch} next_n={next_n} heads={heads} context={context_lens} "
+            f"KVBlockSize={block_size} ChunkK={chunk_k}",
         )
 
 
-def latency_case():
+def latency_case(block_size):
     batch, next_n, heads, dim, context = 8, 5, 32, 128, 131072
-    inputs = make_inputs(batch, next_n, heads, dim, [context] * batch)
+    inputs = make_inputs(
+        batch, next_n, heads, dim, [context] * batch, block_size
+    )
     out = torch.empty(
         batch * next_n, context, device="cuda", dtype=torch.float32
     )
@@ -148,7 +155,7 @@ def latency_case():
                 inputs[4],
                 context,
                 Preshuffle=True,
-                KVBlockSize=16,
+                KVBlockSize=block_size,
                 ChunkK=chunk_k,
                 WavePerEU=wave_per_eu,
             )
@@ -164,16 +171,25 @@ def latency_case():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-large", action="store_true")
+    parser.add_argument("--kv-block-size", type=int, default=16)
     args = parser.parse_args()
 
     chunk_sizes = (64, 128, 256, 512)
     if not args.skip_large:
-        correctness_case([131072] * 8, 8, 5, 32, 128, chunk_sizes)
+        correctness_case(
+            [131072] * 8, 8, 5, 32, 128, chunk_sizes, args.kv_block_size
+        )
     for context in (1, 15, 16, 17, 63, 64, 65, 127, 128, 129):
-        correctness_case([context], 1, 1, 32, 128, chunk_sizes)
-    correctness_case([17] * 2, 2, 1, 32, 128, chunk_sizes)
-    correctness_case([65] * 3, 3, 2, 32, 128, chunk_sizes)
-    latency_case()
+        correctness_case(
+            [context], 1, 1, 32, 128, chunk_sizes, args.kv_block_size
+        )
+    correctness_case(
+        [17] * 2, 2, 1, 32, 128, chunk_sizes, args.kv_block_size
+    )
+    correctness_case(
+        [65] * 3, 3, 2, 32, 128, chunk_sizes, args.kv_block_size
+    )
+    latency_case(args.kv_block_size)
 
 
 if __name__ == "__main__":
