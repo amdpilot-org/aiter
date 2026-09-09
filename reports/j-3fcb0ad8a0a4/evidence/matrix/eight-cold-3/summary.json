@@ -1,0 +1,32 @@
+{
+  "all_contract_pass": true,
+  "all_return_zero": true,
+  "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-3",
+  "compile_ends": 8,
+  "compile_starts": 8,
+  "error_count": 0,
+  "library_paths": [
+    "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-3/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+  ],
+  "load_ends": 32784,
+  "load_starts": 32784,
+  "name": "eight-cold-3",
+  "passed": true,
+  "process_count": 8,
+  "ranks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "ready": true,
+  "result_count": 8,
+  "started_ns": 1788979900451141620,
+  "timed_out": false,
+  "timeout": 900.0,
+  "trials": 4096
+}

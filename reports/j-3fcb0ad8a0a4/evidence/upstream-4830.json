@@ -1,0 +1,82 @@
+{
+  "url": "https://api.github.com/repos/ROCm/aiter/issues/4830",
+  "repository_url": "https://api.github.com/repos/ROCm/aiter",
+  "labels_url": "https://api.github.com/repos/ROCm/aiter/issues/4830/labels{/name}",
+  "comments_url": "https://api.github.com/repos/ROCm/aiter/issues/4830/comments",
+  "events_url": "https://api.github.com/repos/ROCm/aiter/issues/4830/events",
+  "html_url": "https://github.com/ROCm/aiter/issues/4830",
+  "id": 5183934919,
+  "node_id": "I_kwDONNkFic8AAAABNPyRxw",
+  "number": 4830,
+  "title": "[Bug] `top_k_top_p_sampling_from_probs` segfaults (host-side) during vLLM sampler warm-up on MI300X (gfx942), aiter main @ e8f438a",
+  "user": {
+    "login": "skimanwhite",
+    "id": 241471738,
+    "node_id": "U_kgDODmSQ-g",
+    "avatar_url": "https://avatars.githubusercontent.com/u/241471738?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/skimanwhite",
+    "html_url": "https://github.com/skimanwhite",
+    "followers_url": "https://api.github.com/users/skimanwhite/followers",
+    "following_url": "https://api.github.com/users/skimanwhite/following{/other_user}",
+    "gists_url": "https://api.github.com/users/skimanwhite/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/skimanwhite/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/skimanwhite/subscriptions",
+    "organizations_url": "https://api.github.com/users/skimanwhite/orgs",
+    "repos_url": "https://api.github.com/users/skimanwhite/repos",
+    "events_url": "https://api.github.com/users/skimanwhite/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/skimanwhite/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 0,
+  "created_at": "2026-08-18T16:15:13Z",
+  "updated_at": "2026-08-18T16:15:13Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "NONE",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Problem description\n\nServing a large model through vLLM on 8×MI300X with `VLLM_ROCM_USE_AITER=1`, the engine segfaults during **sampler warm-up** (before serving the first request), inside aiter's compiled `top_k_top_p_sampling_from_probs`:\n\n```\n!!!!!!! Segfault encountered !!!!!!!\n  File \"<unknown>\", line 0, in top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7\n  File \"<unknown>\", line 0, in _PyObject_MakeTpCall\n  File \"<unknown>\", line 0, in _PyEval_EvalFrameDefault\n  File \"<unknown>\", line 0, in pybind11::object pybind11::detail::object_api<...>::operator()<...>\n  File \"<unknown>\", line 0, in torch::impl::dispatch::PythonKernelHolder::operator()(...)\n  File \"<unknown>\", line 0, in c10::Dispatcher::callBoxed(...)\n```\n\n- Repeats on multiple TP workers (observed 7×), **host-side** segfault — `dmesg` is clean, no GPU fault, no amdgpu errors.\n- Deterministic: killed the launch at sampler warm-up every time (reproduced across container restarts on the same build).\n\n### Environment\n\n- aiter: main @ `e8f438a748d27d5350b9a2d63c8e1cffc2626f52` (2026-08-17), built from source per the vLLM `Dockerfile.rocm` flow\n- Base image: `vllm/vllm-openai-rocm:kimi-k3` (vLLM `0.1.dev19253+g5f76ae224.d20260727`)\n- torch 2.11.0+gitd0c8b1f / ROCm 7.2.53211 / Python 3.12.13 / Ubuntu 22.04.5\n- 8× MI300X (gfx942), TP=8; model: Kimi-K3 (KimiLinear hybrid), but the sampler path is model-independent\n\n### Notes / suspicions\n\n- The sampler op is **not arch-gated** (unlike the MoE/MLA paths), so this is likely tip-of-main churn rather than a gfx942 gap — but we could only test on gfx942.\n- Workaround we're shipping: force vLLM's `forward_native` sampler in `vllm/v1/sample/ops/topk_topp_sampler.py`. Native sampler cost is negligible at our batch sizes; everything else (aiter MoE etc.) stays on aiter.\n- A secondary DX note for whoever owns the vLLM integration: the aiter sampler rides the master `VLLM_ROCM_USE_AITER` switch with no dedicated env gate, so when the sampler op breaks, the only recourse is patching vLLM source — a `VLLM_ROCM_USE_AITER_SAMPLER=0` style gate would have made this a one-line mitigation. Happy to file that separately on vllm-project if preferred.\n\n### Repro\n\nAny vLLM launch on this build with `VLLM_ROCM_USE_AITER=1` reaching sampler warm-up. Full launch log (19k lines, including all 7 segfault traces interleaved with NCCL init) excerpt (segfault traces + surrounding init, secret gist): https://gist.github.com/skimanwhite/12834cbe92fff32634735786f2b9b178\n",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/ROCm/aiter/issues/4830/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/ROCm/aiter/issues/4830/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

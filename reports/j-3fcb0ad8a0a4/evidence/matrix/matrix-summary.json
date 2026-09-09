@@ -1,0 +1,301 @@
+[
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/single-cold",
+    "compile_ends": 1,
+    "compile_starts": 1,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/single-cold/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 4098,
+    "load_starts": 4098,
+    "name": "single-cold",
+    "passed": true,
+    "process_count": 1,
+    "ranks": [
+      0
+    ],
+    "ready": true,
+    "result_count": 1,
+    "started_ns": 1788979749650071902,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-1",
+    "compile_ends": 8,
+    "compile_starts": 8,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-1/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 32784,
+    "load_starts": 32784,
+    "name": "eight-cold-1",
+    "passed": true,
+    "process_count": 8,
+    "ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ready": true,
+    "result_count": 8,
+    "started_ns": 1788979799249181302,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-2",
+    "compile_ends": 8,
+    "compile_starts": 8,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-2/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 32784,
+    "load_starts": 32784,
+    "name": "eight-cold-2",
+    "passed": true,
+    "process_count": 8,
+    "ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ready": true,
+    "result_count": 8,
+    "started_ns": 1788979848333270694,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-3",
+    "compile_ends": 8,
+    "compile_starts": 8,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-3/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 32784,
+    "load_starts": 32784,
+    "name": "eight-cold-3",
+    "passed": true,
+    "process_count": 8,
+    "ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ready": true,
+    "result_count": 8,
+    "started_ns": 1788979900451141620,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-4",
+    "compile_ends": 8,
+    "compile_starts": 8,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-4/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 32784,
+    "load_starts": 32784,
+    "name": "eight-cold-4",
+    "passed": true,
+    "process_count": 8,
+    "ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ready": true,
+    "result_count": 8,
+    "started_ns": 1788979952158950832,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-5",
+    "compile_ends": 8,
+    "compile_starts": 8,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-5/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 32784,
+    "load_starts": 32784,
+    "name": "eight-cold-5",
+    "passed": true,
+    "process_count": 8,
+    "ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ready": true,
+    "result_count": 8,
+    "started_ns": 1788980005736653775,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-6",
+    "compile_ends": 8,
+    "compile_starts": 8,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/eight-cold-6/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 32784,
+    "load_starts": 32784,
+    "name": "eight-cold-6",
+    "passed": true,
+    "process_count": 8,
+    "ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ready": true,
+    "result_count": 8,
+    "started_ns": 1788980057059751337,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/prebuild",
+    "compile_ends": 1,
+    "compile_starts": 1,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/prebuild/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 3,
+    "load_starts": 3,
+    "name": "prebuild",
+    "passed": true,
+    "process_count": 1,
+    "ranks": [
+      0
+    ],
+    "ready": true,
+    "result_count": 1,
+    "started_ns": 1788980112974769441,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 1
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/prebuild",
+    "compile_ends": 0,
+    "compile_starts": 0,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/prebuild/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 32784,
+    "load_starts": 32784,
+    "name": "warm-eight",
+    "passed": true,
+    "process_count": 8,
+    "ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ready": true,
+    "result_count": 8,
+    "started_ns": 1788980142447706196,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 4096
+  },
+  {
+    "all_contract_pass": true,
+    "all_return_zero": true,
+    "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/prebuild",
+    "compile_ends": 0,
+    "compile_starts": 0,
+    "error_count": 0,
+    "library_paths": [
+      "/job/aiter-cache-j-3fcb0ad8a0a4/prebuild/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+    ],
+    "load_ends": 3,
+    "load_starts": 3,
+    "name": "loader-trace",
+    "passed": true,
+    "process_count": 1,
+    "ranks": [
+      0
+    ],
+    "ready": true,
+    "result_count": 1,
+    "started_ns": 1788980153006527758,
+    "timed_out": false,
+    "timeout": 900.0,
+    "trials": 1
+  }
+]

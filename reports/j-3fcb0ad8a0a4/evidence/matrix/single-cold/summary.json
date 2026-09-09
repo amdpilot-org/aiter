@@ -1,0 +1,25 @@
+{
+  "all_contract_pass": true,
+  "all_return_zero": true,
+  "cache_dir": "/job/aiter-cache-j-3fcb0ad8a0a4/single-cold",
+  "compile_ends": 1,
+  "compile_starts": 1,
+  "error_count": 0,
+  "library_paths": [
+    "/job/aiter-cache-j-3fcb0ad8a0a4/single-cold/build/top_k_top_p_sampling_from_probs_51f5779b2644c0a61347d39ea3295db7/lib.so"
+  ],
+  "load_ends": 4098,
+  "load_starts": 4098,
+  "name": "single-cold",
+  "passed": true,
+  "process_count": 1,
+  "ranks": [
+    0
+  ],
+  "ready": true,
+  "result_count": 1,
+  "started_ns": 1788979749650071902,
+  "timed_out": false,
+  "timeout": 900.0,
+  "trials": 4096
+}
