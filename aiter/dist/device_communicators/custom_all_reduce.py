@@ -479,6 +479,7 @@ class IPCBufferPool:
     """
 
     _pool_seq: int = 0
+    _SUPPORTED_STORE_TYPES = (dist.TCPStore, dist.FileStore)
 
     def __init__(
         self,
@@ -505,7 +506,7 @@ class IPCBufferPool:
         self._free_fn = free_fn or ops.free_meta_buffer
 
         self._store = dist.distributed_c10d._get_default_store()
-        self._assert_pure_tcp_store(self._store)
+        self._assert_supported_ipc_store(self._store)
 
         ranks_tag = "_".join(map(str, sorted(dist.get_process_group_ranks(group))))
         self._store_key_prefix = f"aiter_ipc/p{IPCBufferPool._pool_seq}/g{ranks_tag}"
@@ -513,18 +514,18 @@ class IPCBufferPool:
         self._ipc_seq = 0
 
     @staticmethod
-    def _assert_pure_tcp_store(store) -> None:
-        """Verify the store is a pure-TCP KV store, free from any collective
-        communication backend (RCCL / gloo / MPI)."""
+    def _assert_supported_ipc_store(store) -> None:
+        """Verify the store can exchange IPC metadata without a collective backend."""
         s = store
         while isinstance(s, dist.PrefixStore):
             s = s.underlying_store
-        assert isinstance(s, dist.TCPStore), (
-            f"IPC metadata exchange requires a pure-TCP KV store "
-            f"(torch.distributed.TCPStore), got {type(s).__name__}. "
-            f"This ensures the exchange is backend-free — no RCCL, "
-            f"gloo, or MPI collective is involved."
-        )
+        if not isinstance(s, IPCBufferPool._SUPPORTED_STORE_TYPES):
+            raise TypeError(
+                f"IPC metadata exchange requires a blocking KV store "
+                f"(torch.distributed.TCPStore or torch.distributed.FileStore), "
+                f"got {type(s).__name__}. This keeps the exchange backend-free "
+                f"— no RCCL, gloo, or MPI collective is involved."
+            )
 
     # ---- Buffer lifecycle ----
 
@@ -607,7 +608,8 @@ class IPCBufferPool:
         return self._gather_ipc_meta((handle, 0))
 
     def _gather_ipc_meta(self, shard_data) -> tuple[list, list]:
-        """Exchange IPC metadata (handle + offset) across all ranks via TCP store.
+        """Exchange IPC metadata (handle + offset) across all ranks via a
+        blocking KV store (TCPStore or FileStore).
 
         Each rank writes its serialised *shard_data* under a unique key, then
         reads every other rank's data.  ``store.get()`` blocks until the key
