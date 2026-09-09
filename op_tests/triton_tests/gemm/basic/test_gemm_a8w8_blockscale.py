@@ -140,7 +140,7 @@ def generate_gemm_a8w8_blockscale_inputs(
 
 @pytest.mark.parametrize(
     "requested, actual",
-    [(1, 1), (2, 2), (3, 2), (4, 4), (5, 5), (7, 5), (8, 5)],
+    [(1, 1), (2, 2), (3, 2), (4, 4), (5, 5), (6, 5), (7, 5), (8, 5)],
 )
 def test_splitk_partitions_align_to_k_tiles(requested, actual):
     config = {"BLOCK_SIZE_K": 128, "NUM_KSPLIT": requested}
