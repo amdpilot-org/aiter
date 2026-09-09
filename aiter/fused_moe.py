@@ -537,6 +537,7 @@ def fused_moe(
     activation=ActivationType.Silu,
     quant_type=QuantType.No,
     doweight_stage1=False,
+    fp32_route_accumulation=False,
     # following for quant
     w1_scale: torch.Tensor | None = None,  # [expert(local_expert:EP), inter_dim, 1]
     w2_scale: torch.Tensor | None = None,  # [expert(local_expert:EP), model_dim, 1]
@@ -638,6 +639,7 @@ def fused_moe(
         beta=beta,
         linear_beta=linear_beta,
         gate_mode=gate_mode,
+        fp32_route_accumulation=fp32_route_accumulation,
         ep_arena_handle=stage2_scatter.arena_handle if enable_ep_scatter else 0,
         ep_combine_input_offset=(
             stage2_scatter.combine_input_offset if enable_ep_scatter else 0
@@ -682,6 +684,7 @@ def fused_moe_fake(
     beta: float | None = None,
     linear_beta: float | None = None,
     gate_mode: str = GateMode.SEPARATED.value,
+    fp32_route_accumulation: bool = False,
     ep_arena_handle: int = 0,
     ep_combine_input_offset: int = 0,
     ep_slot_stride_bytes: int = 0,
@@ -739,6 +742,7 @@ def fused_moe_(
     beta: float | None = None,
     linear_beta: float | None = None,
     gate_mode: str = GateMode.SEPARATED.value,
+    fp32_route_accumulation: bool = False,
     ep_arena_handle: int = 0,
     ep_combine_input_offset: int = 0,
     ep_slot_stride_bytes: int = 0,
@@ -783,6 +787,7 @@ def fused_moe_(
         beta=beta,
         linear_beta=linear_beta,
         gate_mode=gate_mode,
+        fp32_route_accumulation=fp32_route_accumulation,
         stage2_scatter=stage2_scatter,
         output=output,
     )
@@ -814,6 +819,7 @@ def _fused_moe_impl(
     beta: float | None = None,
     linear_beta: float | None = None,
     gate_mode: str = GateMode.SEPARATED.value,
+    fp32_route_accumulation: bool = False,
     stage2_scatter: Stage2ScatterContext | None = None,
     output: torch.Tensor | None = None,
     *,
@@ -1014,6 +1020,28 @@ def _fused_moe_impl(
     if _metadata_transform is not None:
         metadata = _metadata_transform(metadata)
 
+    if fp32_route_accumulation:
+        stage2_func = getattr(metadata.stage2, "func", metadata.stage2)
+        if (
+            quant_type != QuantType.No
+            or dtype != dtypes.bf16
+            or activation != ActivationType.Silu
+            or not isG1U1
+            or doweight_stage1
+            or expert_mask is not None
+            or bias1 is not None
+            or bias2 is not None
+            or stage2_scatter is not None
+            or metadata.run_1stage
+            or getattr(stage2_func, "__name__", None) != "ck_moe_stage2_fwd"
+        ):
+            raise NotImplementedError(
+                "fp32_route_accumulation supports unquantized BF16 Silu G1U1 "
+                "CK two-stage MoE without EP, bias, stage-1 weighting, or scatter"
+            )
+
+    route_accumulator_dtype = dtypes.fp32 if fp32_route_accumulation else dtype
+
     block_size_M = metadata.block_m if block_size_M is None else block_size_M
     # Ensure block_size_M is int (metadata.block_m from CSV may be float)
     if block_size_M is not None:
@@ -1060,7 +1088,7 @@ def _fused_moe_impl(
             topk_weight,
             global_E,
             model_dim,
-            dtype,
+            route_accumulator_dtype,
             block_size_M,
             accumulate=_atomic,
             output_aux=True,
@@ -1073,7 +1101,7 @@ def _fused_moe_impl(
             topk_weight,
             global_E,
             model_dim,
-            dtype,
+            route_accumulator_dtype,
             block_size_M,
             expert_mask,
             num_local_tokens,
@@ -1081,7 +1109,11 @@ def _fused_moe_impl(
             return_local_topk_ids=need_local_topk_ids,
             accumulate=not stage2_uses_route_reduce(metadata.stage2),
             flat=metadata.flat,
-            output=None if metadata.flat else output,
+            output=(
+                None
+                if fp32_route_accumulation or metadata.flat
+                else output
+            ),
         )
         if need_local_topk_ids:
             (
@@ -1164,6 +1196,7 @@ def _fused_moe_impl(
             beta=beta,
             linear_beta=linear_beta,
             gate_mode=gate_mode,
+            output_dtype=dtype,
             expert_mask=expert_mask,
             m_indices=sort_m_indices,
             reverse_sorted=sort_reverse_sorted,
@@ -1174,6 +1207,8 @@ def _fused_moe_impl(
             output=output,
             _stage2_override=_stage2_override,
         )
+        if fp32_route_accumulation:
+            ret = ret.to(dtype)
         return _return_output(ret, output)
 
 
@@ -3139,6 +3174,7 @@ def fused_moe_2stages(
     beta=None,
     linear_beta=None,
     gate_mode=GateMode.SEPARATED.value,
+    output_dtype: torch.dtype | None = None,
     expert_mask=None,
     m_indices=None,
     reverse_sorted=None,
@@ -3153,7 +3189,7 @@ def fused_moe_2stages(
     gate_mode = GateMode(gate_mode)
     token_num, _ = hidden_states.shape
     E, model_dim, inter_dim = get_inter_dim(w1.shape, w2.shape)
-    dtype = moe_out.dtype
+    dtype = output_dtype if output_dtype is not None else moe_out.dtype
     device = hidden_states.device
     _sort_moe_buf = moe_out
     if moe_out.numel() == 0:

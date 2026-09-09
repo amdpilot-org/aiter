@@ -1047,7 +1047,7 @@ if __name__ == "__main__":
         default="b16",
         required=False,
         type=str,
-        choices=["f16", "b16"],
+        choices=["f16", "b16", "f32"],
         help="select out dtype",
     )
 
