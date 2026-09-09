@@ -1,0 +1,63 @@
+[aiter] pciChipId: 0x74a1, CU count: 304
+[aiter] LoadKernel: _ZN5aiter31fmha_fwd_hd128_fp8_causal_groupE hsaco: /job/aiter-candidate/hsa//gfx942/fmha_v3_fwd/MI300/fwd_hd128_fp8_causal_group.co
+{
+  "case": "varlen",
+  "causal": true,
+  "cu_seqlens_k": [
+    0,
+    108
+  ],
+  "cu_seqlens_q": [
+    0,
+    124
+  ],
+  "descales": {
+    "k": 0.004150390625,
+    "q": 0.004150390625,
+    "v": 0.004150390625
+  },
+  "direct_lse_dtype": "torch.float32",
+  "dtype": "torch.float8_e4m3fnuz",
+  "lse_gate_0_01": true,
+  "neginf_count": 128,
+  "neginf_equal": true,
+  "noncausal_vs_direct_lse_max_abs": 4.806370735168457,
+  "output_gate_0_055": true,
+  "output_max_abs": 0.020784318447113037,
+  "production_lse_dtype": "torch.float32",
+  "production_vs_direct_lse_max_abs": 9.5367431640625e-07,
+  "reference_vs_direct_lse_max_abs": 9.5367431640625e-07,
+  "scale_squared_vs_direct_lse_max_abs": 3.049988269805908,
+  "sequence_length": 128,
+  "shapes": {
+    "direct_lse": [
+      8,
+      124
+    ],
+    "k_quant": [
+      108,
+      8,
+      128
+    ],
+    "production_lse": [
+      8,
+      124
+    ],
+    "q_quant": [
+      124,
+      8,
+      128
+    ],
+    "v_quant": [
+      108,
+      8,
+      128
+    ]
+  },
+  "softmax_scale": 0.08838834764831845,
+  "strictly_causal_vs_direct_lse_max_abs": Infinity,
+  "unscaled_vs_direct_lse_max_abs": 36.24477767944336,
+  "worst_direct_lse": 7.293911457061768,
+  "worst_flat_index": 99,
+  "worst_production_lse": 7.293911457061768
+}

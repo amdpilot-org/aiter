@@ -1,0 +1,154 @@
+diff --git a/aiter/ops/mha.py b/aiter/ops/mha.py
+index 0f7248b41..a6571a8bd 100644
+--- a/aiter/ops/mha.py
++++ b/aiter/ops/mha.py
+@@ -2093,6 +2093,64 @@ def _flash_attn_forward(
+     _validate_cu("cu_seqlens_kv", cu_seqlens_kv)
+ 
+     assert num_splits >= 0, f"num_splits must be >= 0 (0=auto), got {num_splits}"
++    use_bf16_lse_fallback = (
++        get_gfx() == "gfx942"
++        and return_lse
++        and causal
++        and q.dtype == dtypes.fp8
++        and hdim_q == 128
++        and hdim_v == 128
++        and seqlen_q > 256
++        and q_descale is not None
++        and k_descale is not None
++        and v_descale is not None
++        and q_descale.shape == (1,)
++        and k_descale.shape == (1,)
++        and v_descale.shape == (1,)
++    )
++    if use_bf16_lse_fallback:
++        out_, _, S_dmask, rng_state = fmha_v3_fwd(
++            q,
++            k,
++            v,
++            dropout_p,
++            softmax_scale,
++            causal,
++            window_size_left,
++            window_size_right,
++            False,
++            return_softmax,
++            how_v3_bf16_cvt,
++            out,
++            bias,
++            alibi_slopes,
++            q_descale,
++            k_descale,
++            v_descale,
++            None,
++        )
++        q_bf16 = (q.float() * q_descale).to(dtypes.bf16)
++        k_bf16 = (k.float() * k_descale).to(dtypes.bf16)
++        v_bf16 = (v.float() * v_descale).to(dtypes.bf16)
++        _, softmax_lse, _, _ = mha_fwd(
++            q_bf16,
++            k_bf16,
++            v_bf16,
++            dropout_p,
++            softmax_scale,
++            causal,
++            window_size_left,
++            window_size_right,
++            sink_size,
++            True,
++            return_softmax,
++            out=None,
++            bias=bias,
++            alibi_slopes=alibi_slopes,
++            sink_ptr=None,
++            gen=None,
++        )
++        return out_, softmax_lse, S_dmask, rng_state
+     if can_impl_fmha_native():
+         ns = (
+             num_splits
+@@ -3049,6 +3107,84 @@ def _flash_attn_varlen_forward(
+         return ret
+ 
+     q, k, v = [maybe_contiguous(x) for x in (q, k, v)]
++    use_bf16_lse_fallback = (
++        get_gfx() == "gfx942"
++        and return_lse
++        and causal
++        and q.dtype == dtypes.fp8
++        and hdim_q == 128
++        and hdim_v == 128
++        and q.size(0) > 256
++        and q_descale is not None
++        and k_descale is not None
++        and v_descale is not None
++        and q_descale.shape == (1,)
++        and k_descale.shape == (1,)
++        and v_descale.shape == (1,)
++    )
++    if use_bf16_lse_fallback:
++        out, _, S_dmask, rng_state = fmha_v3_varlen_fwd(
++            q,
++            k,
++            v,
++            cu_seqlens_q,
++            cu_seqlens_k,
++            max_seqlen_q,
++            max_seqlen_k,
++            min_seqlen_q,
++            dropout_p,
++            softmax_scale,
++            logits_soft_cap,
++            zero_tensors,
++            causal,
++            window_size_left,
++            window_size_right,
++            False,
++            return_softmax,
++            how_v3_bf16_cvt,
++            out,
++            block_table,
++            bias,
++            alibi_slopes,
++            q_descale,
++            k_descale,
++            v_descale,
++            None,
++            cu_seqlens_q_padded,
++            cu_seqlens_k_padded,
++        )
++        q_bf16 = (q.float() * q_descale).to(dtypes.bf16)
++        k_bf16 = (k.float() * k_descale).to(dtypes.bf16)
++        v_bf16 = (v.float() * v_descale).to(dtypes.bf16)
++        _, softmax_lse, _, _ = mha_varlen_fwd(
++            q_bf16,
++            k_bf16,
++            v_bf16,
++            cu_seqlens_q,
++            cu_seqlens_k,
++            max_seqlen_q,
++            max_seqlen_k,
++            min_seqlen_q,
++            dropout_p,
++            softmax_scale,
++            logits_soft_cap,
++            zero_tensors,
++            causal,
++            window_size_left,
++            window_size_right,
++            sink_size,
++            True,
++            return_softmax,
++            out=None,
++            block_table=block_table,
++            bias=bias,
++            alibi_slopes=alibi_slopes,
++            gen=None,
++            cu_seqlens_q_padded=cu_seqlens_q_padded,
++            cu_seqlens_k_padded=cu_seqlens_k_padded,
++            sink_ptr=None,
++        )
++        return out, softmax_lse, S_dmask, rng_state
+ 
+     if can_impl_fmha_fwd_hd192_v128_bf16_opus_varlen():
+         # OPUS gfx950 group/varlen D=192 path. cu_seqlens_* are the REAL cumulative
