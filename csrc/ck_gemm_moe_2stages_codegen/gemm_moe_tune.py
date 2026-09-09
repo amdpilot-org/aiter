@@ -79,7 +79,6 @@ from aiter.utility import fp4_utils
 from aiter.utility.base_tuner import TunerCommon
 from aiter.utility.cos_diff import (
     COS_DIFF_THRESHOLD,
-    combined_cos_diff,
     rowwise_enabled,
     worst_row_cos_diff,
 )
@@ -130,7 +129,8 @@ def _a16w_sorted_cos(ref, res, msg="", printLog=True):
     x = x_rows.flatten()
     y = y_rows.flatten()
     cos_diff = 1 - 2 * (x * y).sum().item() / max((x * x + y * y).sum().item(), 1e-12)
-    cos_diff = combined_cos_diff(x_rows, y_rows, cos_diff)
+    if rowwise_enabled():
+        cos_diff = max(cos_diff, worst_row_cos_diff(x_rows, y_rows))
     if printLog:
         tag = "passed~" if cos_diff < COS_DIFF_THRESHOLD else "failed!"
         print(f"{msg}[cosine_diff={cos_diff:.6f} {tag}]")
