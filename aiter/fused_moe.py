@@ -515,6 +515,24 @@ def stage2_uses_route_reduce(stage2: Callable) -> bool:
     return False
 
 
+def _force_flydsl_stage2_reduce(kernelName2: str) -> str:
+    if os.environ.get("AITER_FLYDSL_FORCE_REDUCE", "0") != "1":
+        return kernelName2
+    if not isinstance(kernelName2, str) or not kernelName2.startswith("flydsl_"):
+        return kernelName2
+    try:
+        cfg = parse_g2_kname_any(kernelName2)
+    except ValueError:
+        return kernelName2
+    if not cfg["atomic"]:
+        return kernelName2
+    if cfg["v2"]:
+        return kernelName2.replace("_atomic", "_reduce", 1)
+    if cfg["use_nt"]:
+        return kernelName2.replace("_atomic_nt", "_nt", 1)
+    return kernelName2.removesuffix("_atomic")
+
+
 # Lru cache will using hash to create key, which makes error when w1,w2 shape is symint.
 # We can use torch.compile(dynamic=False) to avoid
 @functools.lru_cache(maxsize=2048)
@@ -1009,6 +1027,7 @@ def _fused_moe_impl(
         opus_weights_shuffled=getattr(w1, "is_shuffled", False)
         and getattr(w2, "is_shuffled", False),
         config_file=_metadata_config_file,
+        force_reduce=os.environ.get("AITER_FLYDSL_FORCE_REDUCE", "0") == "1",
     )
 
     if _metadata_transform is not None:
@@ -2247,6 +2266,7 @@ def get_2stage_cfgs(
     has_stage2_bias=False,
     opus_weights_shuffled=None,
     config_file=None,
+    force_reduce=False,
 ):
     gate_mode = GateMode(gate_mode)
     # Configs are keyed on (gfx, cu_num, ...) so archs that share a cu_num
@@ -2572,6 +2592,8 @@ def get_2stage_cfgs(
             ksplit = 0
         kernelName1 = cfg["kernelName1"]
         kernelName2 = cfg["kernelName2"]
+        if force_reduce:
+            kernelName2 = _force_flydsl_stage2_reduce(kernelName2)
         run_1stage = cfg.get("run_1stage", False)
         if not is_shuffled and not run_1stage:
             logger.warning(
@@ -3187,6 +3209,7 @@ def fused_moe_2stages(
         opus_weights_shuffled=getattr(w1, "is_shuffled", False)
         and getattr(w2, "is_shuffled", False),
         config_file=_metadata_config_file,
+        force_reduce=os.environ.get("AITER_FLYDSL_FORCE_REDUCE", "0") == "1",
     )
     if _metadata_transform is not None:
         metadata = _metadata_transform(metadata)

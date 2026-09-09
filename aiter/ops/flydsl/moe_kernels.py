@@ -2087,7 +2087,7 @@ def _flydsl_moe_stage2_impl(
     inter_dim = inter_states.shape[2]
 
     # Debug: force stage2 to use the masked reduce epilogue instead of atomic
-    # accumulate. Enabled by default; set AITER_FLYDSL_FORCE_REDUCE=0 to opt out.
+    # accumulate. Disabled by default; set AITER_FLYDSL_FORCE_REDUCE=1 to enable.
     if os.environ.get("AITER_FLYDSL_FORCE_REDUCE", "0") == "1":
         mode = "reduce"
     elif (
