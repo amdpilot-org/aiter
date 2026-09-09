@@ -630,8 +630,15 @@ def per_tensor_quant_hip(
     scale=None,
     quant_dtype=dtypes.i8,
     num_rows: torch.Tensor | None = None,
-    num_rows_factor=1,
+    num_rows_factor: int = 1,
 ):
+    """Quantize active rows with a single tensor-wide scale.
+
+    ``num_rows`` optionally limits dynamic-scale computation and quantization to
+    the first ``num_rows * num_rows_factor`` rows. This supports padded
+    expert-parallel buffers without allowing poisoned padding rows to affect the
+    scale.
+    """
     assert num_rows_factor > 0, "num_rows_factor must be positive"
     if num_rows is not None:
         assert num_rows.dtype == torch.int32, "num_rows must be int32"
