@@ -1,4 +1,3 @@
-import tempfile
 from multiprocessing import Pool, freeze_support, set_start_method
 
 import torch
