@@ -76,3 +76,9 @@ def test_get_2stage_cfgs_force_reduce_cache_key():
 def test_force_flydsl_stage2_reduce_ignores_non_flydsl_names(force):
     kernel_name = "cktile_moe_stage2"
     assert _force_flydsl_stage2_reduce(kernel_name, force=force) == kernel_name
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_force_flydsl_stage2_reduce_ignores_invalid_flydsl_names(force):
+    kernel_name = "flydsl_invalid_kernel"
+    assert _force_flydsl_stage2_reduce(kernel_name, force=force) == kernel_name
