@@ -515,8 +515,8 @@ def stage2_uses_route_reduce(stage2: Callable) -> bool:
     return False
 
 
-def _force_flydsl_stage2_reduce(kernelName2: str) -> str:
-    if os.environ.get("AITER_FLYDSL_FORCE_REDUCE", "0") != "1":
+def _force_flydsl_stage2_reduce(kernelName2: str, *, force: bool = False) -> str:
+    if not force:
         return kernelName2
     if not isinstance(kernelName2, str) or not kernelName2.startswith("flydsl_"):
         return kernelName2
@@ -2593,7 +2593,9 @@ def get_2stage_cfgs(
         kernelName1 = cfg["kernelName1"]
         kernelName2 = cfg["kernelName2"]
         if force_reduce:
-            kernelName2 = _force_flydsl_stage2_reduce(kernelName2)
+            kernelName2 = _force_flydsl_stage2_reduce(
+                kernelName2, force=force_reduce
+            )
         run_1stage = cfg.get("run_1stage", False)
         if not is_shuffled and not run_1stage:
             logger.warning(
