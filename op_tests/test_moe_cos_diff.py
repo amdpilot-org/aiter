@@ -79,6 +79,12 @@ class TestMoeCosDiff(unittest.TestCase):
         result[0] = float("nan")
         self.assertLess(worst_row_cos_diff(reference, result), COS_DIFF_THRESHOLD)
 
+    def test_non_finite_candidate_row_is_rejected(self):
+        reference = _reference()
+        result = reference.clone()
+        result[0] = float("nan")
+        self.assertEqual(worst_row_cos_diff(reference, result), float("inf"))
+
     def test_correct_rounding_noise_passes_row_scoring(self):
         reference = _reference()
         torch.manual_seed(2)
