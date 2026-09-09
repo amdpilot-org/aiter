@@ -1,0 +1,449 @@
+{
+  "config_file": "/job/aiter/aiter/configs/model_configs/a8w8_blockscale_tuned_gemm_ds_v3.csv",
+  "hardware": {
+    "cu_num": 304,
+    "device_name": "AMD Instinct MI300X",
+    "gfx": "gfx942",
+    "hip": "7.2.26015-fc0010cf6a",
+    "torch": "2.9.1+rocm7.2.0.git7e1940d4",
+    "visible_device_count": 1
+  },
+  "input_dtype": "torch.float8_e4m3fnuz",
+  "shapes": {
+    "2048x4608x7168": {
+      "seeds": {
+        "1234": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.096758908010088e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 9437184
+            },
+            "timing_us": [
+              519.5350646972656,
+              510.073184967041
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.096758908010088e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 9437184
+            },
+            "timing_us": [
+              167.44035482406616,
+              170.6478476524353
+            ]
+          }
+        },
+        "5678": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.2199419618118554e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 9437184
+            },
+            "timing_us": [
+              525.1038551330566,
+              519.5309638977051
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.2199419618118554e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 9437184
+            },
+            "timing_us": [
+              160.00725030899048,
+              168.510901927948
+            ]
+          }
+        }
+      },
+      "selected_config": {
+        "csv_us": 155.6976,
+        "kernelId": 0,
+        "kernelName": "a8w8_blockscale_1x128x128_256x128x128x128_16x16_32x32_2x2_8x32x1_8x32x1_1x32x1x8_8_1x1_intrawave_v3",
+        "libtype": "ck",
+        "splitK": 0
+      }
+    },
+    "2048x7168x2304": {
+      "seeds": {
+        "1234": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0625,
+              "mean_abs": 3.893460871040588e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              272.15609550476074,
+              266.7977571487427
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0625,
+              "mean_abs": 3.893460871040588e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              90.75894951820374,
+              82.73544907569885
+            ]
+          }
+        },
+        "5678": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.03125,
+              "mean_abs": 3.7710583455918822e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              271.743106842041,
+              268.1027412414551
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.03125,
+              "mean_abs": 3.7710583455918822e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              88.953298330307,
+              82.05235004425049
+            ]
+          }
+        }
+      },
+      "selected_config": {
+        "csv_us": 77.8885,
+        "kernelId": 0,
+        "kernelName": "a8w8_blockscale_1x128x128_256x128x128x128_16x16_32x32_2x2_8x32x1_8x32x1_1x32x1x8_8_1x1_intrawave_v3",
+        "libtype": "ck",
+        "splitK": 0
+      }
+    },
+    "2048x7168x256": {
+      "seeds": {
+        "1234": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.3105039897709503e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              55.12319803237915,
+              54.958850145339966
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.3105039897709503e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              26.368850469589233,
+              26.282650232315063
+            ]
+          }
+        },
+        "5678": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.218036942418621e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              59.190601110458374,
+              57.27015137672424
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.218036942418621e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 14680064
+            },
+            "timing_us": [
+              26.354849338531494,
+              26.451051235198975
+            ]
+          }
+        }
+      },
+      "selected_config": {
+        "csv_us": 21.8014,
+        "kernelId": 16,
+        "kernelName": "a8w8_blockscale_1x128x128_256x64x64x128_16x16_32x32_1x1_8x32x1_8x32x1_1x32x1x8_8_1x1_intrawave_v1",
+        "libtype": "ck",
+        "splitK": 0
+      }
+    },
+    "32768x4608x7168": {
+      "seeds": {
+        "1234": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.09026038646698e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 150994944
+            },
+            "timing_us": [
+              7846.863555908203,
+              7858.223724365234
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.09026038646698e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 150994944
+            },
+            "timing_us": [
+              2646.2331771850586,
+              2662.5167846679688
+            ]
+          }
+        },
+        "5678": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.0841756850131787e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 150994944
+            },
+            "timing_us": [
+              8029.998779296875,
+              8039.192199707031
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.125,
+              "mean_abs": 2.0841756850131787e-05,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 150994944
+            },
+            "timing_us": [
+              2664.130401611328,
+              2660.0210189819336
+            ]
+          }
+        }
+      },
+      "selected_config": {
+        "csv_us": 566.1328,
+        "kernelId": 0,
+        "kernelName": "a8w8_blockscale_1x128x128_256x128x128x128_16x16_32x32_2x2_8x32x1_8x32x1_1x32x1x8_8_1x1_intrawave_v3",
+        "libtype": "ck",
+        "splitK": 0
+      }
+    },
+    "32768x7168x2304": {
+      "seeds": {
+        "1234": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0625,
+              "mean_abs": 3.913284672307782e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              4092.464828491211,
+              4059.9620819091797
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0625,
+              "mean_abs": 3.913284672307782e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              1304.8755645751953,
+              1251.1395454406738
+            ]
+          }
+        },
+        "5678": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0625,
+              "mean_abs": 3.902042408299167e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              4072.631072998047,
+              4060.0704193115234
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0625,
+              "mean_abs": 3.902042408299167e-06,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              1253.503131866455,
+              1245.0175285339355
+            ]
+          }
+        }
+      },
+      "selected_config": {
+        "csv_us": 270.2519,
+        "kernelId": 0,
+        "kernelName": "a8w8_blockscale_1x128x128_256x128x128x128_16x16_32x32_2x2_8x32x1_8x32x1_1x32x1x8_8_1x1_intrawave_v3",
+        "libtype": "ck",
+        "splitK": 0
+      }
+    },
+    "32768x7168x256": {
+      "seeds": {
+        "1234": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.4043845908418007e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              806.102466583252,
+              796.6405868530273
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.4043845908418007e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              368.7791109085083,
+              366.86675548553467
+            ]
+          }
+        },
+        "5678": {
+          "default": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.276909813441307e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              812.1423721313477,
+              811.649227142334
+            ]
+          },
+          "selected": {
+            "numeric": {
+              "finite": true,
+              "max_abs": 0.0078125,
+              "mean_abs": 1.276909813441307e-07,
+              "mismatch": 0,
+              "mismatch_ratio": 0.0,
+              "total": 234881024
+            },
+            "timing_us": [
+              343.86210441589355,
+              359.5177412033081
+            ]
+          }
+        }
+      },
+      "selected_config": {
+        "csv_us": 82.6615,
+        "kernelId": 16,
+        "kernelName": "a8w8_blockscale_1x128x128_256x64x64x128_16x16_32x32_1x1_8x32x1_8x32x1_1x32x1x8_8_1x1_intrawave_v1",
+        "libtype": "ck",
+        "splitK": 0
+      }
+    }
+  },
+  "timing": {
+    "iters": 20,
+    "method": "CUDA events around preallocated-output calls",
+    "warmup": 5
+  },
+  "tolerance": {
+    "atol": 0.01,
+    "rtol": 0.01
+  }
+}
