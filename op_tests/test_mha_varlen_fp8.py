@@ -118,6 +118,9 @@ def run_ck(
     "d,d_v",
     [
         (128, 128),
+        (192, 128),
+        (128, 64),
+        (256, 256),
     ],
 )
 @pytest.mark.parametrize(
@@ -149,6 +152,19 @@ def test_flash_attn_varlen_output(
     local,
     return_lse=False,
 ):
+    is_hd256 = d == 256 and d_v == 256
+    if is_hd256 and torch.cuda.get_device_capability() == (9, 5):
+        gqa_ratio = nheads // nheads_k
+        if gqa_ratio & (gqa_ratio - 1):
+            pytest.skip(
+                "gfx950 FP8 HD256 ASM supports power-of-two GQA ratios only; "
+                "the CK fallback rejects this case"
+            )
+    if return_lse and d != d_v and torch.cuda.get_device_capability() == (9, 5):
+        pytest.skip(
+            "gfx950 FP8 MHA LSE requires matching QK/V dimensions; "
+            "the asymmetric CK fallback rejects this case"
+        )
     torch.random.manual_seed(0)
     torch.cuda.empty_cache()
     window_size = (-1, -1) if not local else torch.randint(0, seqlen_k, (2,))
