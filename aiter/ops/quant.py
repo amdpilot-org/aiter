@@ -632,6 +632,7 @@ def per_tensor_quant_hip(
     num_rows: torch.Tensor | None = None,
     num_rows_factor=1,
 ):
+    assert num_rows_factor > 0, "num_rows_factor must be positive"
     if num_rows is not None:
         assert num_rows.dtype == torch.int32, "num_rows must be int32"
         assert num_rows.device == x.device, "num_rows must be on the input device"
