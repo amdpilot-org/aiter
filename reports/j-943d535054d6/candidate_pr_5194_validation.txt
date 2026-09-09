@@ -1,0 +1,19 @@
+=== unpatched main (f0321c0e) ===
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-baseline/aiter/jit/module_aiter_core.so
+[PASS] split indptr survives graph replay (bs=8)
+Traceback (most recent call last):
+  File "/tmp/test_mla_split_indptr_cudagraph.py", line 101, in <module>
+    test_get_meta_param_indptr_survives_replay((args.bs,) if args.bs else (8, 480))
+  File "/tmp/test_mla_split_indptr_cudagraph.py", line 81, in test_get_meta_param_indptr_survives_replay
+    _check_replayed_indptr(bs)
+  File "/tmp/test_mla_split_indptr_cudagraph.py", line 66, in _check_replayed_indptr
+    assert torch.equal(dst, expected), (
+AssertionError: split indptr corrupted after replay (bs=480, splits=12): [4608, 4620, 4632, 4644, 4656, 4668, 4680, 4692, 4704, 4716, 4728, 4740, 4752, 4764, 4776, 4788] != [0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180]
+unpatched_status=1
+=== patched branch ===
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter/aiter/jit/module_aiter_core.so
+[PASS] split indptr survives graph replay (bs=8)
+[PASS] split indptr survives graph replay (bs=480)
+patched_status=0
