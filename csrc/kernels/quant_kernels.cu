@@ -616,6 +616,25 @@ __global__ void smooth_per_token_scaled_quant_kernel(DTYPE_O* __restrict__ out,
     }
 }
 
+namespace
+{
+int32_t* get_per_tensor_num_rows_ptr(const std::optional<aiter_tensor_t>& num_rows,
+                                      const aiter_tensor_t& input,
+                                      int num_rows_factor)
+{
+    AITER_CHECK(num_rows_factor > 0, "num_rows_factor must be positive");
+    if(!num_rows.has_value())
+    {
+        return nullptr;
+    }
+    AITER_CHECK(num_rows->dtype() == AITER_DTYPE_i32, "num_rows must be int32");
+    AITER_CHECK(num_rows->numel() == 1, "num_rows must contain exactly one value");
+    AITER_CHECK(num_rows->device_id == input.device_id,
+                "num_rows must be on the input device");
+    return reinterpret_cast<int32_t*>(num_rows->data_ptr());
+}
+}
+
 void static_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
                              const aiter_tensor_t& input, // [..., d]
                              const aiter_tensor_t& scale,  // [1]
@@ -626,8 +645,7 @@ void static_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
     int rows       = input.numel() / cols;
     dim3 grid(rows);
     dim3 block(BlockSize);
-    int32_t* num_rows_ptr =
-        num_rows.has_value() ? reinterpret_cast<int32_t*>(num_rows->data_ptr()) : nullptr;
+    int32_t* num_rows_ptr = get_per_tensor_num_rows_ptr(num_rows, input, num_rows_factor);
     HipDeviceGuard device_guard(input.device_id);
     const hipStream_t stream = aiter::getCurrentHIPStream();
     if(out.dtype() == AITER_DTYPE_fp8)
@@ -708,8 +726,7 @@ void dynamic_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
     int rows       = input.numel() / cols;
     dim3 grid(rows);
     dim3 block(BlockSize);
-    int32_t* num_rows_ptr =
-        num_rows.has_value() ? reinterpret_cast<int32_t*>(num_rows->data_ptr()) : nullptr;
+    int32_t* num_rows_ptr = get_per_tensor_num_rows_ptr(num_rows, input, num_rows_factor);
     HipDeviceGuard device_guard(input.device_id);
     const hipStream_t stream = aiter::getCurrentHIPStream();
     if(out.dtype() == AITER_DTYPE_fp8)
