@@ -523,7 +523,8 @@ class IPCBufferPool:
             raise TypeError(
                 f"IPC metadata exchange requires a blocking KV store "
                 f"(torch.distributed.TCPStore or torch.distributed.FileStore), "
-                f"got {type(s).__name__}."
+                f"got {type(s).__name__}. This keeps the exchange backend-free "
+                f"— no RCCL, gloo, or MPI collective is involved."
             )
 
     # ---- Buffer lifecycle ----
