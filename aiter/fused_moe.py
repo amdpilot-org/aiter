@@ -515,7 +515,7 @@ def stage2_uses_route_reduce(stage2: Callable) -> bool:
     return False
 
 
-def _force_flydsl_stage2_reduce(kernelName2: str, *, force: bool = False) -> str:
+def _force_flydsl_stage2_reduce(kernelName2: str, *, force: bool) -> str:
     if not force:
         return kernelName2
     if not isinstance(kernelName2, str) or not kernelName2.startswith("flydsl_"):
