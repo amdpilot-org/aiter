@@ -1,0 +1,103 @@
+{
+  "status": "already_fixed",
+  "product_code_changed": false,
+  "qualified_stack_changed": false,
+  "image": {
+    "name": "amdpilotv2/open-job-mi300:jit-config-readable-260909-banff5",
+    "local_image_id": "sha256:39fe745feda79ecf4c17f4d806d8ef12150bef720f2f07f5c63a20b3ccfd63f1"
+  },
+  "gpu": {
+    "product": "AMD Instinct MI300X",
+    "device_id": "0x74a1",
+    "gfx": "gfx942",
+    "guid": "6729"
+  },
+  "stack": {
+    "python": "/opt/venv/bin/python",
+    "python_version": "3.10.12",
+    "torch": "/opt/venv/lib/python3.10/site-packages/torch/__init__.py",
+    "torch_version": "2.9.1+rocm7.2.0.git7e1940d4",
+    "hip_version": "7.2.26015-fc0010cf6a",
+    "flydsl": "/opt/venv/lib/python3.10/site-packages/flydsl/__init__.py",
+    "flydsl_version": "0.3.1",
+    "flydsl_expr_has_buffer_ops": false
+  },
+  "source_paths": {
+    "delivery": "/job/aiter",
+    "delivery_branch": "amdpilot/j-fc1a9f96f694",
+    "delivery_base": "f0321c0e8927d1d90a29385433f71e592b1c51f5",
+    "preinstalled_context": "/sgl-workspace/aiter",
+    "preinstalled_revision": "c16d44b93a528b2a4bfd6d8d3409116d465872a9",
+    "affected_worktree": "/job/job-artifacts/aiter-v0.1.19",
+    "fix_worktree": "/job/job-artifacts/aiter-37b5395"
+  },
+  "native_paths": {
+    "affected_module": "/job/job-artifacts/aiter-jit-historical/module_aiter_core.so",
+    "fix_module": "/job/job-artifacts/aiter-jit-37b5395/module_aiter_core.so",
+    "current_module": "/job/job-artifacts/aiter-jit-current/module_aiter_core.so",
+    "preinstalled_context_module": "/sgl-workspace/aiter/aiter/jit/module_aiter_core.so"
+  },
+  "fixture": {
+    "seed": 20260909,
+    "query_lengths": [128, 128],
+    "key_lengths": [128, 128],
+    "heads": 2,
+    "head_dim": 64,
+    "dtype": "torch.bfloat16",
+    "input_scale": 0.01,
+    "causal": false,
+    "dropout_p": 0.0,
+    "window_size": [-1, -1, 0],
+    "softmax_scale": "1/sqrt(64)",
+    "backend": "non-FlyDSL Triton fallback (ENABLE_CK=0)",
+    "reference": "PyTorch scaled_dot_product_attention per sequence"
+  },
+  "unchanged_numerical_gate": {
+    "output_shape": [256, 2, 64],
+    "output_dtype": "torch.bfloat16",
+    "max_abs_error_le": 0.003
+  },
+  "runs": {
+    "before_affected_v0_1_19": {
+      "commit": "31350226161346314b3d8882c8085bd31dce6a34",
+      "status": "failed_before_fallback",
+      "error": "ImportError: cannot import name 'buffer_ops' from 'flydsl.expr'",
+      "max_abs_error": null,
+      "mean_abs_error": null,
+      "numerical_gate": false
+    },
+    "after_fix_commit_37b5395": {
+      "commit": "37b5395edf630a9eded64e7189c84d450644e571",
+      "status": "passed",
+      "max_abs_error": 0.002532958984375,
+      "mean_abs_error": 0.00036064122105017304,
+      "numerical_gate": true
+    },
+    "after_v0_1_19_post2": {
+      "commit": "a63ede724b153564f3ed3fc538055fd15178c77d",
+      "status": "passed",
+      "max_abs_error": 0.002532958984375,
+      "mean_abs_error": 0.00036064122105017304,
+      "numerical_gate": true
+    },
+    "after_current_main": {
+      "commit": "f0321c0e8927d1d90a29385433f71e592b1c51f5",
+      "status": "passed",
+      "max_abs_error": 0.002532958984375,
+      "mean_abs_error": 0.00036064122105017304,
+      "numerical_gate": true
+    }
+  },
+  "ck_attempt": {
+    "status": "not_run_to_completion",
+    "reason": "shallow delivery clone lacks 3rdparty/composable_kernel/example/ck_tile/01_fmha/generate.py",
+    "treated_as_unrelated": true
+  },
+  "upstream_context": {
+    "issue": "ROCm/aiter issue number 4701",
+    "issue_comments_at_investigation": 0,
+    "fix_commit": "37b5395edf630a9eded64e7189c84d450644e571",
+    "fix_pull_request": 4402,
+    "related_not_duplicated": "ROCm/aiter pull request 2664"
+  }
+}
