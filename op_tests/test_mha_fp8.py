@@ -10,6 +10,7 @@ import torch
 
 import aiter
 from aiter import dtypes, per_tensor_quant
+from aiter.jit.utils.chip_info import get_gfx
 from aiter.ops.mha import (
     _flash_attn_forward,
     flash_attn_fp8_pertensor_func,
@@ -94,6 +95,9 @@ def run_ck(
     "d,d_v",
     [
         (128, 128),
+        (192, 128),
+        (128, 64),
+        (256, 256),
     ],
 )
 @pytest.mark.parametrize(
@@ -124,6 +128,8 @@ def test_flash_attn_output(
     local,
     return_lse=False,
 ):
+    if (d, d_v) == (256, 256) and get_gfx() == "gfx942":
+        pytest.skip("FP8 MHA 256x256 requires the gfx950 FMHA-v3 backend")
     torch.random.manual_seed(0)
     torch.cuda.empty_cache()
     window_size = (-1, -1) if not local else torch.randint(0, seqlen_k, (2,))
