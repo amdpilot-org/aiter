@@ -232,7 +232,7 @@ def test_per_tensor_graph_replay_num_rows_factor():
             num_rows_factor=2,
         )
 
-    for valid_rows in (1, 2, 4):
+    for valid_rows in (0, 1, 2, 4):
         input.copy_(finite_input)
         _poison_padding(input, valid_rows)
         num_rows.fill_(valid_rows)
