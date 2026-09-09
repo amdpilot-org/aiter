@@ -209,7 +209,8 @@ def test_splitk_output_buffer_is_used():
     torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
 
 
-def test_splitk_invalid_requested_partition():
+@pytest.mark.parametrize("requested, actual", [(3, 2), (6, 5)])
+def test_splitk_invalid_requested_partition(requested, actual):
     M, K = 1, 12800
     x, weight, _, x_scale, _, w_scale, _ = (
         generate_gemm_a8w8_blockscale_inputs(
@@ -227,7 +228,7 @@ def test_splitk_invalid_requested_partition():
         "BLOCK_SIZE_N": 128,
         "BLOCK_SIZE_K": 128,
         "GROUP_SIZE_M": 1,
-        "NUM_KSPLIT": 6,
+        "NUM_KSPLIT": requested,
         "num_warps": 4,
         "num_stages": 2,
         "waves_per_eu": 2,
@@ -243,7 +244,9 @@ def test_splitk_invalid_requested_partition():
         config=config,
     )
 
-    assert config["NUM_KSPLIT"] == 6
+    adjusted = compute_splitk_params(copy.deepcopy(config), K)
+    assert config["NUM_KSPLIT"] == requested
+    assert adjusted["NUM_KSPLIT"] == actual
     assert output.shape == (M, 5120)
     torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
 
