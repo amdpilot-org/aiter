@@ -228,8 +228,8 @@ std::vector<at::Tensor> fmha_v3_fwd(at::Tensor &q, // [b, sq, hq, d]
 {
     auto q_dtype = q.dtype();
     bool is_qkv_fp8 = q_dtype == at::ScalarType::Float8_e4m3fn || q_dtype == at::ScalarType::Float8_e4m3fnuz;
-    TORCH_CHECK(q_dtype == torch::kFloat16 || q_dtype == torch::kBFloat16 || is_qkv_fp8,
-                "FlashAttention only support fp16, bf16 and fp8_e4m3 data type");
+    TORCH_CHECK(q_dtype == torch::kBFloat16 || is_qkv_fp8,
+                "fmha_v3_fwd only supports bf16 and fp8_e4m3 data type");
 
     TORCH_CHECK(k.dtype() == q_dtype, "query and key must have the same dtype");
     TORCH_CHECK(v.dtype() == q_dtype, "query and value must have the same dtype");
