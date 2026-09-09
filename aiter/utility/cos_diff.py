@@ -46,8 +46,9 @@ def worst_row_cos_diff(x, y, energy_floor=COS_DIFF_ROW_ENERGY_FLOOR):
     finite = torch.isfinite(x).all(dim=-1)
     if not finite.any():
         return 0.0
-    x = x[finite]
-    y = y[finite]
+    if not finite.all():
+        x = x[finite]
+        y = y[finite]
     if not torch.isfinite(y).all():
         return float("inf")
     ref_energy = (x * x).sum(dim=-1)
