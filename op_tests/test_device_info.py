@@ -45,6 +45,19 @@ class TestGetNumXcds(unittest.TestCase):
             self.assertEqual(device_info.get_num_xcds(0), 8)
         self.assertEqual(fake_hip.device_ids, [0, 1])
 
+    def test_current_device_change_uses_device_specific_cache(self):
+        fake_hip = FakeHipRuntime({0: 8, 1: 6})
+        with (
+            mock.patch.object(
+                torch.cuda, "current_device", side_effect=[0, 1]
+            ),
+            mock.patch.object(torch.cuda, "device_count", return_value=2),
+            mock.patch.object(device_info.ctypes, "CDLL", return_value=fake_hip),
+        ):
+            self.assertEqual(device_info.get_num_xcds(), 8)
+            self.assertEqual(device_info.get_num_xcds(), 6)
+        self.assertEqual(fake_hip.device_ids, [0, 1])
+
     def test_invalid_visible_device_is_rejected(self):
         with (
             mock.patch.object(torch.cuda, "device_count", return_value=1),
