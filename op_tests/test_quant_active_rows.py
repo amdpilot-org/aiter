@@ -197,7 +197,7 @@ def test_per_tensor_graph_replay():
 
 def test_per_tensor_graph_replay_num_rows_factor():
     torch.manual_seed(5256)
-    input = torch.randn(16, 128, dtype=dtypes.bf16, device="cuda")
+    input = torch.randn(8, 2, 128, dtype=dtypes.bf16, device="cuda")
     finite_input = input.clone()
     _poison_padding(input, 2)
     num_rows = torch.tensor([2], dtype=torch.int32, device="cuda")
@@ -234,7 +234,7 @@ def test_per_tensor_graph_replay_num_rows_factor():
 
     for valid_rows in (1, 2, 4):
         input.copy_(finite_input)
-        _poison_padding(input, valid_rows * 2)
+        _poison_padding(input, valid_rows)
         num_rows.fill_(valid_rows)
         torch.cuda.synchronize()
         graph.replay()
