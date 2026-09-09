@@ -1,0 +1,430 @@
+{
+  "cases": [
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8(backend=gluon)",
+      "device": 0,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "consumer": "gemm_a8w8(backend=gluon)",
+        "device": 0,
+        "replayed": true,
+        "returncode": 0,
+        "stderr": "[aiter] import [module_aiter_core] under /job/aiter-validation/aiter/jit/module_aiter_core.so",
+        "stdout": "{\"supported\": true, \"replayed\": true}",
+        "supported": true
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.5,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 1024,
+        "M": 1024,
+        "N": 1024
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 107.35280513763428,
+        "iterations": 5,
+        "reference_us": 55.11239767074585
+      }
+    },
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8_preshuffle",
+      "device": 0,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "consumer": "gemm_a8w8_preshuffle",
+        "device": 0,
+        "replayed": true,
+        "returncode": 0,
+        "stderr": "[aiter] import [module_aiter_core] under /job/aiter-validation/aiter/jit/module_aiter_core.so",
+        "stdout": "{\"supported\": true, \"replayed\": true}",
+        "supported": true
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.5,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 1024,
+        "M": 1024,
+        "N": 1024
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 136.28900051116943,
+        "iterations": 5,
+        "reference_us": 54.70439791679382
+      }
+    },
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8(backend=gluon) boundary",
+      "device": 0,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "reason": "graph replay checked once per consumer/device on representative shape only",
+        "replayed": false,
+        "supported": false
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.0,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 256,
+        "M": 1,
+        "N": 16
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 44.80839967727661,
+        "iterations": 5,
+        "reference_us": 52.30439901351929
+      }
+    },
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8_preshuffle boundary",
+      "device": 0,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "reason": "graph replay checked once per consumer/device on representative shape only",
+        "replayed": false,
+        "supported": false
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.0625,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 256,
+        "M": 16,
+        "N": 16
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 43.96840035915375,
+        "iterations": 5,
+        "reference_us": 51.408398151397705
+      }
+    },
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8(backend=gluon)",
+      "device": 1,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "consumer": "gemm_a8w8(backend=gluon)",
+        "device": 1,
+        "replayed": true,
+        "returncode": 0,
+        "stderr": "[aiter] import [module_aiter_core] under /job/aiter-validation/aiter/jit/module_aiter_core.so",
+        "stdout": "{\"supported\": true, \"replayed\": true}",
+        "supported": true
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.5,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 1024,
+        "M": 1024,
+        "N": 1024
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 105.25679588317871,
+        "iterations": 5,
+        "reference_us": 54.49640154838562
+      }
+    },
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8_preshuffle",
+      "device": 1,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "consumer": "gemm_a8w8_preshuffle",
+        "device": 1,
+        "replayed": true,
+        "returncode": 0,
+        "stderr": "[aiter] import [module_aiter_core] under /job/aiter-validation/aiter/jit/module_aiter_core.so",
+        "stdout": "{\"supported\": true, \"replayed\": true}",
+        "supported": true
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.5,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 1024,
+        "M": 1024,
+        "N": 1024
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 133.201003074646,
+        "iterations": 5,
+        "reference_us": 54.41640019416809
+      }
+    },
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8(backend=gluon) boundary",
+      "device": 1,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "reason": "graph replay checked once per consumer/device on representative shape only",
+        "replayed": false,
+        "supported": false
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.0,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 256,
+        "M": 1,
+        "N": 16
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 41.53620004653931,
+        "iterations": 5,
+        "reference_us": 54.40840125083923
+      }
+    },
+    {
+      "architecture": "gfx950",
+      "config": {
+        "BLOCK_SIZE_K": 256,
+        "BLOCK_SIZE_M": 256,
+        "BLOCK_SIZE_N": 256,
+        "GROUP_SIZE_M": 4,
+        "matrix_instr_nonkdim": 16,
+        "num_stages": 2,
+        "num_warps": 8,
+        "waves_per_eu": 2
+      },
+      "config_is_tuned": false,
+      "consumer": "gemm_a8w8_preshuffle boundary",
+      "device": 1,
+      "finite": true,
+      "fp8_format": "e4m3",
+      "graph_replay": {
+        "reason": "graph replay checked once per consumer/device on representative shape only",
+        "replayed": false,
+        "supported": false
+      },
+      "input_dtype": "torch.float8_e4m3fn",
+      "max_abs_diff": 0.0625,
+      "output_dtype": "torch.bfloat16",
+      "reference_finite": true,
+      "shape": {
+        "K": 256,
+        "M": 16,
+        "N": 16
+      },
+      "synchronized_pair_timing": {
+        "consumer_us": 45.31239867210388,
+        "iterations": 5,
+        "reference_us": 50.72839856147766
+      }
+    }
+  ],
+  "compiler_versions": {
+    "clang": "AMD clang version 22.0.0git (https://github.com/RadeonOpenCompute/llvm-project roc-7.2.0 26014 7b800a19466229b8479a78de19143dc33c3ab9b5)\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /opt/rocm-7.2.0/lib/llvm/bin\nConfiguration file: /opt/rocm-7.2.0/lib/llvm/bin/clang.cfg",
+    "hipcc": "HIP version: 7.2.26015-fc0010cf6a\nAMD clang version 22.0.0git (https://github.com/RadeonOpenCompute/llvm-project roc-7.2.0 26014 7b800a19466229b8479a78de19143dc33c3ab9b5)\nTarget: x86_64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /opt/rocm-7.2.0/lib/llvm/bin\nConfiguration file: /opt/rocm-7.2.0/lib/llvm/bin/clang++.cfg",
+    "rocm_smi": "{\"card0\": {\"Unique ID\": \"0x8846bb97001dc61f\", \"Serial Number\": \"692602003199\", \"PCI Bus\": \"0000:05:00.0\", \"Card Series\": \"AMD Instinct MI355X\", \"Card Model\": \"0x75a3\", \"Card Vendor\": \"Advanced Micro Devices, Inc. [AMD/ATI]\", \"Card SKU\": \"N/A\", \"Subsystem ID\": \"0x75a3\", \"Device Rev\": \"0x00\", \"Node ID\": \"3\", \"GUID\": \"42583\", \"GFX Version\": \"gfx950\"}, \"card1\": {\"Unique ID\": \"0xc1e624949e71a72b\", \"Serial Number\": \"692602000454\", \"PCI Bus\": \"0000:15:00.0\", \"Card Series\": \"AMD Instinct MI355X\", \"Card Model\": \"0x75a3\", \"Card Vendor\": \"Advanced Micro Devices, Inc. [AMD/ATI]\", \"Card SKU\": \"N/A\", \"Subsystem ID\": \"0x75a3\", \"Device Rev\": \"0x00\", \"Node ID\": \"5\", \"GUID\": \"27226\", \"GFX Version\": \"gfx950\"}}"
+  },
+  "getter_cache_info_after_switching": {
+    "currsize": 2,
+    "hits": 78,
+    "maxsize": null,
+    "misses": 2
+  },
+  "getter_current_explicit_and_hip": [
+    {
+      "current_device": 0,
+      "current_form": 8,
+      "explicit_form": 8,
+      "hip_attribute": 8
+    },
+    {
+      "current_device": 1,
+      "current_form": 8,
+      "explicit_form": 8,
+      "hip_attribute": 8
+    },
+    {
+      "current_device": 0,
+      "current_form": 8,
+      "explicit_form": 8,
+      "hip_attribute": 8
+    },
+    {
+      "current_device": 1,
+      "current_form": 8,
+      "explicit_form": 8,
+      "hip_attribute": 8
+    }
+  ],
+  "gpu_count": 2,
+  "gpus": [
+    {
+      "compute_units": 256,
+      "major": 9,
+      "minor": 5,
+      "name": "AMD Instinct MI355X",
+      "ordinal": 0,
+      "total_memory_bytes": 309220868096,
+      "uuid": "30623738-6137-6133-3139-653662366430"
+    },
+    {
+      "compute_units": 256,
+      "major": 9,
+      "minor": 5,
+      "name": "AMD Instinct MI355X",
+      "ordinal": 1,
+      "total_memory_bytes": 309220868096,
+      "uuid": "31333934-6163-6366-6238-666134386164"
+    }
+  ],
+  "hip_library": {
+    "requested": "libamdhip64.so",
+    "resolved": "libamdhip64.so.7"
+  },
+  "hip_xcd_attribute": {
+    "0": {
+      "attribute": 8,
+      "status": 0
+    },
+    "1": {
+      "attribute": 8,
+      "status": 0
+    }
+  },
+  "imported_modules": [
+    {
+      "module": "torch",
+      "source": "/opt/venv/lib/python3.10/site-packages/torch/__init__.py"
+    },
+    {
+      "module": "triton",
+      "source": "/sgl-workspace/triton-custom/python/triton/__init__.py"
+    },
+    {
+      "module": "aiter.ops.triton.utils._triton.arch_info",
+      "source": "/job/aiter-validation/aiter/ops/triton/utils/_triton/arch_info.py"
+    },
+    {
+      "module": "aiter.ops.triton.utils.device_info",
+      "source": "/job/aiter-validation/aiter/ops/triton/utils/device_info.py"
+    },
+    {
+      "module": "aiter.ops.triton.gemm.basic.gemm_a8w8",
+      "source": "/job/aiter-validation/aiter/ops/triton/gemm/basic/gemm_a8w8.py"
+    },
+    {
+      "module": "aiter.ops.triton._gluon_kernels.gfx950.gemm.basic.gemm_a8w8",
+      "source": "/job/aiter-validation/aiter/ops/triton/_gluon_kernels/gfx950/gemm/basic/gemm_a8w8.py"
+    },
+    {
+      "module": "aiter.ops.shuffle",
+      "source": "/job/aiter-validation/aiter/ops/shuffle.py"
+    }
+  ],
+  "native_module": {
+    "module": "aiter.jit.module_aiter_core",
+    "source": "/job/aiter-validation/aiter/jit/module_aiter_core.so"
+  },
+  "python": "3.10.12 (main, Jan  8 2026, 06:52:19) [GCC 11.4.0]",
+  "python_executable": "/opt/venv/bin/python",
+  "torch_hip_version": "7.2.26015-fc0010cf6a",
+  "torch_version": "2.9.1+rocm7.2.0.git7e1940d4",
+  "triton_version": "3.6.0",
+  "validation_branch": "(detached)",
+  "validation_head": "29790464f03a9c626355a7c963aefee25a85242a",
+  "validation_status": "clean"
+}
