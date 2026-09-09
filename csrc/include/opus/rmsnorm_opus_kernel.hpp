@@ -11,6 +11,10 @@
 #endif
 #include "opus/opus.hpp"
 
+#if defined(__HIP_DEVICE_COMPILE__)
+__device__ __attribute__((const)) double __ocml_ldexp_f64(double, int);
+#endif
+
 namespace aiter {
 
 // Per-kernel traits carrying the element type(s) + tile consts.
@@ -82,6 +86,69 @@ __device__ inline out_t quant_cast(float v)
         return static_cast<signed char>(__builtin_rintf(v));
     else
         return opus::fp32_to_fp8(v);
+}
+
+__device__ inline double bf16_to_double(opus::bf16_t value)
+{
+    const unsigned short bits = __builtin_bit_cast(unsigned short, value);
+    const unsigned int sign = bits >> 15;
+    const unsigned int exponent = (bits >> 7) & 0xff;
+    const unsigned int mantissa = bits & 0x7f;
+    double magnitude;
+    if(exponent == 0xff)
+        magnitude = mantissa ? __builtin_nan("") : __builtin_huge_val();
+    else if(exponent == 0)
+        magnitude = __ocml_ldexp_f64(static_cast<double>(mantissa), -133);
+    else
+        magnitude = __ocml_ldexp_f64(static_cast<double>(128 + mantissa), exponent - 134);
+    return sign ? -magnitude : magnitude;
+}
+
+__device__ inline unsigned short double_to_bf16_rne_bits(double value)
+{
+    const unsigned long long bits = __builtin_bit_cast(unsigned long long, value);
+    const unsigned int sign  = static_cast<unsigned int>(bits >> 63);
+    const unsigned int exponent = static_cast<unsigned int>((bits >> 52) & 0x7ff);
+    const unsigned long long fraction = bits & ((1ULL << 52) - 1);
+    if(exponent == 0x7ff)
+        return fraction ? static_cast<unsigned short>((sign << 15) | 0x7fc0)
+                        : static_cast<unsigned short>((sign << 15) | 0x7f80);
+    if(exponent == 0)
+        return static_cast<unsigned short>(sign << 15);
+
+    int bf16_exponent = static_cast<int>(exponent) - 896;
+    if(bf16_exponent > 254)
+        return static_cast<unsigned short>((sign << 15) | 0x7f80);
+    if(bf16_exponent < 1)
+    {
+        const int shift       = 942 - static_cast<int>(exponent);
+        if(shift >= 53)
+            return static_cast<unsigned short>(sign << 15);
+        const unsigned long long significand = (1ULL << 52) | fraction;
+        const unsigned long long half = 1ULL << (shift - 1);
+        const unsigned long long rounded = significand >> shift;
+        const unsigned long long remainder = significand & ((1ULL << shift) - 1);
+        unsigned long long mantissa = rounded;
+        if(remainder > half || (remainder == half && (mantissa & 1)))
+            ++mantissa;
+        if(mantissa >= 128)
+            return static_cast<unsigned short>((sign << 15) | 0x0080);
+        return static_cast<unsigned short>((sign << 15) | mantissa);
+    }
+
+    unsigned long long rounded_fraction = (fraction + (1ULL << 44)) >> 45;
+    if((fraction & ((1ULL << 45) - 1)) == (1ULL << 44) && (rounded_fraction & 1))
+        --rounded_fraction;
+    if(rounded_fraction >= 128)
+    {
+        rounded_fraction = 0;
+        ++bf16_exponent;
+    }
+    if(bf16_exponent > 254)
+        return static_cast<unsigned short>((sign << 15) | 0x7f80);
+    return static_cast<unsigned short>(
+        (sign << 15) | (bf16_exponent << 7) | rounded_fraction
+    );
 }
 
 // Per-row segmented LDS reduction; deterministic (all rows step the same strides).
@@ -159,12 +226,58 @@ __global__ void rmsnorm_opus_kernel(void* __restrict__ out_,
         if(add)
         {
             V s;
-#pragma unroll
-            for(int j = 0; j < width; ++j)
+            if constexpr(std::is_same_v<scalar_t, opus::bf16_t>)
             {
-                float f = opus::cast<float>(x[j]) + opus::cast<float>(res_v[idx][j]);
-                s[j]    = opus::cast<scalar_t>(f);
-                ni[j]   = t5 ? opus::cast<float>(s[j]) : f;
+                bool any_subnormal = false;
+#pragma unroll
+                for(int j = 0; j < width; ++j)
+                {
+                    const unsigned short lhs_bits = __builtin_bit_cast(unsigned short, x[j]);
+                    const unsigned short rhs_bits =
+                        __builtin_bit_cast(unsigned short, res_v[idx][j]);
+                    any_subnormal |= ((lhs_bits >> 7) & 0xff) == 0 && (lhs_bits & 0x7f) != 0;
+                    any_subnormal |= ((rhs_bits >> 7) & 0xff) == 0 && (rhs_bits & 0x7f) != 0;
+                }
+                if(any_subnormal)
+                {
+#pragma unroll
+                    for(int j = 0; j < width; ++j)
+                    {
+                        const double sum = bf16_to_double(x[j]) + bf16_to_double(res_v[idx][j]);
+                        s[j] = __builtin_bit_cast(
+                            opus::bf16_t, double_to_bf16_rne_bits(sum)
+                        );
+                        ni[j] = t5 ? opus::cast<float>(s[j]) : static_cast<float>(sum);
+                    }
+                }
+                else
+                {
+#pragma unroll
+                    for(int j = 0; j < width; ++j)
+                    {
+                        const float value =
+                            opus::bf16_to_fp32(x[j]) + opus::bf16_to_fp32(res_v[idx][j]);
+#if (defined(__gfx950__) || defined(__gfx1250__) || defined(__gfx1201__) || defined(__gfx1200__)) && __clang_major__ >= 20
+                        s[j] = opus::cast<scalar_t>(value);
+#else
+                        unsigned short bits = opus::fp32_to_bf16_rtn_raw(value);
+                        if((bits & 0x7f80) == 0x7f80 && (bits & 0x007f) != 0)
+                            bits = ((bits >> 15) << 15) | 0x7fc0;
+                        s[j] = __builtin_bit_cast(opus::bf16_t, bits);
+#endif
+                        ni[j] = t5 ? opus::cast<float>(s[j]) : value;
+                    }
+                }
+            }
+            else
+            {
+#pragma unroll
+                for(int j = 0; j < width; ++j)
+                {
+                    const float value = opus::cast<float>(x[j]) + opus::cast<float>(res_v[idx][j]);
+                    s[j] = opus::cast<scalar_t>(value);
+                    ni[j] = t5 ? opus::cast<float>(s[j]) : value;
+                }
             }
             if constexpr(OOP)
                 res_out_v[idx] = s;
