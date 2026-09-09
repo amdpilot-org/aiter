@@ -329,7 +329,12 @@ def _compile_deepgemm_fp8_paged_mqa_logits(
     fn_signature["ARCH"] = "constexpr"
 
     effective_wave_per_eu = 1 if is_gfx1250 and not Preshuffle else WavePerEU
-    effective_num_warps = 1 if is_gfx1250 and Preshuffle else 4
+    if is_gfx1250 and Preshuffle:
+        effective_num_warps = 1
+    elif not is_gfx1250 and Preshuffle and ChunkK == 64:
+        effective_num_warps = 2
+    else:
+        effective_num_warps = 4
     options = {
         "num_warps": effective_num_warps,
         "waves_per_eu": effective_wave_per_eu,
@@ -502,6 +507,11 @@ def deepgemm_fp8_paged_mqa_logits(
         assert (
             KVBlockSize % 16 == 0
         ), f"Preshuffle mode only supports KVBlockSize aligned to 16. Got KVBlockSize={KVBlockSize}"
+        if get_gfx() != "gfx1250":
+            assert ChunkK >= 64 and ChunkK & (ChunkK - 1) == 0, (
+                f"Preshuffle mode on gfx950 requires a power-of-two ChunkK >= 64; "
+                f"got ChunkK={ChunkK}."
+            )
 
     kv_cache = kv_cache.view(-1, KVBlockSize * index_dim)
     num_block = kv_cache.shape[0]
