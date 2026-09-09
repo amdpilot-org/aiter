@@ -3,6 +3,7 @@
 ## Scope
 
 - Follow-up to [PR29](https://github.com/amdpilot-org/aiter/pull/29), which validated [PR19](https://github.com/amdpilot-org/aiter/pull/19) for [ROCm/aiter issue 5000](https://github.com/ROCm/aiter/issues/5000).
+- Draft delivery PR: [PR32](https://github.com/amdpilot-org/aiter/pull/32).
 - This run targets only the two actual PR29 LSE failures. It does not repeat the full 56-case matrix and does not claim the other 26 runtime rejections were checked or resolved.
 - Validation control: `/job/aiter-validation`, detached at exact PR19 head `94996d72b232ac3e640c692e10d1d908710520a5`, clean.
 - Candidate control: `/job/aiter-candidate`, same exact head with only the unmerged candidate patch in `candidate-fix.patch`.

@@ -1,5 +1,6 @@
 {
   "job_id": "j-d6e546987377",
+  "delivery_pr_url": "https://github.com/amdpilot-org/aiter/pull/32",
   "validation_head": "94996d72b232ac3e640c692e10d1d908710520a5",
   "validation_clean": true,
   "delivery_main_base": "f0321c0e8927d1d90a29385433f71e592b1c51f5",
