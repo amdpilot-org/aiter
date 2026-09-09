@@ -98,6 +98,15 @@ class TestMoeCosDiff(unittest.TestCase):
         os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
         self.assertFalse(rowwise_enabled())
 
+    def test_row_scoring_accepts_common_truthy_spellings(self):
+        for value in ("1", "true", "yes", "on"):
+            with self.subTest(value=value):
+                os.environ["AITER_MOE_COS_DIFF_ROWWISE"] = value
+                try:
+                    self.assertTrue(rowwise_enabled())
+                finally:
+                    os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
+
     def test_row_scoring_never_loosens_the_tuner_result(self):
         reference = _reference()
         torch.manual_seed(3)
