@@ -1,0 +1,13 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] import [mha_varlen_fwd_fp8bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_pertensor] under /job/aiter-build-cache/jit/mha_varlen_fwd_fp8bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_pertensor.so
+[W909 13:31:35.770814737 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 6 (function operator())
+[aiter] [pid=36678 pname=MainProcess] start build [mha_varlen_fwd_bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_nqscale] under /job/aiter-build-cache/jit/build/mha_varlen_fwd_bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_nqscale
+[aiter] Current hipcc not support: -mllvm -amdgpu-coerce-illegal-types=1, skip it.
+[aiter] [pid=36678 pname=MainProcess] [32mfinish build [mha_varlen_fwd_bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_nqscale], cost 49.0s [0m
+[aiter] import [mha_varlen_fwd_bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_nqscale] under /job/aiter-build-cache/jit/mha_varlen_fwd_bf16_nlogits_nbias_nmask_nlse_ndropout_nskip_nqscale.so
+[aiter] mha summary:
+   quant_fwd_us  quant_fwd_tflops  quant_fwd_gb_per_sec    fwd_us  fwd_tflops  fwd_gb_per_sec
+0       11.4679          3.587424             93.221601  9.774351    4.208998       72.915736
+Output nrms: 0.00909423828125
+Output max diff: 0.01171875

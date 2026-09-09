@@ -1,0 +1,13 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter-build-cache/jit/module_aiter_core.so
+[aiter] import [module_fmha_v3_fwd] under /job/aiter-build-cache/jit/module_fmha_v3_fwd.so
+[aiter] type hints mismatch, override to --> fmha_v3_fwd(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, dropout_p: float, softmax_scale: float, is_causal: bool, window_size_left: int, window_size_right: int, return_softmax_lse: bool, return_dropout_randval: bool, how_v3_bf16_cvt: int, out: Optional[torch.Tensor] = None, bias: Optional[torch.Tensor] = None, alibi_slopes: Optional[torch.Tensor] = None, q_descale: Optional[torch.Tensor] = None, k_descale: Optional[torch.Tensor] = None, v_descale: Optional[torch.Tensor] = None, gen: Optional[torch.Generator] = None) -> List[torch.Tensor]
+[aiter] pciChipId: 0x74a1, CU count: 304
+[aiter] LoadKernel: _ZN5aiter25fmha_fwd_hd128_fp8_causalE hsaco: /job/aiter-validation/hsa//gfx942/fmha_v3_fwd/MI300/fwd_hd128_fp8_causal.co
+[W909 13:24:19.630450467 collection.cpp:1133] Warning: ROCTracer produced duplicate flow start: 4 (function operator())
+[aiter] LoadKernel: _ZN5aiter31fmha_fwd_hd128_bf16_causal_rtnaE hsaco: /job/aiter-validation/hsa//gfx942/fmha_v3_fwd/MI300/fwd_hd128_bf16_causal_rtna.co
+[aiter] mha summary:
+   quant_fwd_us  quant_fwd_tflops  quant_fwd_gb_per_sec     fwd_us  fwd_tflops  fwd_gb_per_sec
+0     32.526423         33.011372             64.475335  45.270213   23.718506       92.650414
+Output nrms: 0.00628662109375
+Output max diff: 0.0390625

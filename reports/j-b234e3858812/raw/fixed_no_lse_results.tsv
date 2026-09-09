@@ -1,0 +1,17 @@
+path	seq	d_qk	d_v	causal	return_code
+fixed	128	128	128	0	0
+fixed	128	128	128	1	0
+fixed	128	192	128	0	0
+fixed	128	192	128	1	0
+fixed	128	128	64	0	0
+fixed	128	128	64	1	0
+fixed	128	256	256	0	1
+fixed	128	256	256	1	1
+fixed	512	128	128	0	0
+fixed	512	128	128	1	0
+fixed	512	192	128	0	0
+fixed	512	192	128	1	0
+fixed	512	128	64	0	0
+fixed	512	128	64	1	0
+fixed	512	256	256	0	1
+fixed	512	256	256	1	1

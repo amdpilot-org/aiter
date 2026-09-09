@@ -1,0 +1,17 @@
+path	seq	d_qk	d_v	causal	return_code
+varlen	128	128	128	0	0
+varlen	128	128	128	1	0
+varlen	128	192	128	0	0
+varlen	128	192	128	1	0
+varlen	128	128	64	0	0
+varlen	128	128	64	1	0
+varlen	128	256	256	0	1
+varlen	128	256	256	1	1
+varlen	512	128	128	0	0
+varlen	512	128	128	1	0
+varlen	512	192	128	0	0
+varlen	512	192	128	1	0
+varlen	512	128	64	0	0
+varlen	512	128	64	1	0
+varlen	512	256	256	0	1
+varlen	512	256	256	1	1
