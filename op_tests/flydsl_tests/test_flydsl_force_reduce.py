@@ -66,4 +66,7 @@ def test_get_2stage_cfgs_force_reduce_cache_key():
     assert atomic_again is atomic
     assert "_atomic_" in atomic.stage2.keywords["kernelName"]
     assert "_reduce_" in reduce.stage2.keywords["kernelName"]
-    assert get_2stage_cfgs.cache_info().currsize >= 2
+    cache_info = get_2stage_cfgs.cache_info()
+    assert cache_info.hits == 1
+    assert cache_info.misses == 2
+    assert cache_info.currsize == 2
