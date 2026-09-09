@@ -9,11 +9,15 @@ namespace aiter {
 
 void static_per_tensor_quant(aiter_tensor_t& out,          // [..., d]
                              const aiter_tensor_t& input,  // [..., d]
-                             const aiter_tensor_t& scale); // [1]
+                             const aiter_tensor_t& scale,  // [1]
+                             std::optional<aiter_tensor_t> num_rows = std::nullopt,
+                             int num_rows_factor                        = 1);
 
 void dynamic_per_tensor_quant(aiter_tensor_t& out,         // [..., d]
                               const aiter_tensor_t& input,  // [..., d]
-                              aiter_tensor_t& scale);       // [1]
+                              aiter_tensor_t& scale,        // [1]
+                              std::optional<aiter_tensor_t> num_rows = std::nullopt,
+                              int num_rows_factor                        = 1);
 
 void dynamic_per_token_scaled_quant(aiter_tensor_t& out,         // [..., d]
                                     const aiter_tensor_t& input, // [..., d]

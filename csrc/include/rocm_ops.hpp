@@ -1623,8 +1623,20 @@ namespace py = pybind11;
     m.def("batched_rotary_embedding", &batched_rotary_embedding, "batched_rotary_embedding");
 
 #define QUANT_PYBIND                                                     \
-    m.def("static_per_tensor_quant", &aiter::static_per_tensor_quant);   \
-    m.def("dynamic_per_tensor_quant", &aiter::dynamic_per_tensor_quant); \
+    m.def("static_per_tensor_quant",                                      \
+          &aiter::static_per_tensor_quant,                                \
+          py::arg("out"),                                                 \
+          py::arg("input"),                                               \
+          py::arg("scale"),                                               \
+          py::arg("num_rows")        = std::nullopt,                      \
+          py::arg("num_rows_factor") = 1);                               \
+    m.def("dynamic_per_tensor_quant",                                     \
+          &aiter::dynamic_per_tensor_quant,                               \
+          py::arg("out"),                                                \
+          py::arg("input"),                                              \
+          py::arg("scale"),                                               \
+          py::arg("num_rows")        = std::nullopt,                      \
+          py::arg("num_rows_factor") = 1);                               \
     m.def("dynamic_per_token_scaled_quant",                              \
           &aiter::dynamic_per_token_scaled_quant,                        \
           py::arg("out"),                                                \
