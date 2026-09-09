@@ -195,9 +195,79 @@ def test_per_tensor_graph_replay():
         )
 
 
+def test_per_tensor_graph_replay_num_rows_factor():
+    torch.manual_seed(5256)
+    input = torch.randn(16, 128, dtype=dtypes.bf16, device="cuda")
+    finite_input = input.clone()
+    _poison_padding(input, 2)
+    num_rows = torch.tensor([2], dtype=torch.int32, device="cuda")
+    static_scale = torch.ones(1, dtype=dtypes.fp32, device="cuda")
+
+    per_tensor_quant_hip(
+        input,
+        quant_dtype=dtypes.fp8,
+        num_rows=num_rows,
+        num_rows_factor=2,
+    )
+    per_tensor_quant_hip(
+        input,
+        scale=static_scale,
+        quant_dtype=dtypes.i8,
+        num_rows=num_rows,
+        num_rows_factor=2,
+    )
+    graph = torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph):
+        dynamic_output, dynamic_scale = per_tensor_quant_hip(
+            input,
+            quant_dtype=dtypes.fp8,
+            num_rows=num_rows,
+            num_rows_factor=2,
+        )
+        static_output, _ = per_tensor_quant_hip(
+            input,
+            scale=static_scale,
+            quant_dtype=dtypes.i8,
+            num_rows=num_rows,
+            num_rows_factor=2,
+        )
+
+    for valid_rows in (1, 2, 4):
+        input.copy_(finite_input)
+        _poison_padding(input, valid_rows * 2)
+        num_rows.fill_(valid_rows)
+        torch.cuda.synchronize()
+        graph.replay()
+        torch.cuda.synchronize()
+        expected_dynamic, expected_scale = _reference(
+            input,
+            valid_rows,
+            dtypes.fp8,
+            num_rows_factor=2,
+        )
+        expected_static, _ = _reference(
+            input,
+            valid_rows,
+            dtypes.i8,
+            scale=static_scale,
+            num_rows_factor=2,
+        )
+        assert torch.allclose(
+            dynamic_output.view(-1, 128)[: valid_rows * 2].float(),
+            expected_dynamic.float(),
+        )
+        assert torch.allclose(dynamic_scale, expected_scale.to(dynamic_scale.device))
+        assert torch.allclose(
+            static_output.view(-1, 128)[: valid_rows * 2].float(),
+            expected_static.float(),
+            atol=1,
+        )
+
+
 if __name__ == "__main__":
     test_per_tensor_active_rows()
     test_per_tensor_num_rows_factor()
     test_per_tensor_quant_lookup_active_rows()
     test_per_tensor_active_rows_validation()
     test_per_tensor_graph_replay()
+    test_per_tensor_graph_replay_num_rows_factor()
