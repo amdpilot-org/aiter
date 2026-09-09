@@ -84,6 +84,12 @@ for file in "${sharded_files[@]}"; do
     # batch gate so they exercise the persistent kernel at every batch size.
     test_cmd=(timeout 60m python3 "$file")
     case "$file" in
+        op_tests/test_moe.py)
+            {
+                echo "Using AITER_STRICT_ALLCLOSE=1 for $file"
+            } | tee -a latest_test.log
+            test_cmd=(env AITER_STRICT_ALLCLOSE=1 timeout 60m python3 "$file")
+            ;;
         op_tests/multigpu_tests/test_mega_moe_gfx1250.py)
             {
                 echo "Running gfx1250 MegaMoE fused-scatter accuracy on 8 GPUs when supported"
