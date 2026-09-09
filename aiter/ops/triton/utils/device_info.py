@@ -29,7 +29,7 @@ _MIN_ROCM_MAJOR_WITH_XCC_ATTRIBUTE = 7
 _NUM_XCDS_COMPATIBILITY_FALLBACK = 8
 
 
-def _get_rocm_major():
+def _get_rocm_major() -> int:
     import torch
 
     hip_version = torch.version.hip
@@ -38,7 +38,7 @@ def _get_rocm_major():
     return int(hip_version.split(".", 1)[0])
 
 
-def _query_num_xcds(device_id, libhip, rocm_major):
+def _query_num_xcds(device_id: int, libhip, rocm_major: int) -> int:
     value = ctypes.c_int(0)
     status = libhip.hipDeviceGetAttribute(
         ctypes.byref(value),
@@ -66,12 +66,12 @@ def _query_num_xcds(device_id, libhip, rocm_major):
 
 
 @functools.lru_cache(maxsize=None)
-def _get_num_xcds(device_id):
+def _get_num_xcds(device_id: int) -> int:
     libhip = ctypes.CDLL("libamdhip64.so")
     return _query_num_xcds(device_id, libhip, _get_rocm_major())
 
 
-def get_num_xcds(device_id=None):
+def get_num_xcds(device_id: int | None = None) -> int:
     """Return the XCD count for a visible HIP device.
 
     ``device_id`` uses the same visible-device ordinal as torch and HIP. The
