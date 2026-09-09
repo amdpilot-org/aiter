@@ -201,6 +201,45 @@ def test_splitk_output_buffer_is_used():
     torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
 
 
+def test_splitk_invalid_requested_partition():
+    M, K = 1, 12800
+    x, weight, _, x_scale, _, w_scale, _ = (
+        generate_gemm_a8w8_blockscale_inputs(
+            M,
+            5120,
+            K,
+            *block_shape,
+            output=False,
+            shuffle=False,
+        )
+    )
+    reference = run_torch(x, weight, x_scale, w_scale)
+    config = {
+        "BLOCK_SIZE_M": 128,
+        "BLOCK_SIZE_N": 128,
+        "BLOCK_SIZE_K": 128,
+        "GROUP_SIZE_M": 1,
+        "NUM_KSPLIT": 6,
+        "num_warps": 4,
+        "num_stages": 2,
+        "waves_per_eu": 2,
+        "matrix_instr_nonkdim": 16,
+        "cache_modifier": ".cg",
+    }
+    output = gemm_a8w8_blockscale(
+        x,
+        weight,
+        x_scale,
+        w_scale,
+        dtype=torch.bfloat16,
+        config=config,
+    )
+
+    assert config["NUM_KSPLIT"] == 6
+    assert output.shape == (M, 5120)
+    torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
+
+
 @pytest.mark.parametrize("K", [5120, 12800, 25600, 12864])
 @pytest.mark.parametrize("preshuffle", [False, True])
 def test_splitk_partition_boundary(K, preshuffle):
