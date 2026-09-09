@@ -114,6 +114,16 @@ class TestMoeCosDiff(unittest.TestCase):
         finally:
             os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
 
+    def test_combined_metric_falls_back_on_shape_mismatch(self):
+        reference = _reference()
+        result = reference.reshape(COLS, ROWS)
+        whole = _whole_tensor_diff(reference, result)
+        os.environ["AITER_MOE_COS_DIFF_ROWWISE"] = "1"
+        try:
+            self.assertEqual(combined_cos_diff(reference, result, whole), whole)
+        finally:
+            os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
+
     def test_combined_metric_never_loosens_and_floor_is_relative(self):
         reference = _reference()
         torch.manual_seed(3)
