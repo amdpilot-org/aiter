@@ -68,20 +68,29 @@ def test_per_tensor_num_rows_factor():
     input = torch.randn(4, 2, 128, dtype=dtypes.bf16, device="cuda")
     _poison_padding(input, 2)
     num_rows = torch.tensor([2], dtype=torch.int32, device="cuda")
+    static_scale = torch.ones(1, dtype=dtypes.fp32, device="cuda")
 
-    output, scale = per_tensor_quant_hip(
-        input,
-        quant_dtype=dtypes.fp8,
-        num_rows=num_rows,
-        num_rows_factor=2,
-    )
-    expected, expected_scale = _reference(input, 2, dtypes.fp8, num_rows_factor=2)
-    torch.cuda.synchronize()
+    for scale in (None, static_scale):
+        output, output_scale = per_tensor_quant_hip(
+            input,
+            scale=scale,
+            quant_dtype=dtypes.fp8,
+            num_rows=num_rows,
+            num_rows_factor=2,
+        )
+        expected, expected_scale = _reference(
+            input,
+            2,
+            dtypes.fp8,
+            scale=scale,
+            num_rows_factor=2,
+        )
+        torch.cuda.synchronize()
 
-    assert torch.allclose(
-        output.view(-1, output.shape[-1])[:4].float(), expected.float()
-    )
-    assert torch.allclose(scale, expected_scale.to(scale.device))
+        assert torch.allclose(
+            output.view(-1, output.shape[-1])[:4].float(), expected.float()
+        )
+        assert torch.allclose(output_scale, expected_scale.to(output_scale.device))
 
 
 def test_per_tensor_quant_lookup_active_rows():
