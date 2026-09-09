@@ -23,6 +23,14 @@ def _wait_for_release(release, value):
     return value
 
 
+def _prepare_then_mark_execution_start():
+    from aiter.utility.tuning_clock import mark_task_execution_start
+
+    time.sleep(0.15)
+    mark_task_execution_start()
+    return "done"
+
+
 class FakeAsyncResult:
     """Simulates multiprocessing.AsyncResult for testing polling logic."""
 
@@ -321,9 +329,14 @@ class TestTaskExecutionTiming(unittest.TestCase):
 
         ctx = mp.get_context("spawn")
         start_times = ctx.RawArray("d", 2)
+        task_phases = ctx.RawArray("i", 2)
         manager = ctx.Manager()
         release = manager.Event()
-        pool = ctx.Pool(1, initializer=init_start_times, initargs=(start_times,))
+        pool = ctx.Pool(
+            1,
+            initializer=init_start_times,
+            initargs=(start_times, task_phases),
+        )
         try:
             first = pool.apply_async(
                 run_with_tracking, (0, _wait_for_release, (release, "first"))
@@ -352,6 +365,46 @@ class TestTaskExecutionTiming(unittest.TestCase):
             pool.terminate()
             pool.join()
             manager.shutdown()
+
+    def test_preparation_time_excluded_from_execution_deadline(self):
+        tuner = importlib.import_module("aiter.utility.mp_tuner")
+        init_start_times = tuner._init_task_start_times
+        run_with_tracking = tuner._run_with_start_tracking
+
+        ctx = mp.get_context("spawn")
+        start_times = ctx.RawArray("d", 1)
+        task_phases = ctx.RawArray("i", 1)
+        pool = ctx.Pool(
+            1,
+            initializer=init_start_times,
+            initargs=(start_times, task_phases),
+        )
+        try:
+            result = pool.apply_async(
+                run_with_tracking, (0, _prepare_then_mark_execution_start, ())
+            )
+            deadline = time.monotonic() + 5
+            while start_times[0] == 0 and time.monotonic() < deadline:
+                time.sleep(0.01)
+            preparation_start = start_times[0]
+
+            self.assertEqual(result.get(timeout=5), "done")
+            self.assertGreaterEqual(start_times[0], preparation_start + 0.14)
+            self.assertEqual(task_phases[0], tuner._TASK_EXECUTING)
+        finally:
+            pool.terminate()
+            pool.join()
+
+    def test_phase_selects_build_and_execution_timeouts(self):
+        tuner = importlib.import_module("aiter.utility.mp_tuner")
+        timeout_for_phase = tuner._timeout_for_phase
+
+        self.assertEqual(
+            timeout_for_phase([tuner._TASK_PREPARING], 0, 5, 7200), 7200
+        )
+        self.assertEqual(
+            timeout_for_phase([tuner._TASK_EXECUTING], 0, 5, 7200), 5
+        )
 
 
 class TestTaskStartTimeReset(unittest.TestCase):

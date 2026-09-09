@@ -9,8 +9,19 @@ import torch
 
 from aiter import dtypes, logger
 from aiter.test_common import checkAllclose
-
-_TASK_START_TIMES = None
+from aiter.utility.tuning_clock import (
+    TASK_EXECUTING as _TASK_EXECUTING,
+    TASK_PREPARING as _TASK_PREPARING,
+    TASK_QUEUED as _TASK_QUEUED,
+)
+from aiter.utility.tuning_clock import (
+    elapsed_since_task_start as _elapsed_since_task_start,
+    init_task_start_times as _init_task_start_times,
+    mark_task_execution_start as _mark_task_execution_start,
+    reset_task_start_times as _reset_task_start_times,
+    run_with_start_tracking as _run_with_start_tracking,
+    timeout_for_phase as _timeout_for_phase,
+)
 
 
 def _is_mapping_error(exc: BaseException) -> bool:
@@ -19,33 +30,6 @@ def _is_mapping_error(exc: BaseException) -> bool:
 
 def _is_accelerator_error(exc: BaseException) -> bool:
     return type(exc).__name__ == "AcceleratorError"
-
-
-def _init_task_start_times(task_start_times):
-    global _TASK_START_TIMES
-    _TASK_START_TIMES = task_start_times
-
-
-def _run_with_start_tracking(task_index, func, args):
-    if _TASK_START_TIMES is None:
-        raise RuntimeError("Task start-time storage is not initialized")
-    _TASK_START_TIMES[task_index] = time.monotonic()
-    return func(*args)
-
-
-def _elapsed_since_task_start(task_start_times, task_index, now=None):
-    started_at = task_start_times[task_index]
-    if started_at == 0:
-        return None
-    current_time = time.monotonic() if now is None else now
-    return current_time - started_at
-
-
-def _reset_task_start_times(task_start_times, task_indices):
-    """Mark tasks as queued again, so a resubmit is not judged against the
-    timestamp its previous attempt left behind."""
-    for k in task_indices:
-        task_start_times[k] = 0
 
 
 def _merge_error_ratio(current, observed):
@@ -341,6 +325,8 @@ def work_group(GPUIDMap, fast_mode, err_ratio, in_data, tasks, verbose=False):
             )
 
             # Run worker with explicit GPU ID
+            if not getattr(func, "_starts_execution_clock", False):
+                _mark_task_execution_start()
             ret = worker(*work_args)
             rets.append(ret)
         return rets
@@ -372,6 +358,7 @@ def mp_tuner(
     shape_grouped=False,
     err_ratio=0.05,
     timeout=None,
+    build_timeout=7200,
     verbose=False,  # print verbose log
 ):
     """Multi-process tuner with GPU fault isolation.
@@ -387,7 +374,9 @@ def mp_tuner(
         fast_mode: Skip result comparison if True
         shape_grouped: Group tasks by shape
         err_ratio: Error tolerance ratio
-        timeout: Timeout in seconds for each task group (None = no timeout)
+        timeout: Timeout in seconds for GPU execution (None = no timeout)
+        build_timeout: Timeout in seconds for data generation and lazy JIT builds
+            (None = no build watchdog)
 
     Returns:
         List of (info, latency, error_ratio) tuples
@@ -441,6 +430,8 @@ def mp_tuner(
         """Submit tasks to the pool and return async results as a dict"""
         task_indices = list(task_indices)
         _reset_task_start_times(task_start_times, task_indices)
+        for k in task_indices:
+            task_phases[k] = _TASK_QUEUED
         return {
             k: pool.apply_async(
                 _run_with_start_tracking,
@@ -462,10 +453,11 @@ def mp_tuner(
 
     # Create initial pool and submit all tasks
     task_start_times = mp.RawArray("d", len(task_group))
+    task_phases = mp.RawArray("i", len(task_group))
     pool = mp.Pool(
         processes=parallel_num,
         initializer=_init_task_start_times,
-        initargs=(task_start_times,),
+        initargs=(task_start_times, task_phases),
     )
     pids = [pool.apply_async(get_pid) for i in range(start_idx, mp_num)]
     gpu_map = {el.get(): i + start_idx for i, el in enumerate(pids)}
@@ -521,9 +513,15 @@ def mp_tuner(
                         continue
                     actual_timeout = 0
                 elif timeout is not None:
-                    remaining_time = timeout - elapsed
-                    # Use the smaller of check_interval and remaining_time, but at least 1 second
-                    actual_timeout = max(1, min(check_interval, remaining_time))
+                    phase_timeout = _timeout_for_phase(
+                        task_phases, k, timeout, build_timeout
+                    )
+                    if phase_timeout is None:
+                        actual_timeout = check_interval
+                    else:
+                        remaining_time = phase_timeout - elapsed
+                        # Use the smaller of check_interval and remaining_time, but at least 1 second
+                        actual_timeout = max(1, min(check_interval, remaining_time))
                 else:
                     # No timeout set, use default check_interval
                     actual_timeout = check_interval
@@ -545,11 +543,23 @@ def mp_tuner(
                 # Check if this specific task has exceeded its timeout (only if timeout is set)
                 if timeout is not None:
                     elapsed = _elapsed_since_task_start(task_start_times, k)
+                    phase_timeout = _timeout_for_phase(
+                        task_phases, k, timeout, build_timeout
+                    )
 
-                    if elapsed is not None and elapsed > timeout:
+                    if (
+                        elapsed is not None
+                        and phase_timeout is not None
+                        and elapsed > phase_timeout
+                    ):
                         consecutive_timeouts += 1
 
-                        error_msg = f"[!] Task {k} timed out after {elapsed:.1f}s (limit: {timeout}s) - likely GPU hang or infinite loop"
+                        phase = (
+                            "build/preparation"
+                            if task_phases[k] == _TASK_PREPARING
+                            else "GPU execution"
+                        )
+                        error_msg = f"[!] Task {k} timed out in {phase} after {elapsed:.1f}s (limit: {phase_timeout}s)"
                         print(error_msg)
                         failed_tasks.append((k, "timeout"))
 
@@ -643,7 +653,7 @@ def mp_tuner(
             pool = mp.Pool(
                 processes=parallel_num,
                 initializer=_init_task_start_times,
-                initargs=(task_start_times,),
+                initargs=(task_start_times, task_phases),
             )
 
             # Recreate gpu_map for new processes (new PIDs)

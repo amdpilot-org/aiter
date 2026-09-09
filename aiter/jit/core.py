@@ -2090,6 +2090,9 @@ def compile_ops(
                     from ..test_common import log_args
 
                     log_args(func, *args, **kwargs)
+                from ..utility.tuning_clock import mark_task_execution_start
+
+                mark_task_execution_start()
                 # develop=True: torch.Tensor -> pybind aiter_tensor_t before C++ (activation, CAR, ...).
                 if develop:
                     convert, tensor_cls, raw_stream, current_device = (
@@ -2130,6 +2133,7 @@ def compile_ops(
             def custom_wrapper(*args, **kwargs):
                 return wrapper(*args, **kwargs)
 
+            custom_wrapper._starts_execution_clock = True
             return custom_wrapper
 
         else:
