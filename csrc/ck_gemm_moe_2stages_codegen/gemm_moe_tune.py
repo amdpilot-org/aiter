@@ -31,6 +31,7 @@ from aiter.fused_moe import (
     cktile_moe_stage2,
     fused_moe,
     fused_topk,
+    get_padded_M,
     moe_sorting,
     torch_moe,
     torch_moe_stage1,
@@ -5750,6 +5751,10 @@ class FmoeTuner(TunerCommon):
                 self.tunedf = None
             self.untunedf["gfx"] = get_gfx_runtime()
             self.untunedf["cu_num"] = self.get_cu_num()
+            self.untunedf["token"] = self.untunedf["token"].map(get_padded_M)
+            self.untunedf = self.untunedf.drop_duplicates(
+                subset=self.keys, keep="first"
+            )
             # Migrate a legacy tuned file that predates the gfx column so the
             # untuned-vs-tuned dedup below (which now includes gfx) doesn't fail.
             if (
