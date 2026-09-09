@@ -332,9 +332,9 @@ def per_block_quant_wrapper(block_shape=(1, 128)):
     def decorator(per_token_quant_func):
         def wrapper(x, scale=None, quant_dtype=dtypes.i8):
             blk_m, blk_n = block_shape
-            assert x.shape[-1] % blk_n == 0, (
-                f"block size {blk_n} not match {x.shape[-1]}"
-            )
+            assert (
+                x.shape[-1] % blk_n == 0
+            ), f"block size {blk_n} not match {x.shape[-1]}"
             assert blk_m == 1, "only support 1xN block, TODO: support MxN"
             m, n = x.shape
             x = x.view(-1, blk_n)
@@ -612,9 +612,9 @@ def per_1x32_f4_quant_hip(
     the ``get_hip_quant(QuantType.per_1x32)`` lookup before MXFP8 support
     was added) keep working unchanged.
     """
-    assert quant_dtype == dtypes.fp4x2, (
-        "per_1x32_f4_quant_hip is fp4-only; use per_1x32_mx_quant_hip for fp8"
-    )
+    assert (
+        quant_dtype == dtypes.fp4x2
+    ), "per_1x32_f4_quant_hip is fp4-only; use per_1x32_mx_quant_hip for fp8"
     return per_1x32_mx_quant_hip(
         x,
         scale=scale,
