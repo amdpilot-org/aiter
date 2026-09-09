@@ -1,0 +1,71 @@
+===== GPU identity: rocm-smi =====
+WARNING: AMD GPU device(s) is/are in a low-power state. Check power control/runtime_status
+
+
+
+============================ ROCm System Management Interface ============================
+======================================= Unique ID ========================================
+GPU[0]		: Unique ID: 0x439e01ac3221d888
+==========================================================================================
+===================================== Serial Number ======================================
+GPU[0]		: Serial Number: 692440003981
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Instinct MI300X
+GPU[0]		: Card Model: 		0x74a1
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		M3000108
+GPU[0]		: Subsystem ID: 	0x74a1
+GPU[0]		: Device Rev: 		0x00
+GPU[0]		: Node ID: 		4
+GPU[0]		: GUID: 		61795
+GPU[0]		: GFX Version: 		gfx942
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+===== GPU identity: amd-smi =====
+GPU  XCP  POWER   GPU_T   MEM_T   GFX_CLK   GFX%   MEM%   ENC%   DEC%      VRAM_USAGE
+  0    0  148 W   43 °C   37 °C   132 MHz    0 %    0 %    N/A    0 %    0.3/192.0 GB
+===== Runtime identity =====
+hostname=banff-cyxtera-cx57-5
+kernel=Linux banff-cyxtera-cx57-5 5.15.0-70-generic #77-Ubuntu SMP Tue Mar 21 14:02:37 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux
+os=Ubuntu 22.04.5 LTS (Jammy Jellyfish)
+container_marker=/.dockerenv
+qualified_image=amdpilotv2/open-job-mi300:jit-config-readable-260909-banff5
+qualified_local_image_id=sha256:39fe745feda79ecf4c17f4d806d8ef12150bef720f2f07f5c63a20b3ccfd63f1
+docker_cli=podman_cli====== Python and native paths =====
+python=/opt/venv/bin/python
+python_version=3.10.12
+torch=2.9.1+rocm7.2.0.git7e1940d4
+torch_path=/opt/venv/lib/python3.10/site-packages/torch/__init__.py
+hip=7.2.26015-fc0010cf6a
+triton=3.7.0
+triton_path=/opt/venv/lib/python3.10/site-packages/triton/__init__.py
+aiter_path=/job/aiter/aiter/__init__.py
+routing=aiter.ops.triton.moe.moe_routing.routing.routing
+ep_sort_routing=aiter.ops.triton.moe.moe_routing.routing.ep_sort_routing
+device=AMD Instinct MI300X
+device_capability=(9, 4)
+===== Regression raw output =====
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /job/aiter/aiter/jit/module_aiter_core.so
+...
+=============================== warnings summary ===============================
+../../opt/venv/lib/python3.10/site-packages/Cython/Distutils/old_build_ext.py:15
+../../opt/venv/lib/python3.10/site-packages/Cython/Distutils/old_build_ext.py:15
+  /opt/venv/lib/python3.10/site-packages/Cython/Distutils/old_build_ext.py:15: DeprecationWarning: dep_util is Deprecated. Use functions from setuptools instead.
+    from distutils.dep_util import newer, newer_group
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 2 warnings in 7.61s
+pytest_exit=0
+===== Existing numerical gate status =====
+ssssssss                                                                 [100%]
+=============================== warnings summary ===============================
+../../opt/venv/lib/python3.10/site-packages/Cython/Distutils/old_build_ext.py:15
+../../opt/venv/lib/python3.10/site-packages/Cython/Distutils/old_build_ext.py:15
+  /opt/venv/lib/python3.10/site-packages/Cython/Distutils/old_build_ext.py:15: DeprecationWarning: dep_util is Deprecated. Use functions from setuptools instead.
+    from distutils.dep_util import newer, newer_group
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+8 skipped, 244 deselected, 2 warnings in 3.97s
+existing_gate_exit=0
