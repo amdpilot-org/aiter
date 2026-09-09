@@ -1,0 +1,82 @@
+{
+  "url": "https://api.github.com/repos/ROCm/aiter/issues/5039",
+  "repository_url": "https://api.github.com/repos/ROCm/aiter",
+  "labels_url": "https://api.github.com/repos/ROCm/aiter/issues/5039/labels{/name}",
+  "comments_url": "https://api.github.com/repos/ROCm/aiter/issues/5039/comments",
+  "events_url": "https://api.github.com/repos/ROCm/aiter/issues/5039/events",
+  "html_url": "https://github.com/ROCm/aiter/issues/5039",
+  "id": 5263367274,
+  "node_id": "I_kwDONNkFic8AAAABObicag",
+  "number": 5039,
+  "title": "[Bug] top_k_top_p_sampling_from_probs(deterministic=True) segfaults on gfx942 with some builds; original race attribution withdrawn",
+  "user": {
+    "login": "zzw09773",
+    "id": 88147279,
+    "node_id": "MDQ6VXNlcjg4MTQ3Mjc5",
+    "avatar_url": "https://avatars.githubusercontent.com/u/88147279?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/zzw09773",
+    "html_url": "https://github.com/zzw09773",
+    "followers_url": "https://api.github.com/users/zzw09773/followers",
+    "following_url": "https://api.github.com/users/zzw09773/following{/other_user}",
+    "gists_url": "https://api.github.com/users/zzw09773/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/zzw09773/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/zzw09773/subscriptions",
+    "organizations_url": "https://api.github.com/users/zzw09773/orgs",
+    "repos_url": "https://api.github.com/users/zzw09773/repos",
+    "events_url": "https://api.github.com/users/zzw09773/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/zzw09773/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 2,
+  "created_at": "2026-08-27T02:48:00Z",
+  "updated_at": "2026-08-27T03:24:57Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "CONTRIBUTOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Summary\n\n`csrc/cpp_itfs/utils.py` guards the *build* with a file lock but leaves both the **existence check**\nand the **`dlopen`** outside it. With one process per GPU, several workers can observe\n`lib.so` as existing while another is still writing it, and load a partially written object.\n\n### The window\n\n`csrc/cpp_itfs/utils.py` @ `main` `e9e1278b`:\n\n```python\ndef run_lib(func_name, folder=None):                                   # :273\n    ...\n    lib = ctypes.CDLL(f\"{BUILD_DIR}/{folder}/lib.so\", os.RTLD_LAZY)    # :276   ← unlocked load\n    return getattr(lib, func_name)\n\ndef not_built(folder):                                                 # :290\n    return not os.path.exists(f\"{BUILD_DIR}/{folder}/lib.so\")          # :291   ← unlocked check\n\ndef compile_template_op(...):                                          # :294\n    ...\n    if not_built(folder):                                              # :310   ← check\n        ...\n        compile_lib(src_file, folder, includes, sources, cxxflags)     # :319   ← lock lives in here\n    return run_lib(func_name, folder)                                  # :320   ← load\n```\n\n`mp_lock` (`:95`, `FileBaton`-based) is only entered inside `compile_lib` (`:269`). So the sequence\n\"exists? → no → build (locked)\" is safe against duplicate compilation, but\n\"exists? → yes → `dlopen`\" has no ordering relationship with another process's in-progress write,\nand neither does the `run_lib` that follows a *successful* build in a different process.\n\n### What we saw\n\n8× MI325X (gfx942, ROCm 7.2.3), vLLM with 8 worker processes, first run after a fresh build cache.\n**All 8 workers segfaulted** during sampler warm-up (8 identical traces: four within the same second, the remaining four as each reached the same point). The `cpp_itfs`-backed op we could identify on that path was\n`top_k_top_p_sampling_from_probs` (native trace top frame `top_k_top_p_sampling_from_probs_<hash>`).\nOur container filesystem is ephemeral, so every boot starts from an empty build cache and all\n8 workers reach the op's first use together. Gating that op off (native sampler) removes the\ncrash; in the same boot, a module that goes through `aiter/jit/core.py`'s baton-locked path\n(`module_custom_all_reduce`, rebuilt for gfx942 by all 8 workers) did not crash — consistent\nwith a race in this path rather than a miscompilation.\n\nThe window is generic to `compile_template_op`, not specific to the sampler.\n\n### Suggested fix\n\nEither:\n\n**(a)** put check → compile → load inside the same `mp_lock`, or\n\n**(b)** make the artifact appear atomically: compile to a temporary path in the same directory and\n`os.rename()` it into place. `rename` within a filesystem is atomic, so `os.path.exists()` can never\nobserve a partial object and existing readers keep their mapping. This is cheaper than (a) because\nit does not serialize the readers.\n\n(b) also removes the need for the check and the load to agree about anything.\n\n### Reproduction\n\n1. Clear `$HOME/.aiter/build`.\n2. Launch N processes (N ≥ 4) that all call the same `compile_template_op`-backed op at once.\n3. Some fraction crash in the loader. It is timing-dependent; a slower filesystem widens the window.\n\n### What we verified / did not verify\n\n- **Verified:** the code shape above on `main` @ `e9e1278b`; that all 8 workers crashed on first use\n  and that gating the op off removes the crash.\n- **Not** verified: that we captured a partially-written `lib.so` in the act. The evidence is the\n  code shape, the crash signature and the contrast with the baton-locked path, not a direct\n  observation of the truncated file. We did not attempt `strace`/`ltrace` under load, nor a\n  single-process pre-warm experiment.\n- Related but distinct: #4819 touches the same `cpp_itfs` sampling family (missing hipcub includes\n  under the ROCm 10 gate) — different problem, mentioning it only because it is the same directory.\n\n",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/ROCm/aiter/issues/5039/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/ROCm/aiter/issues/5039/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}
