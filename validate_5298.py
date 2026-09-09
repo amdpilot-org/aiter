@@ -127,7 +127,7 @@ def correctness_case(context_lens, batch, next_n, heads, dim, chunk_sizes):
 
 def latency_case():
     batch, next_n, heads, dim, context = 8, 5, 32, 128, 131072
-    inputs = make_inputs(batch, next_n, heads, dim, [context])
+    inputs = make_inputs(batch, next_n, heads, dim, [context] * batch)
     out = torch.empty(
         batch * next_n, context, device="cuda", dtype=torch.float32
     )
