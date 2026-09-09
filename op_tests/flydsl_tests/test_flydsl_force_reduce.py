@@ -4,6 +4,13 @@ from aiter import ActivationType, QuantType, dtypes
 from aiter.fused_moe import _force_flydsl_stage2_reduce, get_2stage_cfgs
 
 
+@pytest.fixture(autouse=True)
+def clear_2stage_cfg_cache():
+    get_2stage_cfgs.cache_clear()
+    yield
+    get_2stage_cfgs.cache_clear()
+
+
 @pytest.mark.parametrize("force", [False, True])
 def test_force_flydsl_stage2_reduce(force):
     v2_atomic = "flydsl_moe2_layout_afp4_wfp4_bf16_t16x128x256_atomic_persist_nt_sbm16"
