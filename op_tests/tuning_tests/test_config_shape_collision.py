@@ -6,8 +6,9 @@ Cross-file shape-collision guard for tuned config CSVs.
 At runtime ``aiter.jit.core.AITER_CONFIGS.get_config_file`` merges, per family,
 the canonical ``aiter/configs/<name>.csv`` with every
 ``aiter/configs/model_configs/*<name>*.csv``, then ``update_config_files``
-de-duplicates on a key derived from the matching *untuned* CSV's columns and
-**raises** if two rows collide.
+de-duplicates on a key derived from the matching *untuned* CSV's columns. It
+resolves valid collisions in the merged table and **raises** when a collision
+cannot be resolved (for example, when ``us`` is missing or invalid).
 
 A single PR's CI only ever merges *its own* changed file with current ``main``,
 so two PRs that each add the same shape to different model files both pass, then
@@ -15,11 +16,11 @@ break ``main`` once both land (cross-PR / merge-skew hazard). This test drives
 the **real runtime merge** so the collision is caught statically -- there is no
 re-implementation of the merge/dedup/key logic here, so it cannot drift.
 
-How it stays side-effect free: ``update_config_files`` writes de-duplicated CSVs
-back to their source paths when it finds collisions. We copy the entire
+How it stays side-effect free: ``update_config_files`` does not modify source
+CSVs when it resolves collisions. We copy the entire
 ``aiter/configs/`` tree to a temp dir and point ``core.AITER_ROOT_DIR`` at it, so
-all globbing, untuned-key lookups, and any write-backs hit the copy, never the
-real repo.
+all globbing, untuned-key lookups, and any writes hit the copy, never the real
+repo.
 
 Requires torch (importing ``aiter`` pulls it in); it does not need a GPU. It is
 **not yet wired into any CI workflow** -- run it manually in a torch-enabled
@@ -133,7 +134,8 @@ class TestConfigShapeCollision(unittest.TestCase):
     def _build_synthetic_family(root, dup):
         """Write a minimal isolated config tree for one family and return
         (env_name, name). With dup=True the model file duplicates the canonical
-        row's key; with dup=False it uses a distinct shape. Uses the
+        row's key with a missing ``us`` value; with dup=False it uses a distinct
+        shape. Uses the
         a8w8_blockscale family (untuned key = M,N,K)."""
         name = "a8w8_blockscale_tuned_gemm"
         env_name = "AITER_CONFIG_GEMM_A8W8_BLOCKSCALE"
@@ -151,7 +153,7 @@ class TestConfigShapeCollision(unittest.TestCase):
             os.path.join(cfg, "model_configs", f"selfcheck_{name}.csv"), "w"
         ) as f:
             f.write(header)
-            f.write(f"gfx950,256,{model_shape},20.0\n")
+            f.write(f"gfx950,256,{model_shape},\n")
         return env_name, name
 
     def _run_synthetic(self, dup):
@@ -169,9 +171,9 @@ class TestConfigShapeCollision(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
     def test_selfcheck_detects_planted_duplicate(self):
-        """Positive control: a planted duplicate MUST be caught. If not, the
-        detection harness (temp copy / AITER_ROOT_DIR redirect / merge call) is
-        broken -- not the real config data."""
+        """Positive control: a planted unresolved duplicate MUST be caught. If
+        not, the detection harness (temp copy / AITER_ROOT_DIR redirect / merge
+        call) is broken -- not the real config data."""
         err = self._run_synthetic(dup=True)
         self.assertIsNotNone(
             err,
@@ -256,17 +258,14 @@ class TestConfigShapeCollision(unittest.TestCase):
 
 
 def _fix_real_tree():
-    """Resolve every family against the REAL checkout (not a temp copy) so
-    `update_config_files`' existing auto-dedup (keep lowest-`us` per shape) writes
-    the pruned CSVs back to the actual source files. Prints what changed; commit
-    the result and re-run without --fix to confirm clean.
+    """Resolve every family against the REAL checkout (not a temp copy).
 
-    This adds NO dedup logic -- it just triggers the write-back that
-    aiter/jit/core.py::update_config_files already performs, on real files."""
+    Valid duplicate rows are resolved only in the merged output. Source CSVs are
+    not modified; unresolved collisions still raise for manual correction."""
     if core is None:
         raise SystemExit(f"aiter.jit.core not importable: {_IMPORT_ERR}")
     core.AITER_ROOT_DIR = AITER_ROOT  # operate on this checkout's real configs
-    fixed = []
+    unresolved = []
     for env_name, name in FAMILIES:
         os.environ.pop(env_name, None)
         _cache_clear()
@@ -275,25 +274,25 @@ def _fix_real_tree():
             core.AITER_CONFIGS.get_config_file(env_name, default_file, name)
         except RuntimeError as e:
             if "duplicate shape" in str(e).lower():
-                fixed.append((name, str(e)))
+                unresolved.append((name, str(e)))
             else:
                 raise
-    if not fixed:
-        print("No duplicate shapes found; nothing to fix.")
+    if unresolved:
+        print(f"Found unresolved duplicate shapes in {len(unresolved)} family(ies):\n")
+        for name, msg in unresolved:
+            print(f"### {name}\n{msg}\n")
         return
-    print(f"Resolved duplicate shapes in {len(fixed)} family(ies):\n")
-    for name, msg in fixed:
-        print(f"### {name}\n{msg}\n")
+
     print(
-        "Source CSVs were rewritten (lowest-`us` row kept per shape). "
-        "Review `git diff`, commit, then re-run without --fix to confirm clean."
+        "No unresolved duplicate shapes found. Valid duplicate rows, if any, "
+        "were resolved in the merged output; source CSVs were not modified."
     )
 
 
 if __name__ == "__main__":
     if "--fix" in sys.argv:
-        # Modify the REAL config files in place. Read-only detection (the default)
-        # runs on a temp copy; --fix intentionally writes back to the checkout.
+        # Compatibility alias: check the REAL config files without modifying them.
+        # Read-only detection (the default) runs on a temp copy.
         sys.argv.remove("--fix")
         _fix_real_tree()
     else:

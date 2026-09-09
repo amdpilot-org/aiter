@@ -11,6 +11,7 @@ import re
 import shlex
 import shutil
 import sys
+import tempfile
 import time
 import traceback
 import types
@@ -410,36 +411,32 @@ class AITER_CONFIG:
                         f"Duplicate rows:\n{dup_rows.to_string(index=False)}"
                     )
 
+                us_values = pd.to_numeric(merge_df["us"], errors="coerce")
+                if us_values.isna().any():
+                    invalid_rows = merge_df[us_values.isna()]
+                    raise RuntimeError(
+                        f"Found {dup_count} duplicate shape entries during merge of '{merge_name}', "
+                        f"but one or more 'us' values are missing or non-numeric. "
+                        f"Please fix the invalid entries manually.\n"
+                        f"Duplicate rows:\n{dup_rows.to_string(index=False)}\n"
+                        f"Invalid rows:\n{invalid_rows.to_string(index=False)}"
+                    )
+
                 # Auto-dedup: globally determine best row (lowest 'us') per shape
-                best_row_index = set(
-                    merge_df.sort_values("us", kind="stable")
+                best_row_index = (
+                    merge_df.assign(__aiter_us=us_values)
+                    .sort_values("__aiter_us", kind="stable")
                     .drop_duplicates(subset=dedup_keys, keep="first")
                     .index
                 )
-
-                saved_files = []
-                offset = 0
-                for src_path, src_df in source_pairs:
-                    start, end = offset, offset + len(src_df)
-                    offset = end
-                    file_rows = merge_df.iloc[start:end]
-                    new_src_df = file_rows[
-                        file_rows.index.isin(best_row_index)
-                    ].reset_index(drop=True)
-                    if len(new_src_df) < len(src_df):
-                        new_src_df.to_csv(src_path, index=False)
-                        saved_files.append(
-                            f"  {src_path}: {len(src_df)} -> {len(new_src_df)} rows"
-                        )
-                saved_info = (
-                    "\n".join(saved_files) if saved_files else "  (no files updated)"
+                merge_df = merge_df.loc[best_row_index.sort_values()].reset_index(
+                    drop=True
                 )
-                raise RuntimeError(
+                logger.warning(
                     f"Found {dup_count} duplicate shape entries during merge of '{merge_name}'. "
                     f"Auto-resolved by keeping best performing (lowest 'us') for each shape "
-                    f"and saved back to source config files. Please re-run.\n"
-                    f"Duplicate rows:\n{dup_rows.to_string(index=False)}\n"
-                    f"Updated files:\n{saved_info}"
+                    f"in the merged config. Source config files were not modified.\n"
+                    f"Duplicate rows:\n{dup_rows.to_string(index=False)}"
                 )
         else:
             logger.warning(
@@ -448,7 +445,7 @@ class AITER_CONFIG:
 
         from pathlib import Path
 
-        config_path = Path("/tmp/aiter_configs/")
+        config_path = Path(tempfile.gettempdir()) / f"aiter_configs_{os.getuid()}"
         if not config_path.exists():
             config_path.mkdir(parents=True, exist_ok=True)
         new_file_path = f"{config_path}/{merge_name}.csv"
