@@ -3,7 +3,7 @@
 
 import torch
 
-from aiter import dtypes
+from aiter import QuantType, dtypes, get_hip_quant
 from aiter.ops.quant import per_tensor_quant_hip
 
 
@@ -83,6 +83,28 @@ def test_per_tensor_num_rows_factor():
     assert torch.allclose(scale, expected_scale.to(scale.device))
 
 
+def test_per_tensor_quant_lookup_active_rows():
+    torch.manual_seed(5256)
+    input = torch.randn(8, 128, dtype=dtypes.bf16, device="cuda")
+    _poison_padding(input, 3)
+    num_rows = torch.tensor([3], dtype=torch.int32, device="cuda")
+
+    quant_func = get_hip_quant(QuantType.per_Tensor)
+    output, scale = quant_func(
+        input,
+        quant_dtype=dtypes.fp8,
+        num_rows=num_rows,
+    )
+    expected, expected_scale = _reference(input, 3, dtypes.fp8)
+    torch.cuda.synchronize()
+
+    assert torch.allclose(
+        output.view(-1, output.shape[-1])[:3].float(),
+        expected.float(),
+    )
+    assert torch.allclose(scale, expected_scale.to(scale.device))
+
+
 def test_per_tensor_graph_replay():
     torch.manual_seed(5256)
     input = torch.randn(8, 128, dtype=dtypes.bf16, device="cuda")
@@ -133,4 +155,5 @@ def test_per_tensor_graph_replay():
 if __name__ == "__main__":
     test_per_tensor_active_rows()
     test_per_tensor_num_rows_factor()
+    test_per_tensor_quant_lookup_active_rows()
     test_per_tensor_graph_replay()
