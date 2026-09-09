@@ -571,6 +571,71 @@ def test_fmoe(
     return {"us": us2, "logits_diff": float(logits_diff)}
 
 
+def test_fmoe_4783_gfx942_blockscale_boundary():
+    if get_gfx() != "gfx942":
+        return
+
+    base_config = os.path.join(
+        os.path.dirname(aiter.__file__), "configs", "tuned_fmoe.csv"
+    )
+    old_cfg_2stages = aiter.fused_moe.cfg_2stages
+    try:
+        AITER_CONFIGS.get_config_file.cache_clear()
+        with (
+            override_env("AITER_CONFIG_FMOE", base_config),
+            override_env("AITER_BYPASS_TUNE_CONFIG", "1"),
+        ):
+            aiter.fused_moe.cfg_2stages = None
+            for token in (304, 336):
+                for model_dim in (1536, 2048, 6144):
+                    for inter_dim in (1536, 3072):
+                        metadata = get_2stage_cfgs(
+                            get_padded_M(token),
+                            model_dim,
+                            inter_dim,
+                            32,
+                            8,
+                            dtypes.bf16,
+                            dtypes.fp8,
+                            dtypes.fp8,
+                            aiter.QuantType.per_1x128,
+                            True,
+                            aiter.ActivationType.Silu,
+                            False,
+                            0,
+                            0,
+                        )
+                        assert metadata.run_1stage, (token, model_dim, inter_dim)
+                        assert metadata.stage2 is None, (token, model_dim, inter_dim)
+                        result = test_fmoe(
+                            dtype=dtypes.bf16,
+                            token=token,
+                            model_dim=model_dim,
+                            inter_dim=inter_dim,
+                            E=32,
+                            topk=8,
+                            actType=aiter.ActivationType.Silu,
+                            gateMode=GateMode.SEPARATED.value,
+                            qType=aiter.QuantType.per_128x128,
+                            AQDType=dtypes.fp8,
+                            WQDType=dtypes.fp8,
+                            use_g1u1=True,
+                            strict_accuracy=True,
+                            check_aot_cache=False,
+                        )
+                        assert result["logits_diff"] <= 0.01, (
+                            token,
+                            model_dim,
+                            inter_dim,
+                            result["logits_diff"],
+                        )
+                        gc.collect()
+                        torch.cuda.empty_cache()
+        AITER_CONFIGS.get_config_file.cache_clear()
+    finally:
+        aiter.fused_moe.cfg_2stages = old_cfg_2stages
+
+
 l_quant = [
     (aiter.QuantType.No, None, None),  # a16w16
     (aiter.QuantType.per_Tensor, dtypes.fp8, dtypes.fp8),  # a8w8
@@ -1402,6 +1467,7 @@ _case_iters = []
 if args.bm16_scale_boundary:
     test_bm16_tiled_scale_boundary()
 else:
+    test_fmoe_4783_gfx942_blockscale_boundary()
     test_output_buffer_contract()
     if not args.no_flydsl_csv:
         _case_iters.append(
