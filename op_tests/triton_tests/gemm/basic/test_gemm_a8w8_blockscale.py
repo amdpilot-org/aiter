@@ -249,6 +249,72 @@ def test_splitk_skip_reduce_shape():
     )
 
 
+def test_splitk_graph_replay():
+    M, K = 1, 12800
+    x, weight, _, x_scale, _, w_scale, _ = (
+        generate_gemm_a8w8_blockscale_inputs(
+            M,
+            5120,
+            K,
+            *block_shape,
+            output=False,
+            shuffle=False,
+        )
+    )
+    y = torch.empty((M, 5120), dtype=torch.bfloat16, device="cuda")
+    config = {
+        "BLOCK_SIZE_M": 128,
+        "BLOCK_SIZE_N": 128,
+        "BLOCK_SIZE_K": 128,
+        "GROUP_SIZE_M": 1,
+        "NUM_KSPLIT": 8,
+        "num_warps": 4,
+        "num_stages": 2,
+        "waves_per_eu": 2,
+        "matrix_instr_nonkdim": 16,
+        "cache_modifier": ".cg",
+    }
+    stream = torch.cuda.Stream()
+    stream.wait_stream(torch.cuda.current_stream())
+    with torch.cuda.stream(stream):
+        for _ in range(3):
+            gemm_a8w8_blockscale(
+                x,
+                weight,
+                x_scale,
+                w_scale,
+                dtype=torch.bfloat16,
+                y=y,
+                config=dict(config),
+            )
+        stream.synchronize()
+        graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(graph, stream=stream):
+            output = gemm_a8w8_blockscale(
+                x,
+                weight,
+                x_scale,
+                w_scale,
+                dtype=torch.bfloat16,
+                y=y,
+                config=dict(config),
+            )
+
+    torch.cuda.current_stream().wait_stream(stream)
+    torch.cuda.synchronize()
+    x.copy_((torch.rand_like(x, dtype=torch.float16) / 10).to(x.dtype))
+    weight.copy_((torch.rand_like(weight, dtype=torch.float16) / 10).to(weight.dtype))
+    x_scale.copy_(torch.rand_like(x_scale))
+    w_scale.copy_(torch.rand_like(w_scale))
+    reference = run_torch(x, weight, x_scale, w_scale)
+    graph.replay()
+    torch.cuda.synchronize()
+
+    assert config["NUM_KSPLIT"] == 8
+    assert output.shape == (M, 5120)
+    torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
+
+
 @pytest.mark.parametrize(
     "dtype, M, N, K, layout, output",
     [
