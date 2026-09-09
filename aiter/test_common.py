@@ -409,6 +409,29 @@ def get_trace_perf(prof, num_iters):
 
 _CATASTROPHIC_REL_THRESHOLD = 0.5
 
+_STRICT_ALLCLOSE_ENV = "AITER_STRICT_ALLCLOSE"
+
+
+def _strict_allclose_default():
+    """Read the strict-mode environment variable at call time."""
+    return os.environ.get(_STRICT_ALLCLOSE_ENV, "0").strip().lower() not in (
+        "",
+        "0",
+        "false",
+        "no",
+        "off",
+    )
+
+
+def _strict_failure(
+    msg, percent, num, numel, rtol, atol, tol_err_ratio, max_delta=None
+):
+    detail = "" if max_delta is None else f", max abs delta {max_delta:.6g}"
+    return AssertionError(
+        f"{msg}checkAllclose failed: {percent:.1%} ({num} of {numel}) elements "
+        f"exceed rtol={rtol} atol={atol}, above tol_err_ratio={tol_err_ratio}{detail}"
+    )
+
 
 def _relmag_catastrophic(actual_max_delta, b):
     """Relative-magnitude catastrophic heuristic.
@@ -488,7 +511,18 @@ def checkAllclose(
     max_abs_delta=None,
     catastrophic_check=False,
     mask=None,
+    strict=None,
 ):
+    """Compare tensors and return the ratio of mismatched elements.
+
+    ``strict`` controls whether exceeding ``tol_err_ratio`` raises instead of
+    only logging ``failed!``. ``None`` reads ``AITER_STRICT_ALLCLOSE`` on the
+    logging path; ``printLog=False`` keeps returning a ratio unless ``strict``
+    is explicitly true. Catastrophic mismatches always raise.
+    """
+    if strict is None:
+        strict = printLog and _strict_allclose_default()
+
     isClose = torch.isclose(a, b, rtol=rtol, atol=atol)
     # mask (bool, broadcastable to a/b): True = compare, False = ignore.
     # Error ratio is taken over the checked elements only.
@@ -520,6 +554,16 @@ def checkAllclose(
             percent = num / denom
             if not printLog:
                 if percent >= tol_err_ratio:
+                    if strict and percent > tol_err_ratio:
+                        raise _strict_failure(
+                            msg,
+                            percent,
+                            num,
+                            denom,
+                            rtol,
+                            atol,
+                            tol_err_ratio,
+                        )
                     return percent
                 is_cat = _catastrophic_check_silent(
                     a, b, max_abs_delta, catastrophic_check
@@ -536,6 +580,16 @@ def checkAllclose(
             percent = num / denom
             if not printLog:
                 if percent >= tol_err_ratio:
+                    if strict and percent > tol_err_ratio:
+                        raise _strict_failure(
+                            msg,
+                            percent,
+                            num,
+                            denom,
+                            rtol,
+                            atol,
+                            tol_err_ratio,
+                        )
                     return percent
                 is_cat = _catastrophic_check_silent(
                     a, b, max_abs_delta, catastrophic_check
@@ -579,6 +633,17 @@ def checkAllclose(
             raise AssertionError(
                 f"{msg}catastrophic error: max abs delta {actual_max_delta:.4f}, "
                 f"{percent:.1%} ({num} of {denom}) elements mismatch"
+            )
+        if strict and percent > tol_err_ratio:
+            raise _strict_failure(
+                msg,
+                percent,
+                num,
+                denom,
+                rtol,
+                atol,
+                tol_err_ratio,
+                actual_max_delta,
             )
         return percent
 
