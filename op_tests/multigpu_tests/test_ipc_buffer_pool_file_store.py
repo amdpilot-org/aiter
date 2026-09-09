@@ -18,6 +18,14 @@ from aiter.dist.parallel_state import (
 
 set_start_method("spawn", force=True)
 
+MESSAGE_SIZES = (
+    8 * 1024,
+    64 * 1024,
+    512 * 1024,
+    4 * 1024 * 1024,
+    16 * 1024 * 1024,
+)
+
 
 def ipc_buffer_pool_file_store_worker(world_size, worker_rank, store_path):
     device = torch.device(f"cuda:{worker_rank}")
@@ -56,30 +64,33 @@ def ipc_buffer_pool_file_store_worker(world_size, worker_rank, store_path):
         assert handles == list(range(world_size))
         assert offsets == [exchange] * world_size
 
-    numel = 1024
-    indices = torch.arange(numel, dtype=torch.float32)
-    values = (indices * (worker_rank + 1) * 0.125) % 17 - 8
-    input_tensor = values.to(device=device, dtype=torch.bfloat16)
-    reference = input_tensor.to(torch.float32).contiguous()
-    dist.all_reduce(reference, group=group.device_group)
+    for message_size in MESSAGE_SIZES:
+        numel = message_size // torch.bfloat16.itemsize
+        indices = torch.arange(numel, dtype=torch.float32)
+        values = (indices * (worker_rank + 1) * 0.125) % 17 - 8
+        input_tensor = values.to(device=device, dtype=torch.bfloat16)
+        reference = input_tensor.to(torch.float32).contiguous()
+        dist.all_reduce(reference, group=group.device_group)
 
-    output = group.all_reduce(input_tensor)
-    torch.cuda.synchronize()
-    assert torch.allclose(
-        output.float(), reference, rtol=2e-2, atol=2e-2
-    ), (worker_rank, "eager")
+        output = group.all_reduce(input_tensor)
+        torch.cuda.synchronize()
+        assert torch.allclose(
+            output.float(), reference, rtol=2e-2, atol=2e-2
+        ), (worker_rank, message_size, "eager")
 
-    graph = torch.cuda.CUDAGraph()
-    with graph_capture() as capture_context, torch.cuda.graph(
-        graph, stream=capture_context.stream
-    ):
-        graph_output = group.all_reduce(input_tensor)
-    graph_output.fill_(0)
-    graph.replay()
-    torch.cuda.synchronize()
-    assert torch.allclose(
-        graph_output.float(), reference, rtol=2e-2, atol=2e-2
-    ), (worker_rank, "graph")
+        graph = torch.cuda.CUDAGraph()
+        with graph_capture() as capture_context, torch.cuda.graph(
+            graph, stream=capture_context.stream
+        ):
+            graph_output = group.all_reduce(input_tensor)
+        graph_output.fill_(0)
+        graph.replay()
+        torch.cuda.synchronize()
+        assert torch.allclose(
+            graph_output.float(), reference, rtol=2e-2, atol=2e-2
+        ), (worker_rank, message_size, "graph")
+        del graph, graph_output, input_tensor, reference, output
+        torch.cuda.empty_cache()
 
     destroy_model_parallel()
     destroy_distributed_environment()
