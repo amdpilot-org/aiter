@@ -212,15 +212,15 @@ def compute_splitk_params(config: dict, K: int) -> dict:
 
         config["BLOCK_SIZE_K"] = max(config["BLOCK_SIZE_K"], 16)
 
-        # Round the SPLITK_BLOCK_SIZE to multiple of BLOCK_SIZE_K and update NUM_KSPLIT to again.
-        if config["NUM_KSPLIT"] > 1 and (
-            config["SPLITK_BLOCK_SIZE"] % config["BLOCK_SIZE_K"] != 0
-        ):
-            config["SPLITK_BLOCK_SIZE"] = (
-                triton.cdiv(config["SPLITK_BLOCK_SIZE"], config["BLOCK_SIZE_K"])
-                * config["BLOCK_SIZE_K"]
-            )
-            config["NUM_KSPLIT"] = triton.cdiv(K, config["SPLITK_BLOCK_SIZE"])
+        # Split-K partitions must start and end on K-tile boundaries. Rounding
+        # a partition up would make the last split read past K, so reduce the
+        # split count to the largest divisor of the K-tile count.
+        num_k_blocks = triton.cdiv(K, config["BLOCK_SIZE_K"])
+        while config["NUM_KSPLIT"] > 1 and num_k_blocks % config["NUM_KSPLIT"] != 0:
+            config["NUM_KSPLIT"] -= 1
+        config["SPLITK_BLOCK_SIZE"] = (
+            num_k_blocks // config["NUM_KSPLIT"]
+        ) * config["BLOCK_SIZE_K"]
 
     return config
 
