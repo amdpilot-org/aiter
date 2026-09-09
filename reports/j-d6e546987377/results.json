@@ -1,0 +1,72 @@
+{
+  "job_id": "j-d6e546987377",
+  "validation_head": "94996d72b232ac3e640c692e10d1d908710520a5",
+  "validation_clean": true,
+  "delivery_main_base": "f0321c0e8927d1d90a29385433f71e592b1c51f5",
+  "candidate_patch_base": "94996d72b232ac3e640c692e10d1d908710520a5",
+  "candidate_patch_merged": false,
+  "gpu": {
+    "count": 1,
+    "name": "AMD Instinct MI300X",
+    "architecture": "gfx942",
+    "capability": [9, 4]
+  },
+  "dtype": "torch.float8_e4m3fnuz",
+  "descales": {
+    "q": 0.004150390625,
+    "k": 0.004150390625,
+    "v": 0.004150390625
+  },
+  "softmax_scale": 0.08838834764831845,
+  "gates": {
+    "output_max_abs": 0.055,
+    "lse_max_abs": 0.01
+  },
+  "baseline_failures": [
+    {
+      "path": "fixed",
+      "sequence": 512,
+      "causal": true,
+      "output_max_abs": 0.0390625,
+      "lse_max_abs": 3.2928357124328613,
+      "neginf_agreement": true
+    },
+    {
+      "path": "varlen",
+      "sequence": 512,
+      "causal": true,
+      "output_max_abs": 0.04296875,
+      "lse_max_abs": 3.2909841537475586,
+      "neginf_agreement": true
+    }
+  ],
+  "candidate_fix_results": [
+    {
+      "path": "fixed",
+      "sequence": 512,
+      "causal": true,
+      "output_max_abs": 0.0390625,
+      "lse_max_abs": 0.0000019073486328125,
+      "passed_original_invocation": true
+    },
+    {
+      "path": "varlen",
+      "sequence": 512,
+      "causal": true,
+      "output_max_abs": 0.04296875,
+      "lse_max_abs": 0.0000019073486328125,
+      "passed_original_invocation": true
+    }
+  ],
+  "controls": [
+    {"path": "fixed", "sequence": 512, "causal": false, "passed": true, "lse_max_abs": 0.0000019073486328125},
+    {"path": "fixed", "sequence": 256, "causal": true, "passed": true, "lse_max_abs": 0.00000095367431640625},
+    {"path": "fixed", "sequence": 128, "causal": true, "passed": false, "reason": "RuntimeError: invalid argument for fmha_fwd"},
+    {"path": "fixed", "sequence": 128, "causal": false, "passed": false, "reason": "RuntimeError: invalid argument for fmha_fwd"},
+    {"path": "varlen", "sequence": 512, "causal": false, "passed": true, "lse_max_abs": 0.0000019073486328125},
+    {"path": "varlen", "sequence": 256, "causal": true, "passed": true, "lse_max_abs": 0.00000095367431640625},
+    {"path": "varlen", "sequence": 128, "causal": true, "passed": true, "lse_max_abs": 0.00000095367431640625},
+    {"path": "varlen", "sequence": 128, "causal": false, "passed": true, "lse_max_abs": 0.00000095367431640625}
+  ],
+  "other_pr29_runtime_rejections_checked": false
+}
