@@ -406,6 +406,88 @@ def test_splitk_graph_replay():
     torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
 
 
+def test_splitk_preshuffle_graph_replay():
+    M, K = 1, 12800
+    x, weight, weight_triton, x_scale, x_scale_shuffled, w_scale, _ = (
+        generate_gemm_a8w8_blockscale_inputs(
+            M,
+            5120,
+            K,
+            *block_shape,
+            output=False,
+            shuffle=True,
+        )
+    )
+    y = torch.empty((M, 5120), dtype=torch.bfloat16, device="cuda")
+    config = {
+        "BLOCK_SIZE_M": 32,
+        "BLOCK_SIZE_N": 64,
+        "BLOCK_SIZE_K": 128,
+        "GROUP_SIZE_M": 1,
+        "NUM_KSPLIT": 8,
+        "num_warps": 4,
+        "num_stages": 2,
+        "waves_per_eu": 2,
+        "matrix_instr_nonkdim": 16,
+        "cache_modifier": None,
+    }
+    stream = torch.cuda.Stream()
+    stream.wait_stream(torch.cuda.current_stream())
+    with torch.cuda.stream(stream):
+        for _ in range(3):
+            gemm_a8w8_blockscale_preshuffle(
+                x,
+                weight_triton,
+                x_scale_shuffled,
+                w_scale,
+                dtype=torch.bfloat16,
+                y=y,
+                config=dict(config),
+            )
+        stream.synchronize()
+        graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(graph, stream=stream):
+            output = gemm_a8w8_blockscale_preshuffle(
+                x,
+                weight_triton,
+                x_scale_shuffled,
+                w_scale,
+                dtype=torch.bfloat16,
+                y=y,
+                config=dict(config),
+            )
+
+    torch.cuda.current_stream().wait_stream(stream)
+    torch.cuda.synchronize()
+    (
+        x_other,
+        weight_other,
+        weight_triton_other,
+        x_scale_other,
+        x_scale_shuffled_other,
+        w_scale_other,
+        _,
+    ) = generate_gemm_a8w8_blockscale_inputs(
+        M,
+        5120,
+        K,
+        *block_shape,
+        output=False,
+        shuffle=True,
+    )
+    x.copy_(x_other)
+    weight_triton.copy_(weight_triton_other)
+    x_scale_shuffled.copy_(x_scale_shuffled_other)
+    w_scale.copy_(w_scale_other)
+    reference = run_torch(x, weight_other, x_scale_other, w_scale_other)
+    graph.replay()
+    torch.cuda.synchronize()
+
+    assert config["NUM_KSPLIT"] == 8
+    assert output.shape == (M, 5120)
+    torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
+
+
 @pytest.mark.parametrize(
     "dtype, M, N, K, layout, output",
     [
