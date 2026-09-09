@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 
+import pytest
 import torch
 
 from aiter import QuantType, dtypes, get_hip_quant
@@ -105,6 +106,39 @@ def test_per_tensor_quant_lookup_active_rows():
     assert torch.allclose(scale, expected_scale.to(scale.device))
 
 
+def test_per_tensor_active_rows_validation():
+    input = torch.randn(4, 128, dtype=dtypes.bf16, device="cuda")
+
+    with pytest.raises(AssertionError, match="num_rows must be int32"):
+        per_tensor_quant_hip(
+            input,
+            quant_dtype=dtypes.fp8,
+            num_rows=torch.tensor([2], dtype=torch.int64, device="cuda"),
+        )
+
+    with pytest.raises(AssertionError, match="num_rows must be on the input device"):
+        per_tensor_quant_hip(
+            input,
+            quant_dtype=dtypes.fp8,
+            num_rows=torch.tensor([2], dtype=torch.int32, device="cpu"),
+        )
+
+    with pytest.raises(AssertionError, match="num_rows must contain exactly one value"):
+        per_tensor_quant_hip(
+            input,
+            quant_dtype=dtypes.fp8,
+            num_rows=torch.tensor([2, 3], dtype=torch.int32, device="cuda"),
+        )
+
+    with pytest.raises(AssertionError, match="num_rows_factor must be positive"):
+        per_tensor_quant_hip(
+            input,
+            quant_dtype=dtypes.fp8,
+            num_rows=torch.tensor([2], dtype=torch.int32, device="cuda"),
+            num_rows_factor=0,
+        )
+
+
 def test_per_tensor_graph_replay():
     torch.manual_seed(5256)
     input = torch.randn(8, 128, dtype=dtypes.bf16, device="cuda")
@@ -156,4 +190,5 @@ if __name__ == "__main__":
     test_per_tensor_active_rows()
     test_per_tensor_num_rows_factor()
     test_per_tensor_quant_lookup_active_rows()
+    test_per_tensor_active_rows_validation()
     test_per_tensor_graph_replay()
