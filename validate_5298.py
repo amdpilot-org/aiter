@@ -138,7 +138,15 @@ def latency_case(block_size):
     out = torch.empty(
         batch * next_n, context, device="cuda", dtype=torch.float32
     )
-    configurations = [(64, 8), (128, 8), (256, 8), (512, 8), (256, 2)]
+    configurations = [
+        (64, 8),
+        (64, 4),
+        (64, 2),
+        (128, 8),
+        (256, 8),
+        (512, 8),
+        (256, 2),
+    ]
     for chunk_k, wave_per_eu in configurations:
         for _ in range(8):
             run_kernel(inputs, out, chunk_k, wave_per_eu)
