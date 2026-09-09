@@ -10,6 +10,7 @@ import torch
 from aiter import dtypes, logger
 from aiter.test_common import checkAllclose
 from aiter.utility.tuning_clock import (
+    TASK_BUILDING as _TASK_BUILDING,
     TASK_EXECUTING as _TASK_EXECUTING,
     TASK_PREPARING as _TASK_PREPARING,
     TASK_QUEUED as _TASK_QUEUED,
@@ -325,8 +326,6 @@ def work_group(GPUIDMap, fast_mode, err_ratio, in_data, tasks, verbose=False):
             )
 
             # Run worker with explicit GPU ID
-            if not getattr(func, "_starts_execution_clock", False):
-                _mark_task_execution_start()
             ret = worker(*work_args)
             rets.append(ret)
         return rets
@@ -556,7 +555,7 @@ def mp_tuner(
 
                         phase = (
                             "build/preparation"
-                            if task_phases[k] == _TASK_PREPARING
+                            if task_phases[k] == _TASK_BUILDING
                             else "GPU execution"
                         )
                         error_msg = f"[!] Task {k} timed out in {phase} after {elapsed:.1f}s (limit: {phase_timeout}s)"

@@ -26,6 +26,7 @@ from chip_info import get_gfx, get_gfx_list, get_gfx_runtime
 from cpp_extension import _jit_compile, executable_path, get_hip_version
 from file_baton import FileBaton
 from torch_guard import torch_compile_guard
+from ..utility.tuning_clock import mark_task_build_start, mark_task_execution_start
 
 AITER_REBUILD = int(os.environ.get("AITER_REBUILD", "0"))
 ENABLE_CK = int(os.environ.get("ENABLE_CK", "1")) != 0
@@ -1840,6 +1841,7 @@ def compile_ops(
 
                 if custom_build_args is None:
                     custom_build_args = {}
+                mark_task_build_start()
                 md_name = _md_name
                 try:
                     module = None
@@ -2090,8 +2092,6 @@ def compile_ops(
                     from ..test_common import log_args
 
                     log_args(func, *args, **kwargs)
-                from ..utility.tuning_clock import mark_task_execution_start
-
                 mark_task_execution_start()
                 # develop=True: torch.Tensor -> pybind aiter_tensor_t before C++ (activation, CAR, ...).
                 if develop:
@@ -2133,7 +2133,6 @@ def compile_ops(
             def custom_wrapper(*args, **kwargs):
                 return wrapper(*args, **kwargs)
 
-            custom_wrapper._starts_execution_clock = True
             return custom_wrapper
 
         else:

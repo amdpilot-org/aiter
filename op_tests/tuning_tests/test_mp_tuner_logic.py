@@ -400,11 +400,26 @@ class TestTaskExecutionTiming(unittest.TestCase):
         timeout_for_phase = tuner._timeout_for_phase
 
         self.assertEqual(
-            timeout_for_phase([tuner._TASK_PREPARING], 0, 5, 7200), 7200
+            timeout_for_phase([tuner._TASK_PREPARING], 0, 5, 7200), 5
+        )
+        self.assertEqual(
+            timeout_for_phase([tuner._TASK_BUILDING], 0, 5, 7200), 7200
         )
         self.assertEqual(
             timeout_for_phase([tuner._TASK_EXECUTING], 0, 5, 7200), 5
         )
+
+    def test_repeated_execution_marks_do_not_reset_deadline(self):
+        clock = importlib.import_module("aiter.utility.tuning_clock")
+        clock._TASK_START_TIMES = [100.0]
+        clock._TASK_PHASES = [clock.TASK_EXECUTING]
+        clock._CURRENT_TASK_INDEX = 0
+
+        clock.mark_task_execution_start()
+        clock.mark_task_build_start()
+
+        self.assertEqual(clock._TASK_START_TIMES[0], 100.0)
+        self.assertEqual(clock._TASK_PHASES[0], clock.TASK_EXECUTING)
 
 
 class TestTaskStartTimeReset(unittest.TestCase):
