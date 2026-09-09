@@ -2592,10 +2592,9 @@ def get_2stage_cfgs(
             ksplit = 0
         kernelName1 = cfg["kernelName1"]
         kernelName2 = cfg["kernelName2"]
-        if force_reduce:
-            kernelName2 = _force_flydsl_stage2_reduce(
-                kernelName2, force=force_reduce
-            )
+        kernelName2 = _force_flydsl_stage2_reduce(
+            kernelName2, force=force_reduce
+        )
         run_1stage = cfg.get("run_1stage", False)
         if not is_shuffled and not run_1stage:
             logger.warning(
