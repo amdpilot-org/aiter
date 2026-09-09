@@ -94,13 +94,14 @@ def gemm_a8w8_blockscale(
 
     if config is None:
         config, _ = _get_config(M, N, K, backend=backend)
+    else:
+        config = dict(config)
+
+    compute_splitk_params(config, K)
 
     if y is None and (config["NUM_KSPLIT"] == 1 or not skip_reduce):
         y = torch.empty((M, N), dtype=dtype, device=x.device)
 
-    config["SPLITK_BLOCK_SIZE"] = triton.cdiv(
-        K, config["NUM_KSPLIT"]
-    )  # How big each split_k partition is
     if config["NUM_KSPLIT"] > 1:
         y_pp = torch.empty(
             (config["NUM_KSPLIT"], M, N),
@@ -109,8 +110,6 @@ def gemm_a8w8_blockscale(
         )
     else:
         y_pp = None
-
-    compute_splitk_params(config, K)
 
     # Scale block sizes
     # TODO: need a better way to pass scale block sizes around
@@ -288,6 +287,8 @@ def gemm_a8w8_blockscale_preshuffle(
 
     if config is None:
         config, _ = _get_config(M, N, K, True, backend=backend)
+    else:
+        config = dict(config)
 
     # Triton 3.6 fails TritonAMDGPUConvertToBufferOps for gfx950 preshuffle
     # configs with three pipeline stages. Keep the tuned tile and split-K.
@@ -303,12 +304,11 @@ def gemm_a8w8_blockscale_preshuffle(
     if kernel_type_from_config is not None:
         kernel_type = kernel_type_from_config
 
+    compute_splitk_params(config, K)
+
     if y is None and (config["NUM_KSPLIT"] == 1 or not skip_reduce):
         y = torch.empty((M, N), dtype=dtype, device=x.device)
 
-    config["SPLITK_BLOCK_SIZE"] = triton.cdiv(
-        K, config["NUM_KSPLIT"]
-    )  # How big each split_k partition is
     if config["NUM_KSPLIT"] > 1:
         y_pp = torch.empty(
             (config["NUM_KSPLIT"], M, N),
@@ -317,15 +317,6 @@ def gemm_a8w8_blockscale_preshuffle(
         )
     else:
         y_pp = None
-
-    # If block size is greater than split k size, shrink the block size
-    if config["BLOCK_SIZE_K"] > config["SPLITK_BLOCK_SIZE"]:
-        config["BLOCK_SIZE_K"] = triton.next_power_of_2(config["SPLITK_BLOCK_SIZE"])
-        if config["BLOCK_SIZE_K"] > config["SPLITK_BLOCK_SIZE"]:
-            config["BLOCK_SIZE_K"] = config["BLOCK_SIZE_K"] // 4
-    config["BLOCK_SIZE_K"] = max(
-        config["BLOCK_SIZE_K"], 16
-    )  # minimum block size is 16 for perf
 
     # Scale block sizes
     # TODO: need a better way to pass scale block sizes around

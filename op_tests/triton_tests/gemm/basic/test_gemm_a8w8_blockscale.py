@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2024-2026, Advanced Micro Devices, Inc. All rights reserved.
 
+import copy
 import importlib
 import sys
 
@@ -14,6 +15,7 @@ from aiter.ops.triton.gemm.basic.gemm_a8w8_blockscale import (
     gemm_a8w8_blockscale_preshuffle,
 )
 from aiter.ops.triton.utils._triton import arch_info
+from aiter.ops.triton.utils.gemm_config_utils import compute_splitk_params
 from aiter.ops.triton.utils.types import get_fp8_dtypes, str_to_torch_dtype
 
 block_shape = (128, 128)
@@ -133,6 +135,118 @@ def generate_gemm_a8w8_blockscale_inputs(
         y = torch.empty((M, N), dtype=dtype, device="cuda").cuda()
 
     return x, weight, weight_shuffled, x_scale, x_scale_shuffled, w_scale, y
+
+
+@pytest.mark.parametrize(
+    "requested, actual",
+    [(1, 1), (2, 2), (3, 2), (4, 4), (5, 5), (7, 5), (8, 5)],
+)
+def test_splitk_partitions_align_to_k_tiles(requested, actual):
+    config = {"BLOCK_SIZE_K": 128, "NUM_KSPLIT": requested}
+    compute_splitk_params(config, 12800)
+
+    assert config["NUM_KSPLIT"] == actual
+    assert config["SPLITK_BLOCK_SIZE"] == 12800 // actual
+
+
+@pytest.mark.parametrize("K", [5120, 12800, 25600, 12864])
+@pytest.mark.parametrize("preshuffle", [False, True])
+def test_splitk_partition_boundary(K, preshuffle):
+    if preshuffle and K % block_shape[1] != 0:
+        pytest.skip("The preshuffle kernel requires K to be a multiple of 128.")
+
+    M = 1
+    x, weight, weight_triton, x_scale, x_scale_shuffled, w_scale, _ = (
+        generate_gemm_a8w8_blockscale_inputs(
+            M,
+            5120,
+            K,
+            *block_shape,
+            output=False,
+            shuffle=preshuffle,
+        )
+    )
+    reference = run_torch(x, weight, x_scale, w_scale)
+    config = {
+        "BLOCK_SIZE_M": 32 if preshuffle else 128,
+        "BLOCK_SIZE_N": 64 if preshuffle else 128,
+        "BLOCK_SIZE_K": 128,
+        "GROUP_SIZE_M": 1,
+        "NUM_KSPLIT": 8,
+        "num_warps": 4,
+        "num_stages": 2,
+        "waves_per_eu": 2,
+        "matrix_instr_nonkdim": 16,
+        "cache_modifier": None if preshuffle else ".cg",
+    }
+    original = copy.deepcopy(config)
+    if preshuffle:
+        output = gemm_a8w8_blockscale_preshuffle(
+            x,
+            weight_triton,
+            x_scale_shuffled,
+            w_scale,
+            config=config,
+        )
+    else:
+        output = gemm_a8w8_blockscale(
+            x,
+            weight,
+            x_scale,
+            w_scale,
+            config=config,
+        )
+
+    adjusted = compute_splitk_params(copy.deepcopy(original), K)
+    assert config == original
+    assert adjusted["SPLITK_BLOCK_SIZE"] % adjusted["BLOCK_SIZE_K"] == 0
+    padded_k = (K + adjusted["BLOCK_SIZE_K"] - 1) // adjusted["BLOCK_SIZE_K"]
+    padded_k *= adjusted["BLOCK_SIZE_K"]
+    assert K <= adjusted["NUM_KSPLIT"] * adjusted["SPLITK_BLOCK_SIZE"] <= padded_k
+    torch.testing.assert_close(output, reference, atol=0.01, rtol=1e-2)
+
+
+def test_splitk_skip_reduce_shape():
+    M, K = 1, 12800
+    x, weight, _, x_scale, _, w_scale, _ = (
+        generate_gemm_a8w8_blockscale_inputs(
+            M,
+            5120,
+            K,
+            *block_shape,
+            output=False,
+            shuffle=False,
+        )
+    )
+    reference = run_torch(x, weight, x_scale, w_scale)
+    config = {
+        "BLOCK_SIZE_M": 128,
+        "BLOCK_SIZE_N": 128,
+        "BLOCK_SIZE_K": 128,
+        "GROUP_SIZE_M": 1,
+        "NUM_KSPLIT": 8,
+        "num_warps": 4,
+        "num_stages": 2,
+        "waves_per_eu": 2,
+        "matrix_instr_nonkdim": 16,
+        "cache_modifier": ".cg",
+    }
+    output = gemm_a8w8_blockscale(
+        x,
+        weight,
+        x_scale,
+        w_scale,
+        config=config,
+        skip_reduce=True,
+    )
+
+    assert output.shape == (5, M, 5120)
+    torch.testing.assert_close(
+        output.sum(dim=0).to(reference.dtype),
+        reference,
+        atol=0.01,
+        rtol=1e-2,
+    )
 
 
 @pytest.mark.parametrize(
