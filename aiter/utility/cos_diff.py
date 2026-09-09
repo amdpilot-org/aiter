@@ -7,7 +7,6 @@ import torch
 __all__ = [
     "COS_DIFF_THRESHOLD",
     "COS_DIFF_ROW_ENERGY_FLOOR",
-    "combined_cos_diff",
     "rowwise_enabled",
     "worst_row_cos_diff",
 ]
@@ -64,11 +63,3 @@ def worst_row_cos_diff(x, y, energy_floor=COS_DIFF_ROW_ENERGY_FLOOR):
     error = ((x - y) ** 2).sum(dim=-1)[keep]
     energy = (ref_energy + result_energy)[keep]
     return (error / energy.clamp_min(1e-12)).max().item()
-
-
-def combined_cos_diff(x_rows, y_rows, whole_tensor_diff):
-    """Return the whole-tensor diff, raised to the worst row when enabled."""
-
-    if not rowwise_enabled() or x_rows.shape != y_rows.shape:
-        return whole_tensor_diff
-    return max(whole_tensor_diff, worst_row_cos_diff(x_rows, y_rows))

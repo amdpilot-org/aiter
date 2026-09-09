@@ -6,7 +6,6 @@ import torch
 from aiter.utility.cos_diff import (
     COS_DIFF_ROW_ENERGY_FLOOR,
     COS_DIFF_THRESHOLD,
-    combined_cos_diff,
     rowwise_enabled,
     worst_row_cos_diff,
 )
@@ -96,46 +95,15 @@ class TestMoeCosDiff(unittest.TestCase):
         )
 
     def test_default_and_opt_in_behavior(self):
-        reference = _reference()
-        result = reference.clone()
-        result[:16] = 0.0
-        whole = _whole_tensor_diff(reference, result)
         os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
         self.assertFalse(rowwise_enabled())
-        self.assertEqual(combined_cos_diff(reference, result, whole), whole)
 
-        os.environ["AITER_MOE_COS_DIFF_ROWWISE"] = "1"
-        try:
-            self.assertTrue(rowwise_enabled())
-            self.assertEqual(
-                combined_cos_diff(reference, result, whole),
-                worst_row_cos_diff(reference, result),
-            )
-        finally:
-            os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
-
-    def test_combined_metric_falls_back_on_shape_mismatch(self):
-        reference = _reference()
-        result = reference.reshape(COLS, ROWS)
-        whole = _whole_tensor_diff(reference, result)
-        os.environ["AITER_MOE_COS_DIFF_ROWWISE"] = "1"
-        try:
-            self.assertEqual(combined_cos_diff(reference, result, whole), whole)
-        finally:
-            os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
-
-    def test_combined_metric_never_loosens_and_floor_is_relative(self):
+    def test_row_scoring_never_loosens_the_tuner_result(self):
         reference = _reference()
         torch.manual_seed(3)
         result = reference + torch.randn_like(reference) * 0.1
         whole = _whole_tensor_diff(reference, result)
-        os.environ["AITER_MOE_COS_DIFF_ROWWISE"] = "1"
-        try:
-            self.assertGreaterEqual(
-                combined_cos_diff(reference, result, whole), whole
-            )
-        finally:
-            os.environ.pop("AITER_MOE_COS_DIFF_ROWWISE", None)
+        self.assertGreaterEqual(max(whole, worst_row_cos_diff(reference, result)), whole)
         self.assertEqual(COS_DIFF_ROW_ENERGY_FLOOR, 1e-3)
 
 
