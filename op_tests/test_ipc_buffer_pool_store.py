@@ -5,6 +5,11 @@ from aiter.dist.device_communicators.custom_all_reduce import IPCBufferPool
 
 
 def test_ipc_store_contract(tmp_path):
+    assert IPCBufferPool._SUPPORTED_STORE_TYPES == (
+        dist.TCPStore,
+        dist.FileStore,
+    )
+
     tcp_store = dist.TCPStore(
         host_name="127.0.0.1",
         port=0,
