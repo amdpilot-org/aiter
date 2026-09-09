@@ -96,6 +96,14 @@ def test_rmsnorm2d_fuseAdd(dtype, m, n):
 
     checkAllclose(a, c, atol=0.03, msg=msg)
     checkAllclose(res_a, res_c, msg="ck res check (T5_MODEL_LIKE)")
+    if dtype == torch.bfloat16 and n <= 8192:
+        assert torch.equal(res_b, res_a), "bf16 residual must use RNE"
+        nonzero = res_a != 0
+        signed_bias = (
+            (res_b.float().abs() - res_a.float().abs())
+            / res_a.float().abs().clamp_min(1e-30)
+        )[nonzero].mean()
+        assert signed_bias.abs().item() < 1e-6, "bf16 residual has signed bias"
     # checkAllclose(a, d, atol=0.03, msg='cu')
     # checkAllclose(res_a, res_d, atol=0.01, msg='cu res check')
 

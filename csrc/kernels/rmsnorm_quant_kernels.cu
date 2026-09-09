@@ -114,7 +114,20 @@ __global__ void add_rmsnorm_quant_kernel(
                     thread_data_i = load_vector_nbytes<DTYPE_I, thread_data_size, load_chunk_bytes, load_aux, interleave, interleave_size>(buffer_input, row_offset);
                 }
 
-                store_vector<DTYPE_I, float, thread_data_size, load_aux, interleave, interleave_size, num_load_inst, DTYPE_I>(buffer_residual_out, thread_data_float, row_offset);
+                if constexpr(!FUSE_QUANT && std::is_same_v<DTYPE_I, opus::bf16_t>)
+                {
+                    vec_i thread_data_residual_out;
+                    for(int i = 0; i < thread_data_size; i++)
+                    {
+                        thread_data_residual_out[i] = opus::fp32_to_bf16(
+                            thread_data_float[i], opus::number<0>{});
+                    }
+                    store_vector<DTYPE_I, DTYPE_I, thread_data_size, load_aux, interleave, interleave_size, num_load_inst, DTYPE_I>(buffer_residual_out, thread_data_residual_out, row_offset);
+                }
+                else
+                {
+                    store_vector<DTYPE_I, float, thread_data_size, load_aux, interleave, interleave_size, num_load_inst, DTYPE_I>(buffer_residual_out, thread_data_float, row_offset);
+                }
                 
                 if constexpr(use_prefetch)
                 {
