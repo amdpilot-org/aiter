@@ -1,0 +1,39 @@
+{
+  "image_id": "sha256:dfc9419089c338b5712da4841768b38b1ab79f3da41f8c58c3cd4dfcc1147ff1",
+  "image_note": "Task-supplied local image ID; it is not a registry digest.",
+  "gpu": {
+    "count": 1,
+    "name": "AMD Instinct MI300X",
+    "gfx_version": "gfx942",
+    "device_id": "0x74a1",
+    "guid": "39656"
+  },
+  "software": {
+    "python": "3.10.12",
+    "torch": "2.9.1+rocm7.2.0.git7e1940d4",
+    "hip": "7.2.26015-fc0010cf6a"
+  },
+  "commits": {
+    "mirror_main": "f0321c0e8927d1d90a29385433f71e592b1c51f5",
+    "upstream_candidate": "04906a670e187c6a6091c77e03ff3781cfd2867f"
+  },
+  "paths": {
+    "python_executable": "/opt/venv/bin/python",
+    "main_repo": "/job/aiter",
+    "candidate_repo": "/job/aiter-candidate",
+    "python_wrapper": "/job/aiter/aiter/ops/sampling.py",
+    "python_interface": "/job/aiter/csrc/cpp_itfs/sampling/top_k_renorm_probs.py",
+    "native_source": "/job/aiter/csrc/cpp_itfs/sampling/sampling.cuh",
+    "main_native_library": "/job/aiter-build-main/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so",
+    "candidate_native_library": "/job/aiter-build-candidate/build/top_k_renorm_probs_d41d8cd98f00b204e9800998ecf8427e/lib.so"
+  },
+  "build_caches": {
+    "main": "/job/aiter-build-main",
+    "candidate": "/job/aiter-build-candidate"
+  },
+  "upstream_context": {
+    "issue": "ROCm/aiter issue 5192",
+    "candidate_pr": "ROCm/aiter pull request 5191",
+    "upstream_state_at_test_time": "issue open; pull request open and unmerged"
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "label": "main-fault-repeat",
+  "environment": {
+    "image_id": "sha256:dfc9419089c338b5712da4841768b38b1ab79f3da41f8c58c3cd4dfcc1147ff1",
+    "git_commit": "f0321c0e8927d1d90a29385433f71e592b1c51f5",
+    "python_executable": "/opt/venv/bin/python",
+    "repo_root": "/job/aiter",
+    "aiter_root_dir": "/job/aiter-build-main",
+    "rocm_smi_returncode": 0,
+    "rocm_smi_stdout": "\n\n============================ ROCm System Management Interface ============================\n=========================================== ID ===========================================\nGPU[0]\t\t: Device Name: \t\tAMD Instinct MI300X\nGPU[0]\t\t: Device ID: \t\t0x74a1\nGPU[0]\t\t: Device Rev: \t\t0x00\nGPU[0]\t\t: Subsystem ID: \t0x74a1\nGPU[0]\t\t: GUID: \t\t39656\n==========================================================================================\n====================================== Product Info ======================================\nGPU[0]\t\t: Card Series: \t\tAMD Instinct MI300X\nGPU[0]\t\t: Card Model: \t\t0x74a1\nGPU[0]\t\t: Card Vendor: \t\tAdvanced Micro Devices, Inc. [AMD/ATI]\nGPU[0]\t\t: Card SKU: \t\tM3000108\nGPU[0]\t\t: Subsystem ID: \t0x74a1\nGPU[0]\t\t: Device Rev: \t\t0x00\nGPU[0]\t\t: Node ID: \t\t3\nGPU[0]\t\t: GUID: \t\t39656\nGPU[0]\t\t: GFX Version: \t\tgfx942\n==========================================================================================\n================================== End of ROCm SMI Log ===================================\n",
+    "rocm_smi_stderr": "WARNING: AMD GPU device(s) is/are in a low-power state. Check power control/runtime_status\n\n"
+  },
+  "cases": [
+    {
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 7.216,
+      "child_result": null,
+      "stdout_tail": "",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter/aiter/jit/module_aiter_core.so\nTraceback (most recent call last):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1083, in synchronize\n    return torch._C._cuda_synchronize()\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 348, in <module>\n    main()\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 340, in main\n    run_child_case(args)\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 266, in run_child_case\n    torch.cuda.synchronize()\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1082, in synchronize\n    with torch.cuda.device(device):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 536, in __exit__\n    self.idx = torch.cuda._maybe_exchange_device(self.prev_idx)\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n",
+      "case": {
+        "case_id": "per-row-v1048576-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          1048576
+        ]
+      },
+      "repeat": 1,
+      "passed": false
+    },
+    {
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 7.459,
+      "child_result": null,
+      "stdout_tail": "",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter/aiter/jit/module_aiter_core.so\nTraceback (most recent call last):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1083, in synchronize\n    return torch._C._cuda_synchronize()\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 348, in <module>\n    main()\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 340, in main\n    run_child_case(args)\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 266, in run_child_case\n    torch.cuda.synchronize()\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1082, in synchronize\n    with torch.cuda.device(device):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 536, in __exit__\n    self.idx = torch.cuda._maybe_exchange_device(self.prev_idx)\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n",
+      "case": {
+        "case_id": "per-row-v1048576-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          1048576
+        ]
+      },
+      "repeat": 2,
+      "passed": false
+    },
+    {
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 5.153,
+      "child_result": null,
+      "stdout_tail": "",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter/aiter/jit/module_aiter_core.so\nTraceback (most recent call last):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1083, in synchronize\n    return torch._C._cuda_synchronize()\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 348, in <module>\n    main()\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 340, in main\n    run_child_case(args)\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 266, in run_child_case\n    torch.cuda.synchronize()\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1082, in synchronize\n    with torch.cuda.device(device):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 536, in __exit__\n    self.idx = torch.cuda._maybe_exchange_device(self.prev_idx)\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n",
+      "case": {
+        "case_id": "per-row-v1048576-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          1048576
+        ]
+      },
+      "repeat": 3,
+      "passed": false
+    },
+    {
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 6.021,
+      "child_result": null,
+      "stdout_tail": "",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter/aiter/jit/module_aiter_core.so\nTraceback (most recent call last):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1083, in synchronize\n    return torch._C._cuda_synchronize()\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 348, in <module>\n    main()\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 340, in main\n    run_child_case(args)\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 266, in run_child_case\n    torch.cuda.synchronize()\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1082, in synchronize\n    with torch.cuda.device(device):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 536, in __exit__\n    self.idx = torch.cuda._maybe_exchange_device(self.prev_idx)\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n",
+      "case": {
+        "case_id": "per-row-v1048576-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          1048576
+        ]
+      },
+      "repeat": 4,
+      "passed": false
+    },
+    {
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 7.484,
+      "child_result": null,
+      "stdout_tail": "",
+      "stderr_tail": "[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running \"sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'\" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing\n[aiter] import [module_aiter_core] under /job/aiter/aiter/jit/module_aiter_core.so\nTraceback (most recent call last):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1083, in synchronize\n    return torch._C._cuda_synchronize()\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 348, in <module>\n    main()\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 340, in main\n    run_child_case(args)\n  File \"/job/aiter/reports/j-8e1daed2f804/reproduce_top_k_renorm_probs.py\", line 266, in run_child_case\n    torch.cuda.synchronize()\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 1082, in synchronize\n    with torch.cuda.device(device):\n  File \"/opt/venv/lib/python3.10/site-packages/torch/cuda/__init__.py\", line 536, in __exit__\n    self.idx = torch.cuda._maybe_exchange_device(self.prev_idx)\ntorch.AcceleratorError: HIP error: an illegal memory access was encountered\nSearch for `hipErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__HIPRT__TYPES.html for more information.\nHIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\nFor debugging consider passing AMD_SERIALIZE_KERNEL=3\nCompile with `TORCH_USE_HIP_DSA` to enable device-side assertions.\n\n",
+      "case": {
+        "case_id": "per-row-v1048576-k50-disabled",
+        "batch_size": 2,
+        "vocab_size": 1048576,
+        "dtype": "float32",
+        "layout": "contiguous",
+        "k_mode": "per-row",
+        "k_values": [
+          50,
+          1048576
+        ]
+      },
+      "repeat": 5,
+      "passed": false
+    }
+  ],
+  "summary": {
+    "total_runs": 5,
+    "passed": 0,
+    "failed": 5
+  }
+}
