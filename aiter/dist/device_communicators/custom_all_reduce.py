@@ -608,7 +608,8 @@ class IPCBufferPool:
         return self._gather_ipc_meta((handle, 0))
 
     def _gather_ipc_meta(self, shard_data) -> tuple[list, list]:
-        """Exchange IPC metadata (handle + offset) across all ranks via a KV store.
+        """Exchange IPC metadata (handle + offset) across all ranks via a
+        blocking KV store (TCPStore or FileStore).
 
         Each rank writes its serialised *shard_data* under a unique key, then
         reads every other rank's data.  ``store.get()`` blocks until the key
