@@ -1,3 +1,4 @@
+import ctypes
 import functools
 
 
@@ -22,6 +23,73 @@ def get_num_sms():
         return current_device.multi_processor_count
 
 
-def get_num_xcds():
-    # Currently, you can't query this programmatically. For gfx942/gfx950 it's 8, so we hardcode that here.
-    return 8
+_HIP_DEVICE_ATTRIBUTE_NUMBER_OF_XCCS = 10018
+_HIP_ERROR_INVALID_VALUE = 1
+_HIP_ERROR_NOT_SUPPORTED = 801
+_MIN_ROCM_MAJOR_WITH_XCC_ATTRIBUTE = 7
+_NUM_XCDS_COMPATIBILITY_FALLBACK = 8
+
+
+def _get_rocm_major() -> int:
+    import torch
+
+    hip_version = torch.version.hip
+    if not hip_version:
+        raise RuntimeError("torch.version.hip is unavailable")
+    return int(hip_version.split(".", 1)[0])
+
+
+def _query_num_xcds(
+    device_id: int, libhip: ctypes.CDLL, rocm_major: int
+) -> int:
+    value = ctypes.c_int(0)
+    status = libhip.hipDeviceGetAttribute(
+        ctypes.byref(value),
+        _HIP_DEVICE_ATTRIBUTE_NUMBER_OF_XCCS,
+        device_id,
+    )
+    if status in (_HIP_ERROR_INVALID_VALUE, _HIP_ERROR_NOT_SUPPORTED):
+        if rocm_major < _MIN_ROCM_MAJOR_WITH_XCC_ATTRIBUTE:
+            return _NUM_XCDS_COMPATIBILITY_FALLBACK
+        raise RuntimeError(
+            "hipDeviceGetAttribute(NumberOfXccs) is unsupported by this "
+            f"ROCm {rocm_major} runtime"
+        )
+    if status != 0:
+        raise RuntimeError(
+            f"hipDeviceGetAttribute(NumberOfXccs) failed with error {status} "
+            f"for device {device_id}"
+        )
+    if value.value <= 0:
+        raise RuntimeError(
+            f"hipDeviceGetAttribute(NumberOfXccs) returned {value.value} "
+            f"for device {device_id}"
+        )
+    return value.value
+
+
+@functools.lru_cache(maxsize=None)
+def _get_num_xcds(device_id: int) -> int:
+    libhip = ctypes.CDLL("libamdhip64.so")
+    return _query_num_xcds(device_id, libhip, _get_rocm_major())
+
+
+def get_num_xcds(device_id: int | None = None) -> int:
+    """Return the XCD count for a visible HIP device.
+
+    ``device_id`` uses the same visible-device ordinal as torch and HIP. The
+    compatibility fallback preserves the historical count when a runtime does
+    not recognize ``hipDeviceAttributeNumberOfXccs``.
+    """
+    import torch
+
+    if device_id is None:
+        device_id = torch.cuda.current_device()
+    elif (
+        not isinstance(device_id, int)
+        or isinstance(device_id, bool)
+        or device_id < 0
+        or device_id >= torch.cuda.device_count()
+    ):
+        raise ValueError(f"Invalid visible device ID: {device_id!r}")
+    return _get_num_xcds(device_id)
