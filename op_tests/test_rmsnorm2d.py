@@ -96,6 +96,74 @@ def test_rmsnorm2d_fuseAdd(dtype, m, n):
 
     checkAllclose(a, c, atol=0.03, msg=msg)
     checkAllclose(res_a, res_c, msg="ck res check (T5_MODEL_LIKE)")
+    if dtype == torch.bfloat16 and n <= 8192:
+        assert torch.equal(res_b, res_a), "bf16 residual must use RNE"
+        nonzero = res_a != 0
+        signed_bias = (
+            (res_b.float().abs() - res_a.float().abs())
+            / res_a.float().abs().clamp_min(1e-30)
+        )[nonzero].mean()
+        assert signed_bias.abs().item() < 1e-6, "bf16 residual has signed bias"
+        subnormal_input = torch.full(
+            (1, n), 9.18354962e-41, dtype=dtype, device="cuda"
+        )
+        subnormal_residual = subnormal_input.clone()
+        subnormal_out = torch.empty_like(subnormal_input)
+        subnormal_residual_out = torch.empty_like(subnormal_input)
+        aiter.rmsnorm2d_fwd_with_add(
+            subnormal_out,
+            subnormal_input,
+            subnormal_residual,
+            subnormal_residual_out,
+            weight,
+            1e-5,
+        )
+        subnormal_reference = (
+            subnormal_input.float() + subnormal_residual.float()
+        ).to(torch.bfloat16)
+        assert torch.equal(
+            subnormal_residual_out, subnormal_reference
+        ), "bf16 subnormal residual must use RNE"
+        negative_subnormal_input = torch.full(
+            (1, n), -9.18354962e-41, dtype=dtype, device="cuda"
+        )
+        negative_subnormal_residual = negative_subnormal_input.clone()
+        negative_subnormal_out = torch.empty_like(negative_subnormal_input)
+        negative_subnormal_residual_out = torch.empty_like(negative_subnormal_input)
+        aiter.rmsnorm2d_fwd_with_add(
+            negative_subnormal_out,
+            negative_subnormal_input,
+            negative_subnormal_residual,
+            negative_subnormal_residual_out,
+            weight,
+            1e-5,
+        )
+        negative_subnormal_reference = (
+            negative_subnormal_input.float() + negative_subnormal_residual.float()
+        ).to(torch.bfloat16)
+        assert torch.equal(
+            negative_subnormal_residual_out, negative_subnormal_reference
+        ), "bf16 negative subnormal residual must use RNE"
+        mixed_subnormal_input = torch.full(
+            (1, n), 9.18354962e-41, dtype=dtype, device="cuda"
+        )
+        mixed_subnormal_residual = torch.ones_like(mixed_subnormal_input)
+        mixed_subnormal_out = torch.empty_like(mixed_subnormal_input)
+        mixed_subnormal_residual_out = torch.empty_like(mixed_subnormal_input)
+        aiter.rmsnorm2d_fwd_with_add(
+            mixed_subnormal_out,
+            mixed_subnormal_input,
+            mixed_subnormal_residual,
+            mixed_subnormal_residual_out,
+            weight,
+            1e-5,
+        )
+        mixed_subnormal_reference = (
+            mixed_subnormal_input.float() + mixed_subnormal_residual.float()
+        ).to(torch.bfloat16)
+        assert torch.equal(
+            mixed_subnormal_residual_out, mixed_subnormal_reference
+        ), "bf16 mixed subnormal residual must use RNE"
     # checkAllclose(a, d, atol=0.03, msg='cu')
     # checkAllclose(res_a, res_d, atol=0.01, msg='cu res check')
 
