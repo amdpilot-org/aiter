@@ -179,25 +179,27 @@ def latency_case(block_size):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-large", action="store_true")
-    parser.add_argument("--kv-block-size", type=int, default=16)
+    parser.add_argument("--kv-block-sizes", default="16")
     args = parser.parse_args()
 
+    block_sizes = [int(value) for value in args.kv_block_sizes.split(",")]
     chunk_sizes = (64, 128, 256, 512)
-    if not args.skip_large:
+    for block_size in block_sizes:
+        if not args.skip_large:
+            correctness_case(
+                [131072] * 8, 8, 5, 32, 128, chunk_sizes, block_size
+            )
+        for context in (1, 15, 16, 17, 63, 64, 65, 127, 128, 129):
+            correctness_case(
+                [context], 1, 1, 32, 128, chunk_sizes, block_size
+            )
         correctness_case(
-            [131072] * 8, 8, 5, 32, 128, chunk_sizes, args.kv_block_size
+            [17] * 2, 2, 1, 32, 128, chunk_sizes, block_size
         )
-    for context in (1, 15, 16, 17, 63, 64, 65, 127, 128, 129):
         correctness_case(
-            [context], 1, 1, 32, 128, chunk_sizes, args.kv_block_size
+            [65] * 3, 3, 2, 32, 128, chunk_sizes, block_size
         )
-    correctness_case(
-        [17] * 2, 2, 1, 32, 128, chunk_sizes, args.kv_block_size
-    )
-    correctness_case(
-        [65] * 3, 3, 2, 32, 128, chunk_sizes, args.kv_block_size
-    )
-    latency_case(args.kv_block_size)
+        latency_case(block_size)
 
 
 if __name__ == "__main__":
