@@ -71,7 +71,8 @@ template<typename T, typename V>
 __device__ inline typename T::D_ACC attn_row_max(const V& v_s) {
     using D_ACC = typename T::D_ACC;
     constexpr opus::index_t s_len = opus::vector_traits<V>::size();
-    D_ACC row_max = -1e30f;
+    // Keep fully masked tiles finite without clipping any finite fp32 score.
+    D_ACC row_max = opus::numeric_limits<D_ACC>::lowest();
     opus::static_for<s_len>([&](auto i) { row_max = max(row_max, v_s[i.value]); });
     opus::vector_t<opus::u32_t, 2> res = __builtin_amdgcn_permlane32_swap(
         std::bit_cast<opus::u32_t>(row_max), std::bit_cast<opus::u32_t>(row_max), false, true);
@@ -79,21 +80,21 @@ __device__ inline typename T::D_ACC attn_row_max(const V& v_s) {
 }
 
 template<typename T, typename V>
-__device__ inline void attn_scale_sub_row(V& v_s, typename T::D_ACC scale, typename T::D_ACC row_max) {
+__device__ inline void attn_sub_row(V& v_s, typename T::D_ACC row_max) {
     constexpr opus::index_t s_len = opus::vector_traits<V>::size();
     opus::static_for<s_len>([&](auto i) { 
-        v_s[i.value] = __builtin_fmaf(v_s[i.value], scale, -row_max); 
+        v_s[i.value] -= row_max;
         asm volatile("" : "+v"(v_s[i.value]));
     });
 }
 
-// Sliced scale-sub (`v_s*scale - row_max`) over [Offset, Offset+Count) so the work can be
+// Sliced sub (`v_s - row_max`) over [Offset, Offset+Count) so the work can be
 // spread across compute stages (mirrors attn_exp2_slice).
 template<typename T, opus::index_t Offset, opus::index_t Count, typename V>
-__device__ inline void attn_scale_sub_row_slice(V& v_s, typename T::D_ACC scale, typename T::D_ACC row_max) {
+__device__ inline void attn_sub_row_slice(V& v_s, typename T::D_ACC row_max) {
     opus::static_for<Count>([&](auto i) {
         constexpr opus::index_t idx = Offset + i.value;
-        v_s[idx] = __builtin_fmaf(v_s[idx], scale, -row_max);
+        v_s[idx] -= row_max;
         asm volatile("" : "+v"(v_s[idx]));
     });
 }
@@ -659,7 +660,7 @@ __device__ __attribute__((always_inline)) void gqa_d192_v128_impl(opus_gqa_d192_
     constexpr index_t s_len      = T::GEMM0_E_N * (T::W_M * T::W_N / T::WARP_SIZE); // 32
     constexpr index_t s_half_len = s_len / 2;                                       // 16
     constexpr index_t s_quarter  = s_half_len / 2;                                  // 8
-    // scale-sub slice moved forward into stage5 (rest stays in stage7): stagger 12, non-stagger 6.
+    // sub slice moved forward into stage5 (rest stays in stage7): stagger 12, non-stagger 6.
     constexpr index_t STAGE5_SUB_CNT = STAGGER ? 12 : 6;
     constexpr index_t S_SU_LEN = T::GEMM0_E_N_SU * (T::W_M * T::W_N / T::WARP_SIZE); // 16
     constexpr index_t O_SU_LEN = T::GEMM1_E_N_SU * (T::W_M * T::W_N / T::WARP_SIZE); // 32
@@ -919,14 +920,14 @@ __device__ __attribute__((always_inline)) void gqa_d192_v128_impl(opus_gqa_d192_
 
             // stage5 [compute]: gemm1 su0(t-1); softmax-head(t) row-max + rescale decision.
             gemm1_su0(vs_prev.p);
-            D_ACC row_max = temperature_scale * attn_row_max<T>(vs_cur.s);
+            D_ACC row_max = attn_row_max<T>(vs_cur.s);
             bool below_thresh = ((row_max - m_row) <= RESCALE_THRESHOLD);
             bool all_below = (__builtin_amdgcn_ballot_w64(below_thresh) == __builtin_amdgcn_read_exec());
             row_max = all_below ? m_row : max(m_row, row_max);
             asm volatile("" : "+v"(row_max) ::);
-            // scale-sub a leading slice (STAGE5_SUB_CNT) of the S tile here (moved forward
+            // subtract a leading slice (STAGE5_SUB_CNT) of the S tile here (moved forward
             // from stage7); the rest stays in stage7. Pin vs_cur so it stays in this stage.
-            attn_scale_sub_row_slice<T, 0, STAGE5_SUB_CNT>(vs_cur.s, temperature_scale, row_max);
+            attn_sub_row_slice<T, 0, STAGE5_SUB_CNT>(vs_cur.s, row_max);
             asm volatile("" : "+v"(vs_cur.s) ::);
             sched_mfma_valu<2, 5, 3>();    // 6 MFMA × 6 VALU
             sched_mfma_valu<1, 6, 3>();
@@ -946,7 +947,7 @@ __device__ __attribute__((always_inline)) void gqa_d192_v128_impl(opus_gqa_d192_
 
             // stage7 [compute]: gemm1 su1(t-1) → full O update; softmax-head(t) sub+exp+rescale
             gemm1_su1(vs_prev.p);
-            attn_scale_sub_row_slice<T, STAGE5_SUB_CNT, s_len - STAGE5_SUB_CNT>(vs_cur.s, temperature_scale, row_max);
+            attn_sub_row_slice<T, STAGE5_SUB_CNT, s_len - STAGE5_SUB_CNT>(vs_cur.s, row_max);
             asm volatile("" : "+v"(vs_cur.s) ::);
             // stage7 co-exec: 8 MFMA; ~32 VALU (sub) + rescale mul. Pin vs_cur so the compiler
             // cannot sink the sub past the `if(!all_below)` branch below (d128 trick).
@@ -993,9 +994,9 @@ __device__ __attribute__((always_inline)) void gqa_d192_v128_impl(opus_gqa_d192_
 
     v_k = load<T::VEC_KV>(s_k[0], u_rk);
     load_v_async(s_v[0].ptr, u_gv, u_sv, tile_idx(0));
-    // auto v_q_f32 = opus::cast<float>(v_q);
-    // static_for<q_len>([&](auto i) { v_q_f32[i.value] *= temperature_scale; });
-    // v_q = opus::cast<D_ATTN>(v_q_f32);
+    auto v_q_f32 = opus::cast<float>(v_q);
+    static_for<q_len>([&](auto i) { v_q_f32[i.value] *= temperature_scale; });
+    v_q = opus::cast<D_ATTN>(v_q_f32);
     s_waitcnt_lgkmcnt(0_I); //wait LDS-K.blk[0].su0
     stage_end();
 
@@ -1022,8 +1023,8 @@ __device__ __attribute__((always_inline)) void gqa_d192_v128_impl(opus_gqa_d192_
             attn_mask_border_tile<T>(v_s0.s, seqlen_kv, 0, neg_inf_v, lane_id);
         }
     }
-    m_row = temperature_scale * attn_row_max<T>(v_s0.s);
-    attn_scale_sub_row<T>(v_s0.s, temperature_scale, m_row);
+    m_row = attn_row_max<T>(v_s0.s);
+    attn_sub_row<T>(v_s0.s, m_row);
     // head-exp of tile 0 moved to the first main-loop phase's tail (stage1/stage3, on v_s0).
     s_waitcnt_vmcnt(number<T::v_buffer_load_insts>{}); // wait vmem-K.blk[1]
     stage_end();
